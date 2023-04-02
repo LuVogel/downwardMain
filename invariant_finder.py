@@ -162,6 +162,12 @@ def get_groups(task, reachable_action_params=None) -> List[List[pddl.Atom]]:
 
     # TODO: move to appropriate space
     schematic_invariants = schematic_invariant_finder.get_schematic_invariants(invariants, reachable_action_params)
+    # add after delete (für <a, (c |> d) and not d) in folie b02 s16
+    #regr(q,o) ->_o q
+    # [e]_s consistent effectbedingung
+    # task anpassen (verkleinern, dann exlplore für grounding)
+    # for instance in c = c\sigma
+    # visitor pattern s
     return result
 
 
