@@ -63,6 +63,7 @@ def instantiate(task: pddl.Task, model: Any) -> Tuple[
             ]:
     relaxed_reachable = False
     fluent_facts = get_fluent_facts(task, model)
+
     init_facts = set()
     init_assignments = {}
     for element in task.init:
