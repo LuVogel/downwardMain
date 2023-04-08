@@ -17,19 +17,37 @@ def regression_rec(formula, effect, negated=False):
                 return True
         else:
             return formula
-    if formula.negate():
+    if isinstance(formula, NegatedAtom):
         return regression_rec(NegatedAtom.negate(Literal(formula)), effect, negated=True)
     if isinstance(formula, Disjunction):
         return Disjunction([regression_rec(formula.parts[0], effect), regression_rec(formula.parts[1], effect)])
     if isinstance(formula, Conjunction):
         return Conjunction([regression_rec(formula.parts[0], effect), regression_rec(formula.parts[1], effect)])
+    x = Atom.negate(formula)
+    y = eff_con(x, effect.pop(0)[1])
+    z = Atom.negate(y)
+    return Disjunction([eff_con(formula, effect), Conjunction(formula, Atom.negate(eff_con(Atom.negate(formula), effect)))])
+    print("nothing was true")
 
 
-def eff_con(effect):
-    pass
+
+def eff_con(formula, effect):
+    if type(effect) is bool:
+        if effect:
+            return False
+    if isinstance(effect, Conjunction):
+        return Disjunction([eff_con(formula, effect.parts[0]), eff_con(formula, effect.parts[1])])
+    if isinstance(effect, ConditionalEffect):
+        return Conjunction([effect.parts[0], eff_con(formula, effect.parts[1])])
+    if formula.__eq__(effect):
+        return True
+    return False
 
 
 def regression(formula, operator):
+    operator.precondition.dump()
+    print("\nop.add_eff: ", operator.add_effects, "\n")
+
     return Conjunction([operator.precondition, regression_rec(formula, operator.add_effects)])
 
 
@@ -59,8 +77,11 @@ def get_schematic_invariants(relaxed_reachable, atoms, actions, goal_list, axiom
     conj = Conjunction([A, B])
     disjunction = Disjunction([conj, C])
     action = actions[0]
-    z = regression(disjunction, action)
-    print("after regression: ", z)
+
+    action_temp = PropositionalAction(name="test", precondition=A, effects=[(A, B)], cost=1)
+    z = regression(B, action_temp)
+    print("after regression: ")
+    z.dump()
 
 
 
