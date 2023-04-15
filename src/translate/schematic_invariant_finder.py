@@ -8,6 +8,22 @@ from src.translate.pddl.conditions import *
 from src.translate import pddl
 
 
+
+def weaken(formula, operator):
+    eff_list1 = [formula]
+    eff_list2 = [formula]
+    for con, eff in operator.add_effects:
+        eff_list1.append(eff)
+        eff_list2.append(eff.negate)
+    for con, eff in operator.del_effects:
+        eff_list1.append(eff.negate)
+        eff_list2.append(eff)
+    first = Conjunction(eff_list1)
+    second = Conjunction(eff_list2)
+    formula = Union(formula, first, second)
+    return formula
+
+
 def regression_rec(formula, effect):
     if isinstance(formula, Truth):
         return Truth()
@@ -19,35 +35,33 @@ def regression_rec(formula, effect):
         return Disjunction([regression_rec(formula.parts[0], effect), regression_rec(formula.parts[1], effect)])
     if isinstance(formula, Conjunction):
         return Conjunction([regression_rec(formula.parts[0], effect), regression_rec(formula.parts[1], effect)])
-    x = Atom.negate(formula)
-    y = eff_con(x, effect[0][1])
-    z = None
-    if isinstance(y, Truth):
-        z = Falsity()
-    elif isinstance(y, Falsity):
-        z = Truth()
-    else:
-        z = Atom.negate(y)
-    return Disjunction([eff_con(formula, effect), Conjunction(formula, z)])
+    return Disjunction([eff_con(formula, effect), Conjunction([formula, eff_con(formula.negate(), effect).negate()])])
 
 
 def eff_con(formula, effect):
     if isinstance(effect, Truth):
         return Falsity()
     if isinstance(effect, Conjunction):
-        return Disjunction([eff_con(formula, effect.parts[0]), eff_con(formula, effect.parts[1])])
+        eff_con_list = []
+        for part in effect.parts:
+            eff_con_list.append(eff_con(formula, part))
+        return Disjunction(eff_con_list)
     if isinstance(effect, ConditionalEffect):
-        return Conjunction([effect.parts[0], eff_con(formula, effect.parts[1])])
+        return Conjunction([effect.condition, eff_con(formula, effect.effect)])
     if formula.__eq__(effect):
         return Truth()
     return Falsity()
 
 
 def regression(formula, operator):
-    operator.precondition.dump()
-    print("\nop.add_eff: ", operator.add_effects, "\n")
+    operator.dump()
+    eff_list = []
+    for cond, eff in operator.add_effects:
+        eff_list.append(eff)
+    for cond, eff in operator.del_effects:
+        eff_list.append(eff.negate())
+    return Conjunction([Conjunction(operator.precondition), regression_rec(formula, Conjunction(eff_list))])
 
-    return Conjunction([operator.precondition, regression_rec(formula, operator.add_effects)])
 
 
 # add after delete (für <a, (c |> d) and not d) in folie b02 s16
@@ -61,18 +75,27 @@ def regression(formula, operator):
 def get_schematic_invariants(relaxed_reachable, atoms, actions, goal_list, axioms,
                              reachable_action_params):
     print("\n1. relaxed_reachable\n", relaxed_reachable)
-    print("\n2. atoms:\n ", atoms)
-    print("\n3. actions\n", actions)
+    temp = 0
+    formula = None
+    for a in atoms:
+        if temp == 2:
+            formula = a
+        if temp == 15:
+            formula = Conjunction([a, formula])
+        temp += 1
+    temp = 0
+    action_temp = None
+    for a in actions:
+        if temp == 11:
+            action_temp = a
+        temp += 1
     print("\n4. goal_list\n", goal_list)
     print("\n5. axioms\n", axioms)
     print("\n6. reachable_action_params\n", reachable_action_params)
     print("\n\n")
-    A = Atom("A", [])
-    B = Atom("B", [])
-    C = Atom("C", [])
 
 
-    action_temp = PropositionalAction(name="test", precondition=A, effects=[(B,)], cost=1)
-    z = regression(B, action_temp)
+
+    z = regression(formula, action_temp)
     print("after regression: ")
     z.dump()
