@@ -1,66 +1,54 @@
-import copy
-import itertools
+from src.translate.pddl import Truth, Falsity, NegatedAtom, Disjunction, Conjunction, Atom
 from src.translate.pddl.effects import *
-from src.translate.pddl.actions import *
-from src.translate.pddl.axioms import *
-from src.translate.pddl.conditions import *
-
-from src.translate import pddl
 
 
+# TODO: wie action negieren?
+def negateAction(operator):
+    operator.name = "not " + operator.name
+    return operator
+
+# weaken: return {c \lor a | a \in A} U {c \lor \lnot a | a \in A}
 
 def weaken(formula, operator):
-    eff_list1 = [formula]
-    eff_list2 = [formula]
-    for con, eff in operator.add_effects:
-        eff_list1.append(eff)
-        eff_list2.append(eff.negate)
-    for con, eff in operator.del_effects:
-        eff_list1.append(eff.negate)
-        eff_list2.append(eff)
-    first = Conjunction(eff_list1)
-    second = Conjunction(eff_list2)
-    formula = Union(formula, first, second)
-    return formula
+    return Union(Disjunction([formula, operator]), Disjunction([formula, negateAction(operator)]))
 
 
 def regression_rec(formula, effect):
     if isinstance(formula, Truth):
-        return Truth()
+        return Truth().simplified()
     if isinstance(formula, Falsity):
-        return Falsity()
+        return Falsity().simplified()
     if isinstance(formula, NegatedAtom):
         return regression_rec(NegatedAtom.negate(Literal(formula)), effect)
     if isinstance(formula, Disjunction):
-        return Disjunction([regression_rec(formula.parts[0], effect), regression_rec(formula.parts[1], effect)])
+        return Disjunction([regression_rec(formula.parts[0], effect), regression_rec(formula.parts[1], effect)]).simplified()
     if isinstance(formula, Conjunction):
-        return Conjunction([regression_rec(formula.parts[0], effect), regression_rec(formula.parts[1], effect)])
-    return Disjunction([eff_con(formula, effect), Conjunction([formula, eff_con(formula.negate(), effect).negate()])])
+        return Conjunction([regression_rec(formula.parts[0], effect), regression_rec(formula.parts[1], effect)]).simplified()
+    return Disjunction([eff_con(formula, effect), Conjunction([formula, eff_con(formula.negate(), effect).negate()])]).simplified()
 
 
 def eff_con(formula, effect):
     if isinstance(effect, Truth):
-        return Falsity()
+        return Falsity().simplified()
     if isinstance(effect, Conjunction):
         eff_con_list = []
         for part in effect.parts:
             eff_con_list.append(eff_con(formula, part))
-        return Disjunction(eff_con_list)
+        return Disjunction(eff_con_list).simplified()
     if isinstance(effect, ConditionalEffect):
-        return Conjunction([effect.condition, eff_con(formula, effect.effect)])
+        return Conjunction([effect.condition, eff_con(formula, effect.effect)]).simplified()
     if formula.__eq__(effect):
-        return Truth()
-    return Falsity()
+        return Truth().simplified()
+    return Falsity().simplified()
 
 
 def regression(formula, operator):
-    operator.dump()
     eff_list = []
     for cond, eff in operator.add_effects:
         eff_list.append(eff)
-    for cond, eff in operator.del_effects:
-        eff_list.append(eff.negate())
-    return Conjunction([Conjunction(operator.precondition), regression_rec(formula, Conjunction(eff_list))])
+   # for cond, eff in operator.del_effects:
+      #  eff_list.append(eff)
+    return Conjunction([Conjunction(operator.precondition), regression_rec(formula, Conjunction(eff_list))]).simplified()
 
 
 
@@ -72,9 +60,10 @@ def regression(formula, operator):
 # visitor pattern s
 
 
+
+# TODO: input müsste schon invarianten enthalten und mögliche action. dann auch algorithmus abfoge implementieren
 def get_schematic_invariants(relaxed_reachable, atoms, actions, goal_list, axioms,
                              reachable_action_params):
-    print("\n1. relaxed_reachable\n", relaxed_reachable)
     temp = 0
     formula = None
     for a in atoms:
@@ -89,13 +78,17 @@ def get_schematic_invariants(relaxed_reachable, atoms, actions, goal_list, axiom
         if temp == 11:
             action_temp = a
         temp += 1
-    print("\n4. goal_list\n", goal_list)
-    print("\n5. axioms\n", axioms)
-    print("\n6. reachable_action_params\n", reachable_action_params)
-    print("\n\n")
 
-
-
-    z = regression(formula, action_temp)
+    a = Atom(predicate="on", args=["a", "d"])
+    b = Atom(predicate="on", args=["d", "c"])
+    conj = Conjunction([a, b])
+    print("conj: ")
+    conj.dump()
+    print("\naction: ")
+    action_temp.dump()
+    z = regression(conj, action_temp)
     print("after regression: ")
     z.dump()
+
+
+
