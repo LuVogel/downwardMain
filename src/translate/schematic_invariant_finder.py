@@ -2,7 +2,14 @@ from src.translate.pddl import Truth, Falsity, NegatedAtom, Disjunction, Conjunc
 from src.translate.pddl.effects import *
 
 
+#Besprechung: del und add effects --> del effects einfach negieren
+# rintannen: schmematische vs gegroundete invarianten.
+# invarianten: Kernaussagen von Blocksworld --> nicht für spezifisches problem
+# regression test mit Action die Conditional Effect hat
+
+
 # TODO: wie action negieren?
+# ist keine action sondern state-variable
 def negateAction(operator):
     operator.name = "not " + operator.name
     return operator
@@ -11,13 +18,14 @@ def negateAction(operator):
 
 def weaken(formula, operator):
     return Union(Disjunction([formula, operator]), Disjunction([formula, negateAction(operator)]))
+# anstatt Union set --> set hat union
 
 
 def regression_rec(formula, effect):
     if isinstance(formula, Truth):
-        return Truth().simplified()
+        return Truth()
     if isinstance(formula, Falsity):
-        return Falsity().simplified()
+        return Falsity()
     if isinstance(formula, NegatedAtom):
         return regression_rec(NegatedAtom.negate(Literal(formula)), effect)
     if isinstance(formula, Disjunction):
@@ -29,7 +37,7 @@ def regression_rec(formula, effect):
 
 def eff_con(formula, effect):
     if isinstance(effect, Truth):
-        return Falsity().simplified()
+        return Falsity()
     if isinstance(effect, Conjunction):
         eff_con_list = []
         for part in effect.parts:
@@ -37,9 +45,10 @@ def eff_con(formula, effect):
         return Disjunction(eff_con_list).simplified()
     if isinstance(effect, ConditionalEffect):
         return Conjunction([effect.condition, eff_con(formula, effect.effect)]).simplified()
-    if formula.__eq__(effect):
-        return Truth().simplified()
-    return Falsity().simplified()
+    if formula == effect:
+        #formula == effect!
+        return Truth()  # simplified streichen
+    return Falsity()
 
 
 def regression(formula, operator):
@@ -64,6 +73,8 @@ def regression(formula, operator):
 # TODO: input müsste schon invarianten enthalten und mögliche action. dann auch algorithmus abfoge implementieren
 def get_schematic_invariants(relaxed_reachable, atoms, actions, goal_list, axioms,
                              reachable_action_params):
+
+    print(atoms)
     temp = 0
     formula = None
     for a in atoms:
