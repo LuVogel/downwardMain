@@ -27,7 +27,7 @@ def regression_rec(formula, effect):
     if isinstance(formula, Falsity):
         return Falsity()
     if isinstance(formula, NegatedAtom):
-        return regression_rec(NegatedAtom.negate(Literal(formula)), effect)
+        return regression_rec(formula, effect).negate()
     if isinstance(formula, Disjunction):
         return Disjunction([regression_rec(formula.parts[0], effect), regression_rec(formula.parts[1], effect)]).simplified()
     if isinstance(formula, Conjunction):
@@ -46,8 +46,7 @@ def eff_con(formula, effect):
     if isinstance(effect, ConditionalEffect):
         return Conjunction([effect.condition, eff_con(formula, effect.effect)]).simplified()
     if formula == effect:
-        #formula == effect!
-        return Truth()  # simplified streichen
+        return Truth()
     return Falsity()
 
 
@@ -55,8 +54,9 @@ def regression(formula, operator):
     eff_list = []
     for cond, eff in operator.add_effects:
         eff_list.append(eff)
-   # for cond, eff in operator.del_effects:
-      #  eff_list.append(eff)
+    for cond, eff in operator.del_effects:
+        eff_list.append(eff.negate())
+    print("effect list in regression: ", eff_list)
     return Conjunction([Conjunction(operator.precondition), regression_rec(formula, Conjunction(eff_list))]).simplified()
 
 
