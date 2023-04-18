@@ -32,7 +32,20 @@ def regression_rec(formula, effect):
         return Disjunction([regression_rec(formula.parts[0], effect), regression_rec(formula.parts[1], effect)]).simplified()
     if isinstance(formula, Conjunction):
         return Conjunction([regression_rec(formula.parts[0], effect), regression_rec(formula.parts[1], effect)]).simplified()
-    return Disjunction([eff_con(formula, effect), Conjunction([formula, eff_con(formula.negate(), effect).negate()])]).simplified()
+    temp_effect = effect.simplified()
+    if isinstance(temp_effect, Conjunction):
+        eff_con_list = []
+        for part in temp_effect.parts:
+            eff_con_list.append(eff_con(formula, part))
+        return Disjunction(eff_con_list).simplified()
+    if isinstance(temp_effect, ConditionalEffect):
+        temp_formula = Conjunction([formula, temp_effect.condition])
+        temp_effect = temp_effect.effect
+    else:
+        temp_formula = formula
+    if temp_formula == temp_effect:
+        return Truth()
+    return Disjunction([eff_con(temp_formula, temp_effect), Conjunction([temp_formula, eff_con(temp_formula.negate(), temp_effect).negate()])]).simplified()
 
 
 def eff_con(formula, effect):
