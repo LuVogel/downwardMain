@@ -16,8 +16,13 @@ def negate_state_var(operator):
 
 # weaken: return {c \lor a | a \in A} U {c \lor \lnot a | a \in A}
 
-def weaken(formula, operator):
-    return set(Disjunction([formula, operator]), Disjunction([formula, negate_state_var(operator)]))
+def weaken(C, formula, predicates):
+    dis1 = [formula]
+    dis2 = [formula]
+    for pred in predicates:
+        dis1.append(pred)
+        dis2.append(pred.negate())
+    return set([C, Disjunction(dis1), Disjunction(dis2)])
 # anstatt Union set --> set hat union
 
 
@@ -91,22 +96,39 @@ def regression(formula, operator):
 
 # bei grosse Conjunction: for parts in Conjunction.parts --> regr(not parts, action)
 # bei Liste: for form in list: --> regr(not form, action)
+def is_sat(temp_union):
+    return True
+
+
 def get_schematic_invariants(relaxed_reachable, atoms, actions, goal_list, axioms,
-                             reachable_action_params, task_init):
+                             reachable_action_params, task):
+    task_init = task.init
+    task_predicates = task.predicates
     list_of_true_in_init = []
     for i in task_init:
         if i.predicate != "=":
             list_of_true_in_init.append(i)
+    # TODO: im moment werden nur init-Werte als Conjunction genommen. Also nur formulas welche true in initial state sind
     C = Conjunction(list_of_true_in_init)
     temp = 0
     action_temp = None
+    # contains all possible actions (not depending on inital state)
+    list_of_possible_actions = []
     for a in actions:
+        x = a.name.split()
+        if len(x) > 2:
+            y = x[2].split(")")
+            if x[1] != y[0]:
+                list_of_possible_actions.append(a)
+        else:
+            list_of_possible_actions.append(a)
         if temp == 11:
             action_temp = a
         temp += 1
     a = Atom(predicate="on", args=["a", "d"])
     b = Atom(predicate="on", args=["d", "c"])
 
+    print(list_of_possible_actions)
 
     conj = Conjunction([a, b])
     z = regression(conj, action_temp).simplified()
@@ -115,12 +137,16 @@ def get_schematic_invariants(relaxed_reachable, atoms, actions, goal_list, axiom
 
     while True:
         C_0 = C
-        for action in actions:
+        # TODO: unstack(a,d) in actions drin? wenn init alle ontable()?
+        for action in list_of_possible_actions:
+            # TODO: \lnot c\sigma --> im moment wird nur C.part[i].negate() genommen
             for c in C.parts:
                 x = regression(c.negate(), action)
-                print("x after regr: ")
-                x.dump()
                 temp_union = set([C_0, x])
-                print("temp_union: ", temp_union)
+                # TODO: is_sat --> im moment wird True zurück gegeben
+                if is_sat(temp_union):
+                    # TODO: Test weaken?
+                    C = weaken(C, c, task_predicates)
+
         return
 

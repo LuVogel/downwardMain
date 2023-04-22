@@ -560,7 +560,7 @@ def pddl_to_sas(task):
     with timers.timing("Computing schematic group", block=True):
         s_groups, s_mutex_groups, s_translation_key = schematic_invariant_finder.get_schematic_invariants(
             relaxed_reachable, atoms, actions, goal_list, axioms,
-            reachable_action_params, task.init)
+            reachable_action_params, task)
     with timers.timing("Computing fact groups", block=True):
         groups, mutex_groups, translation_key = fact_groups.compute_groups(
             task, atoms, reachable_action_params)
