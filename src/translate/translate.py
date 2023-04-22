@@ -549,7 +549,6 @@ def pddl_to_sas(task):
     with timers.timing("Instantiating", block=True):
         (relaxed_reachable, atoms, actions, goal_list, axioms,
          reachable_action_params) = instantiate.explore(task)
-
     if not relaxed_reachable:
         return unsolvable_sas_task("No relaxed solution")
     elif goal_list is None:
@@ -561,7 +560,7 @@ def pddl_to_sas(task):
     with timers.timing("Computing schematic group", block=True):
         s_groups, s_mutex_groups, s_translation_key = schematic_invariant_finder.get_schematic_invariants(
             relaxed_reachable, atoms, actions, goal_list, axioms,
-            reachable_action_params)
+            reachable_action_params, task.init)
     with timers.timing("Computing fact groups", block=True):
         groups, mutex_groups, translation_key = fact_groups.compute_groups(
             task, atoms, reachable_action_params)
