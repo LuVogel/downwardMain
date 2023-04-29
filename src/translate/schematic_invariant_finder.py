@@ -1,5 +1,5 @@
-from src.translate.pddl import Truth, Falsity, NegatedAtom, Disjunction, Conjunction, Atom
 from src.translate.pddl.effects import *
+from pddl.conditions import *
 
 
 #Besprechung: del und add effects --> del effects einfach negieren
@@ -8,10 +8,8 @@ from src.translate.pddl.effects import *
 # regression test mit Action die Conditional Effect hat
 
 
-# TODO: wie action negieren?
-# ist keine action sondern state-variable
+# ist keine action sondern state-variable --> oder doch effects? 2 Definitions 1. a and not a for state variables a in A are effects?
 def negate_state_var(operator):
-    operator.name = "not " + operator.name
     return operator
 
 # weaken: return {c \lor a | a \in A} U {c \lor \lnot a | a \in A}
@@ -23,11 +21,8 @@ def weaken(C, formula, predicates):
         dis1.append(pred)
         dis2.append(pred.negate())
     return set([C, Disjunction(dis1), Disjunction(dis2)])
-# anstatt Union set --> set hat union
 
 
-
-# add after delete?? vlt mal mit einfacherer aktion (mit weniger effects testen)
 def regression_rec(formula, effect):
     if isinstance(formula, Truth):
         return Truth()
@@ -56,19 +51,25 @@ def eff_con(atomic_effect, effect):
         return Disjunction(eff_con_list)
     if isinstance(effect, ConditionalEffect):
         return Conjunction([effect.condition, eff_con(atomic_effect, effect.effect)])
-    # TODO: atomic_effect == effect?
-    if atomic_effect.parts == effect.parts and atomic_effect.args == effect.args:
+    if atomic_effect == effect:
         return Truth()
     return Falsity()
 
 
-
+# TODO: condition weiter behalten und in liste hinzufügen --> falls cond nicht leer dann conditional effect sonst normaler effect
+# --> somit kann auch oben mit isinstance(effect, ConditionalEffect) geprüft werden.
 def regression(formula, operator):
     eff_list = []
     for cond, eff in operator.add_effects:
-        eff_list.append(eff)
+        if len(cond) == 0:
+            eff_list.append(eff)
+        else:
+            eff_list.append(ConditionalEffect(condition=cond, effect=eff))
     for cond, eff in operator.del_effects:
-        eff_list.append(eff.negate())
+        if len(cond) == 0:
+            eff_list.append(eff.negate())
+        else:
+            eff_list.append(ConditionalEffect(condition=cond, effect=eff))
     return Conjunction([Conjunction(operator.precondition), regression_rec(formula, Conjunction(eff_list))]).simplified()
 
 
@@ -100,8 +101,56 @@ def is_sat(temp_union):
     return True
 
 
+def create_invariant_candidates(task):
+    inv_list = []
+    name_arg_list = []
+    for pred in task.predicates:
+        if pred.name != "=":
+            arg_list = []
+            for arg in pred.arguments:
+                arg_list.append(arg.name)
+            name_arg_list.append((pred.name, arg_list))
+    obj_list = []
+    print(name_arg_list)
+    for obj in task.objects:
+        obj_list.append(obj.name)
+    for (name, args) in name_arg_list:
+        if len(args) == 0:
+            inv_list.append(Atom(predicate=name, args=[]))
+        elif len(args) == 1:
+            inv_list.append(Atom(predicate=name, args=[args[0]]))
+            for obj in obj_list:
+                inv_list.append(Atom(predicate=name, args=obj))
+        else:
+            for obj in obj_list:
+                for arg in args:
+                    inv_list.append(Atom(predicate=name, args=[obj, arg]))
+                    inv_list.append(Atom(predicate=name, args=[arg, obj]))
+                    for arg1 in args:
+                        if arg != arg:
+                            inv_list.append(Atom(predicate=name, args=[arg, arg1]))
+                            inv_list.append(Atom(predicate=name, args=[arg1, arg]))
+                for obj1 in obj_list:
+                    if obj != obj1:
+                        inv_list.append(Atom(predicate=name, args=[obj1, obj]))
+                        inv_list.append(Atom(predicate=name, args=[obj, obj1]))
+    print(inv_list)
 def get_schematic_invariants(relaxed_reachable, atoms, actions, goal_list, axioms,
                              reachable_action_params, task):
+    print("relaxed reachable: ", relaxed_reachable)
+    print("atoms: ", atoms)
+    print("actions: ", actions)
+    print("goal_list: ", goal_list)
+    print("axioms: ", axioms)
+    print("reachable_action_params: ", reachable_action_params)
+    print("task: ", task)
+    print("task_pred: ")
+    for pred in task.predicates:
+        print(pred)
+    print("task_objects: ", task.objects)
+    invariant_candidates = create_invariant_candidates(task)
+    #invariant candidates:
+    # [<Atom on(d, ?x)>, <Atom on(?x, d)>, <Atom on(d, ?y)>, <Atom on(?y, d)>, <Atom on(b, d)>, <Atom on(d, b)>, <Atom on(a, d)>, <Atom on(d, a)>, <Atom on(c, d)>, <Atom on(d, c)>, <Atom on(b, ?x)>, <Atom on(?x, b)>, <Atom on(b, ?y)>, <Atom on(?y, b)>, <Atom on(d, b)>, <Atom on(b, d)>, <Atom on(a, b)>, <Atom on(b, a)>, <Atom on(c, b)>, <Atom on(b, c)>, <Atom on(a, ?x)>, <Atom on(?x, a)>, <Atom on(a, ?y)>, <Atom on(?y, a)>, <Atom on(d, a)>, <Atom on(a, d)>, <Atom on(b, a)>, <Atom on(a, b)>, <Atom on(c, a)>, <Atom on(a, c)>, <Atom on(c, ?x)>, <Atom on(?x, c)>, <Atom on(c, ?y)>, <Atom on(?y, c)>, <Atom on(d, c)>, <Atom on(c, d)>, <Atom on(b, c)>, <Atom on(c, b)>, <Atom on(a, c)>, <Atom on(c, a)>, <Atom ontable(?x)>, <Atom ontable(d)>, <Atom ontable(b)>, <Atom ontable(a)>, <Atom ontable(c)>, <Atom clear(?x)>, <Atom clear(d)>, <Atom clear(b)>, <Atom clear(a)>, <Atom clear(c)>, <Atom handempty()>, <Atom holding(?x)>, <Atom holding(d)>, <Atom holding(b)>, <Atom holding(a)>, <Atom holding(c)>]
     task_init = task.init
     task_predicates = task.predicates
     list_of_true_in_init = []
@@ -128,10 +177,10 @@ def get_schematic_invariants(relaxed_reachable, atoms, actions, goal_list, axiom
     a = Atom(predicate="on", args=["a", "d"])
     b = Atom(predicate="on", args=["d", "c"])
 
-    print(list_of_possible_actions)
+    #print(list_of_possible_actions)
 
     conj = Conjunction([a, b])
-    z = regression(conj, action_temp).simplified()
+    z = regression(a, action_temp).simplified()
     print("after regression: ")
     z.dump()
 
@@ -144,6 +193,8 @@ def get_schematic_invariants(relaxed_reachable, atoms, actions, goal_list, axiom
                 x = regression(c.negate(), action)
                 temp_union = set([C_0, x])
                 # TODO: is_sat --> im moment wird True zurück gegeben
+                # könnte z.b mit pycosat gemacht werden (sat-solver), dann muss jedoch formula umgeformt werden
+                # eigenen sat solver implementieren
                 if is_sat(temp_union):
                     # TODO: Test weaken?
                     C = weaken(C, c, task_predicates)
