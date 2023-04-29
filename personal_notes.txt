@@ -1,0 +1,15 @@
+Fragen für 2.5:
+
+- in Algorithmus: C_0 \cup {regr_a(\lnot co)}
+        --> C_0 ist liste von Atomen, x = regr_a() ist Conjunction
+        --> dann x in list umwandeln, set() und dann wieder in Conjunction? (damit formula)
+
+Task hat predicates on, handempty, holding, etc.
+predicates haben Menge and objekten (0 für handempty, 1 für holding, 2 für on)
+Task hat objekte a, b, c, d
+Task predicates haben objekte ?x, ?y
+
+im moment C_0 und C sind listen von Atomen in jeglicher Kombination: on(?x, ?y), on(?x, a), on(a, b), holding(?x), holding(a) etc.
+
+sollten C_0 und C Conjunctions sein oder Listen? --> im Falle von Union: werden zwei Listen verknüpft oder zwei Formeln
+
