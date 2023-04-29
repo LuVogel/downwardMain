@@ -1,3 +1,5 @@
+import random
+
 from src.translate.pddl.effects import *
 from pddl.conditions import *
 
@@ -7,13 +9,15 @@ def negate_state_var(operator):
 
 # weaken: return {c \lor a | a \in A} U {c \lor \lnot a | a \in A}
 
-def weaken(C, formula, predicates):
-    dis1 = [formula]
-    dis2 = [formula]
-    for pred in predicates:
-        dis1.append(pred)
-        dis2.append(pred.negate())
-    return set([C, Disjunction(dis1), Disjunction(dis2)])
+def weaken(c, action):
+    eff = get_effects_from_action(action)
+    union = []
+    for e in eff:
+        union.append(Disjunction([c, e]))
+        union.append(Disjunction([c, e.negate()]))
+    return list(set(union))
+
+
 
 
 def regression_rec(formula, effect):
@@ -51,7 +55,7 @@ def eff_con(atomic_effect, effect):
 
 # TODO: condition weiter behalten und in liste hinzufügen --> falls cond nicht leer dann conditional effect sonst normaler effect
 # --> somit kann auch oben mit isinstance(effect, ConditionalEffect) geprüft werden.
-def regression(formula, operator):
+def get_effects_from_action(operator):
     eff_list = []
     for cond, eff in operator.add_effects:
         if len(cond) == 0:
@@ -63,6 +67,11 @@ def regression(formula, operator):
             eff_list.append(eff.negate())
         else:
             eff_list.append(ConditionalEffect(condition=cond, effect=eff))
+    return eff_list
+
+
+def regression(formula, operator):
+    eff_list = get_effects_from_action(operator)
     return Conjunction([Conjunction(operator.precondition), regression_rec(formula, Conjunction(eff_list))]).simplified()
 
 
@@ -90,7 +99,6 @@ def create_invariant_candidates(task):
                 arg_list.append(arg.name)
             name_arg_list.append((pred.name, arg_list))
     obj_list = []
-    print(name_arg_list)
     for obj in task.objects:
         obj_list.append(obj.name)
     for (name, args) in name_arg_list:
@@ -113,7 +121,13 @@ def create_invariant_candidates(task):
                     if obj != obj1:
                         inv_list.append(Atom(predicate=name, args=[obj1, obj]))
                         inv_list.append(Atom(predicate=name, args=[obj, obj1]))
-    return inv_list
+    # TODO: X -> l_1 \lor l_2 richtig?
+    temp_inv_list = []
+    for inv in inv_list:
+        for inv1 in inv_list:
+            if inv != inv1:
+                temp_inv_list.append(Disjunction([inv, inv1]))
+    return inv_list + temp_inv_list
 
 
 def create_union(C_0, x):
@@ -139,7 +153,11 @@ def get_schematic_invariants(relaxed_reachable, atoms, actions, goal_list, axiom
         print(pred)
     print("task_objects: ", task.objects)
     invariant_candidates = list(set(create_invariant_candidates(task)))
-    #print(invariant_candidates)
+    # for inv in invariant_candidates:
+    #     if isinstance(inv, Disjunction):
+    #         inv.dump()
+    #     else:
+    #         print(inv)
     #invariant candidates:
     # [<Atom on(b, ?x)>, <Atom holding(d)>, <Atom on(?y, b)>, <Atom on(d, ?y)>, <Atom on(a, ?y)>, <Atom clear(d)>,
     # <Atom ontable(b)>, <Atom ontable(?x)>, <Atom on(d, a)>, <Atom holding(c)>, <Atom on(b, d)>, <Atom clear(c)>,
@@ -184,17 +202,23 @@ def get_schematic_invariants(relaxed_reachable, atoms, actions, goal_list, axiom
             for c in invariant_candidates:
                 #print("starting regression with: ", c.negate(), "and action: ", action)
                 x = regression(c.negate(), action).simplified()
-                # print("after regression in while loop")
+                #print("after regression in while loop")
                 # x.dump()
                 temp_union = create_union(C_0, x)
-                # print("temp_union: ")
+                #print("temp_union: ")
                 # temp_union.dump()
                 # TODO: is_sat --> im moment wird True zurück gegeben
                 # könnte z.b mit pycosat gemacht werden (sat-solver), dann muss jedoch formula umgeformt werden
                 # eigenen sat solver implementieren
                 if is_sat(temp_union):
                     # TODO: Test weaken?
-                    C = weaken(C, c, task_predicates)
-
-        return
+                    invariant_candidates.remove(c)
+                    invariant_candidates = list(set(invariant_candidates + weaken(c, action)))
+                # TODO: since isSat always true: invariant candidates gets bigger each iteration,
+                #  and therefore endless loop for c in invariant_candidates
+                break
+        print("check...")
+        if invariant_candidates == C_0:
+            print("return")
+            return invariant_candidates
 

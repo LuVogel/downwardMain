@@ -1,5 +1,12 @@
 Fragen für 2.5:
 
+1. Kontrolle invariant candidates
+2. C_0: list oder conjunction? union() --> liste oder conjunction
+3. SAT test
+4. weaken: list/conjunction thema und action/effect kontrolle
+5. betreffend c sigma: welche kombinationen fehlen, welche muss ich noch machen (evt invariant candidates von anfang an schwächen)
+
+
 - in Algorithmus: C_0 \cup {regr_a(\lnot co)}
         --> C_0 ist liste von Atomen, x = regr_a() ist Conjunction
         --> dann x in list umwandeln, set() und dann wieder in Conjunction? (damit formula)
@@ -13,3 +20,8 @@ im moment C_0 und C sind listen von Atomen in jeglicher Kombination: on(?x, ?y),
 
 sollten C_0 und C Conjunctions sein oder Listen? --> im Falle von Union: werden zwei Listen verknüpft oder zwei Formeln
 
+
+
+für weaken: Let A be set of state variables. 1. a and \lnot a for state variables a \in A are effects
+--> weaken clause: {c v a | a in A} U {c v !a | a in A}
+--> ist nun a in c v a ein effect oder eine State variable? falls state variable: was ist das in meinem Fall
