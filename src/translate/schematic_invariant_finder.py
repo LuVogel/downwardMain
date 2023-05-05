@@ -108,10 +108,11 @@ def is_sat(temp_union, task, goal_list):
         goal = formula_to_list(Conjunction(goal_list))
         file.write("fof(goal, conjecture,")
         file.write(" & ".join(goal) + ").\n")
-
+        counter = 0
         for formula in temp_union:
             list_formula = formula_to_list(formula)
-            file.write("fof(formula, conjecture,")
+            file.write("fof(formula{}, conjecture,".format(counter))
+            counter += 1
             if isinstance(formula, Conjunction):
                 file.write(" & ".join(list_formula) + ").\n")
             elif isinstance(formula, Disjunction):
