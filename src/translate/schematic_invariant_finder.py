@@ -1,5 +1,5 @@
 import random
-
+import subprocess
 from src.translate.pddl.effects import *
 from pddl.conditions import *
 
@@ -85,8 +85,39 @@ def regression(formula, operator):
 
 # bei grosse Conjunction: for parts in Conjunction.parts --> regr(not parts, action)
 # bei Liste: for form in list: --> regr(not form, action)
-def is_sat(temp_union):
-    return True
+def formula_to_list(formula):
+    l = []
+    for part in formula.parts:
+        part_args = ""
+        for arg in part.args:
+            if part_args == "":
+                part_args = arg
+            else:
+                part_args = part_args + "," + arg
+        l.append(f"{part.predicate}({part_args})")
+    return l
+
+
+def is_sat(temp_union, task, goal_list):
+    with open("src/translate/tptp-formulas.p", "w") as file:
+
+        print(goal_list)
+        init = formula_to_list(Conjunction(task.init))
+        file.write("fof(init, axiom,")
+        file.write(" & ".join(init) + ").\n")
+        goal = formula_to_list(Conjunction(goal_list))
+        file.write("fof(goal, conjecture,")
+        file.write(" & ".join(goal) + ").\n")
+
+        for formula in temp_union:
+            list_formula = formula_to_list(formula)
+            file.write("fof(formula, conjecture,")
+            if isinstance(formula, Conjunction):
+                file.write(" & ".join(list_formula) + ").\n")
+            elif isinstance(formula, Disjunction):
+                file.write(" | ".join(list_formula) + ").\n")
+    result = subprocess.run(['vampire', 'tptp-formulas.p'], capture_output=True)
+    print(result.stdout.decode())
 
 
 def create_invariant_candidates(task):
@@ -131,10 +162,13 @@ def create_invariant_candidates(task):
 
 
 def create_union(C_0, x):
+    print(type(C_0), " type c0")
+    print(type(x), " type x")
     x_list = []
     for part in x.parts:
         x_list.append(part)
-    union_list = list(set(C_0 + x_list))
+    union_list = C_0.union(set(x_list))
+
     return Conjunction(union_list)
 
 
@@ -154,12 +188,12 @@ def get_schematic_invariants(relaxed_reachable, atoms, actions, goal_list, axiom
     # print("task_objects: ", task.objects)
     print("invariant candidates start: ")
     invariant_candidates = set(create_invariant_candidates(task))
-    for inv in invariant_candidates:
-        if isinstance(inv, Disjunction):
-            inv.dump()
-        else:
-            print(inv)
-    print("invariant candidates end.")
+    # for inv in invariant_candidates:
+    #     if isinstance(inv, Disjunction):
+    #         inv.dump()
+    #     else:
+    #         print(inv)
+    # print("invariant candidates end.")
     #invariant candidates:
     # [<Atom on(b, ?x)>, <Atom holding(d)>, <Atom on(?y, b)>, <Atom on(d, ?y)>, <Atom on(a, ?y)>, <Atom clear(d)>,
     # <Atom ontable(b)>, <Atom ontable(?x)>, <Atom on(d, a)>, <Atom holding(c)>, <Atom on(b, d)>, <Atom clear(c)>,
@@ -189,7 +223,19 @@ def get_schematic_invariants(relaxed_reachable, atoms, actions, goal_list, axiom
     #     temp += 1
     a = Atom(predicate="on", args=["a", "d"])
     b = Atom(predicate="on", args=["d", "c"])
+    c = Atom(predicate="on", args=["a", "c"])
+    d = Atom(predicate="on", args=["x", "y"])
+    e = Atom(predicate="handempty", args=[])
+    conj1 = Conjunction([a,b])
+    conj2 = Conjunction([a,b,c])
+    conj3 = Conjunction([d,e])
 
+    test_sat_true = is_sat(set([conj1, conj3]), task, goal_list)
+    test_sat_false = is_sat(set([conj2, conj3]), task, goal_list)
+    print(test_sat_true)
+    print(test_sat_false)
+    print("end test sat")
+    return
     #print(list_of_possible_actions)
 
     #conj = Conjunction([a, b])
@@ -210,8 +256,8 @@ def get_schematic_invariants(relaxed_reachable, atoms, actions, goal_list, axiom
                 print("after regression in while loop")
                 x.dump()
                 temp_union = create_union(C_0, x)
-                #print("temp_union: ")
-                # temp_union.dump()
+                print("temp_union: ")
+                temp_union.dump()
                 # TODO: is_sat --> im moment wird True zurück gegeben
                 # könnte z.b mit pycosat gemacht werden (sat-solver), dann muss jedoch formula umgeformt werden
                 # eigenen sat solver implementieren
