@@ -66,7 +66,7 @@ def get_effects_from_action(operator):
         if len(cond) == 0:
             eff_list.append(eff.negate())
         else:
-            eff_list.append(ConditionalEffect(condition=cond, effect=eff))
+            eff_list.append(ConditionalEffect(condition=cond, effect=eff.negate()))
     return eff_list
 
 
@@ -141,23 +141,25 @@ def create_union(C_0, x):
 
 def get_schematic_invariants(relaxed_reachable, atoms, actions, goal_list, axioms,
                              reachable_action_params, task):
-    print("relaxed reachable: ", relaxed_reachable)
-    print("atoms: ", atoms)
-    print("actions: ", actions)
-    print("goal_list: ", goal_list)
-    print("axioms: ", axioms)
-    print("reachable_action_params: ", reachable_action_params)
-    print("task: ", task)
-    print("task_pred: ")
-    for pred in task.predicates:
-        print(pred)
-    print("task_objects: ", task.objects)
-    invariant_candidates = list(set(create_invariant_candidates(task)))
-    # for inv in invariant_candidates:
-    #     if isinstance(inv, Disjunction):
-    #         inv.dump()
-    #     else:
-    #         print(inv)
+    # print("relaxed reachable: ", relaxed_reachable)
+    # print("atoms: ", atoms)
+    # print("actions: ", actions)
+    # print("goal_list: ", goal_list)
+    # print("axioms: ", axioms)
+    # print("reachable_action_params: ", reachable_action_params)
+    # print("task: ", task)
+    # print("task_pred: ")
+    # for pred in task.predicates:
+    #     print(pred)
+    # print("task_objects: ", task.objects)
+    print("invariant candidates start: ")
+    invariant_candidates = set(create_invariant_candidates(task))
+    for inv in invariant_candidates:
+        if isinstance(inv, Disjunction):
+            inv.dump()
+        else:
+            print(inv)
+    print("invariant candidates end.")
     #invariant candidates:
     # [<Atom on(b, ?x)>, <Atom holding(d)>, <Atom on(?y, b)>, <Atom on(d, ?y)>, <Atom on(a, ?y)>, <Atom clear(d)>,
     # <Atom ontable(b)>, <Atom ontable(?x)>, <Atom on(d, a)>, <Atom holding(c)>, <Atom on(b, d)>, <Atom clear(c)>,
@@ -191,19 +193,22 @@ def get_schematic_invariants(relaxed_reachable, atoms, actions, goal_list, axiom
     #print(list_of_possible_actions)
 
     #conj = Conjunction([a, b])
-    z = regression(b.negate(), action_temp).simplified()
-    print("after regression: ")
-    z.dump()
+    # z = regression(b.negate(), action_temp).simplified()
+    # print("after regression: ")
+    # z.dump()
 
     while True:
         C_0 = invariant_candidates
         for action in list_of_possible_actions:
             # TODO: \lnot c\sigma --> im moment wird nur C.part[i].negate() genommen
             for c in invariant_candidates:
-                #print("starting regression with: ", c.negate(), "and action: ", action)
+                print("starting regression with: ")
+                c.negate().dump()
+                print("and action: ")
+                action.dump()
                 x = regression(c.negate(), action).simplified()
-                #print("after regression in while loop")
-                # x.dump()
+                print("after regression in while loop")
+                x.dump()
                 temp_union = create_union(C_0, x)
                 #print("temp_union: ")
                 # temp_union.dump()
@@ -213,7 +218,7 @@ def get_schematic_invariants(relaxed_reachable, atoms, actions, goal_list, axiom
                 if is_sat(temp_union):
                     # TODO: Test weaken?
                     invariant_candidates.remove(c)
-                    invariant_candidates = list(set(invariant_candidates + weaken(c, action)))
+                    invariant_candidates = set(invariant_candidates + weaken(c, action))
                 # TODO: since isSat always true: invariant candidates gets bigger each iteration,
                 #  and therefore endless loop for c in invariant_candidates
                 break
