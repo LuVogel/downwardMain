@@ -5,7 +5,7 @@ fof(test_1, axiom, ![X]:
 % jeder Block der nicht frei ist, hat einen Block aus sich drauf
 fof(test_2, axiom, ![X]:
                     ?[Y]:
-                    on(X,Y) => clear(X) ).
+                    on(X,Y) => ~ clear(X) ).
 % kein Block kann auf sich selbst sein
 fof(test_3, axiom, ![X]: ~ on(X,X) ).
 

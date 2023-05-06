@@ -90,6 +90,8 @@ def formula_to_list(formula):
     for part in formula.parts:
         part_args = ""
         for arg in part.args:
+            if arg == " ":
+                arg = "ö"
             if part_args == "":
                 part_args = arg
             else:
@@ -98,26 +100,31 @@ def formula_to_list(formula):
     return l
 
 
-def is_sat(temp_union, task, goal_list):
+def is_sat(temp_union, axiom_list):
     with open("src/translate/tptp-formulas.p", "w") as file:
-
-        print(goal_list)
-        init = formula_to_list(Conjunction(task.init))
+        # test with rules:
+        counter = 0
+        for axiom in axiom_list:
+            formula = formula_to_list(axiom)
+            file.write("fof(formula{}, axiom,".format(counter))
+            counter += 1
+        # TODO: write axioms with ?x and ?y into files
         file.write("fof(init, axiom,")
+
+        file.write("fof(init, axiom,")
+
         file.write(" & ".join(init) + ").\n")
-        goal = formula_to_list(Conjunction(goal_list))
-        file.write("fof(goal, conjecture,")
-        file.write(" & ".join(goal) + ").\n")
         counter = 0
         for formula in temp_union:
             list_formula = formula_to_list(formula)
             file.write("fof(formula{}, conjecture,".format(counter))
             counter += 1
+
             if isinstance(formula, Conjunction):
                 file.write(" & ".join(list_formula) + ").\n")
             elif isinstance(formula, Disjunction):
                 file.write(" | ".join(list_formula) + ").\n")
-    result = subprocess.run(['vampire', 'tptp-formulas.p'], capture_output=True)
+    result = subprocess.run(['vampire', 'src/translate/tptp-formulas.p'], capture_output=True)
     print(result.stdout.decode())
 
 
@@ -222,19 +229,28 @@ def get_schematic_invariants(relaxed_reachable, atoms, actions, goal_list, axiom
     #     if temp == 11:
     #         action_temp = a
     #     temp += 1
-    a = Atom(predicate="on", args=["a", "d"])
-    b = Atom(predicate="on", args=["d", "c"])
-    c = Atom(predicate="on", args=["a", "c"])
-    d = Atom(predicate="on", args=["x", "y"])
-    e = Atom(predicate="handempty", args=[])
-    conj1 = Conjunction([a,b])
-    conj2 = Conjunction([a,b,c])
-    conj3 = Conjunction([d,e])
+    a = Atom(predicate="on", args=["a", "b"])
+    b = Atom(predicate="on", args=["b", "c"])
+    c = Atom(predicate="clear", args=["a"])
+    d = Atom(predicate="clear", args=["b"])
+    conj1 = Conjunction([a, b])
+    conj2 = Conjunction([c.negate(), d.negate()])
+    conj3 = JunctorCondition([conj1, conj2])
+    axiom1_1 = Atom(predicate="on", args=["?x", "?y"])
+    axiom1_2 = Atom(predicate="ontable", args=["?x"])
+    axiom1_3 = Atom(predicate="holding", args=["?x"])
+    conjAxiom1 = Disjunction([axiom1_1, axiom1_2, axiom1_3])
 
-    test_sat_true = is_sat(set([conj1, conj3]), task, goal_list)
-    test_sat_false = is_sat(set([conj2, conj3]), task, goal_list)
+    axiom2_1 = Atom(predicate="clear", args=["?x"])
+    junctorAxiom2 = JunctorCondition([axiom1_1, axiom2_1.negate()])
+    axiom3 = Atom(predicate="on", args=["?x, ?x"]).negate()
+    disAxiom4= Disjunction([axiom2_1, axiom1_1])
+    junctorAxiom4 = JunctorCondition([axiom1_2, disAxiom4])
+
+
+    axiom_list = [conjAxiom1, junctorAxiom2, axiom3, junctorAxiom4]
+    test_sat_true = is_sat(set(conj3), axiom_list)
     print(test_sat_true)
-    print(test_sat_false)
     print("end test sat")
     return
     #print(list_of_possible_actions)
