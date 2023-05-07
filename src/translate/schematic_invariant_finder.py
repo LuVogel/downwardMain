@@ -409,7 +409,9 @@ def get_schematic_invariants(relaxed_reachable, atoms, actions, goal_list, axiom
     conjAxiom1 = Disjunction([axiom1_1, axiom1_2, axiom1_3])
 
     axiom2_1 = Atom(predicate="clear", args=["?x"])
-    junctorAxiom2 = JunctorCondition([axiom1_1, axiom2_1.negate()])
+    axiom2_2 = Atom(predicate="clear", args=["?y"])
+
+    junctorAxiom2 = JunctorCondition([axiom1_1, axiom2_2.negate()])
     axiom3 = Atom(predicate="on", args=["?x", "?x"]).negate()
     disAxiom4= Disjunction([axiom2_1, axiom_on_y_x])
     junctorAxiom4 = JunctorCondition([axiom1_2, disAxiom4])

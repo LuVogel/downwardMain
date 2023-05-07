@@ -53,3 +53,24 @@ cnf(u24,axiom,
 % ------------------------------
 
 
+Das folgende geht nicht, da nicht alle Fälle beachtet:
+Es gibt ein fall dass clear(a) gilt und es gibt auch ein Fall dass ~clear(a) gilt.
+Was vampire aber nicht erkennt: clear(b) ist nicht möglich, da wenn on(a,b) dan musss ~clear(b) sein.
+vampire erkennet beide inputs als satisfiable an aber mit CounterSatisfiable
+
+
+vampire problem.p --statistics full?
+vampire --show_options on
+
+fof(formula1, axiom,![X]: ![Y]:on(X,Y) | ontable(X) | holding(X)).
+fof(formula2, axiom,![X]: ![Y]:on(X,Y) => ~clear(Y)).
+fof(formula3, axiom,![X]:~on(X,X)).
+fof(formula4, axiom,![X]: ![Y]:ontable(X) => clear(X) | on(Y,X)).
+fof(formula0, conjecture,on(a,b) & on(b,c) => ~clear(a) & clear(b)).
+
+fof(formula1, axiom,![X]: ![Y]:on(X,Y) | ontable(X) | holding(X)).
+fof(formula2, axiom,![X]: ![Y]:on(X,Y) => ~clear(Y)).
+fof(formula3, axiom,![X]:~on(X,X)).
+fof(formula4, axiom,![X]: ![Y]:ontable(X) => clear(X) | on(Y,X)).
+fof(formula0, conjecture,on(a,b) & on(b,c) => clear(a) & ~clear(b)).
+
