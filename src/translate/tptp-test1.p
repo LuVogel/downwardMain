@@ -26,13 +26,19 @@ fof(formula0, conjecture,on(a,b) & on(b,c) => clear(a) & clear(b)).
 % Running in auto input_syntax mode. Trying TPTP
 % SZS status CounterSatisfiable for tptp-formulas
 % # SZS output start Saturation.
-cnf(u22,negated_conjecture,
+cnf(u31,axiom,
+    ~on(sK0,sK1)).
+
+cnf(u43,negated_conjecture,
+    ~clear(b)).
+
+cnf(u26,negated_conjecture,
     on(b,c)).
 
-cnf(u21,negated_conjecture,
+cnf(u25,negated_conjecture,
     on(a,b)).
 
-cnf(u20,axiom,
+cnf(u24,axiom,
     ~on(X0,X0)).
 
 % # SZS output end Saturation.
@@ -42,7 +48,8 @@ cnf(u20,axiom,
 % Termination reason: Satisfiable
 
 % Memory used [KB]: 4989
-% Time elapsed: 0.126 s
+% Time elapsed: 0.081 s
 % ------------------------------
 % ------------------------------
+
 

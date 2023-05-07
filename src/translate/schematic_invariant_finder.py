@@ -151,7 +151,7 @@ def junctor_to_list(formula):
                     part_args = arg
                 else:
                     part_args = part_args + "," + arg
-            list.append(f"~ {part.predicate}({part_args})")
+            list.append(f"~{part.predicate}({part_args})")
         if not isinstance(part, Atom) and not isinstance(part, NegatedAtom):
             for p in part.parts:
                 neg = False
@@ -172,7 +172,7 @@ def junctor_to_list(formula):
                     else:
                         part_args = part_args + "," + arg
                 if neg:
-                    list.append(f"~ {p.predicate}({part_args})")
+                    list.append(f"~{p.predicate}({part_args})")
                 else:
                     list.append(f"{p.predicate}({part_args})")
         l.append((list, part_type, x_found, y_found))
@@ -276,7 +276,7 @@ def write_formula_to_fof(formula, type, file, counter):
             file.write("![X]:")
         elif y_found:
             file.write("![Y]:")
-        s = f"~ {formula.predicate}({part_args})).\n"
+        s = f"~{formula.predicate}({part_args})).\n"
         file.write(s)
 def is_sat(temp_union, axiom_list):
     with open("src/translate/tptp-formulas.p", "w") as file:
@@ -398,11 +398,12 @@ def get_schematic_invariants(relaxed_reachable, atoms, actions, goal_list, axiom
     c = Atom(predicate="clear", args=["a"])
     d = Atom(predicate="clear", args=["b"])
     conj1 = Conjunction([a, b])
-    conj2 = Conjunction([c.negate(), d.negate()])
-    conj2notnegated = Conjunction([c, d])
+    conj2 = Conjunction([c, d.negate()])
+    conj2notnegated = Conjunction([c.negate(), d])
     conj3fortest2 = JunctorCondition([conj1, conj2notnegated])
     conj3 = JunctorCondition([conj1, conj2])
     axiom1_1 = Atom(predicate="on", args=["?x", "?y"])
+    axiom_on_y_x = Atom(predicate="on", args=["?y", "?x"])
     axiom1_2 = Atom(predicate="ontable", args=["?x"])
     axiom1_3 = Atom(predicate="holding", args=["?x"])
     conjAxiom1 = Disjunction([axiom1_1, axiom1_2, axiom1_3])
@@ -410,7 +411,7 @@ def get_schematic_invariants(relaxed_reachable, atoms, actions, goal_list, axiom
     axiom2_1 = Atom(predicate="clear", args=["?x"])
     junctorAxiom2 = JunctorCondition([axiom1_1, axiom2_1.negate()])
     axiom3 = Atom(predicate="on", args=["?x", "?x"]).negate()
-    disAxiom4= Disjunction([axiom2_1, axiom1_1])
+    disAxiom4= Disjunction([axiom2_1, axiom_on_y_x])
     junctorAxiom4 = JunctorCondition([axiom1_2, disAxiom4])
 
 
