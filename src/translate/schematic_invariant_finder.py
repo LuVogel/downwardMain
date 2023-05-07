@@ -87,45 +87,209 @@ def regression(formula, operator):
 # bei Liste: for form in list: --> regr(not form, action)
 def formula_to_list(formula):
     l = []
+    x_found = False
+    y_found = False
     for part in formula.parts:
         part_args = ""
         for arg in part.args:
             if arg == " ":
                 arg = "ö"
+            elif arg == "?x":
+                arg = "X"
+                x_found = True
+            elif arg == "?y":
+                arg = "Y"
+                y_found = True
             if part_args == "":
                 part_args = arg
             else:
                 part_args = part_args + "," + arg
         l.append(f"{part.predicate}({part_args})")
+    return (l, x_found, y_found)
+
+
+def junctor_to_list(formula):
+    l = []
+    x_found = False
+    y_found = False
+    for part in formula.parts:
+        list = []
+        if isinstance(part, Conjunction):
+            part_type = "conj"
+        elif isinstance(part, Disjunction):
+            part_type = "disj"
+        elif isinstance(part, Atom):
+            part_type = "atom"
+            part_args = ""
+            for arg in part.args:
+                if arg == " ":
+                    arg = "ö"
+                elif arg == "?x":
+                    arg = "X"
+                    x_found = True
+                elif arg == "?y":
+                    arg = "Y"
+                    y_found = True
+                if part_args == "":
+                    part_args = arg
+                else:
+                    part_args = part_args + "," + arg
+            list.append(f"{part.predicate}({part_args})")
+        elif isinstance(part, NegatedAtom):
+            part_type = "negatom"
+            part_args = ""
+            for arg in part.args:
+                if arg == " ":
+                    arg = "ö"
+                elif arg == "?x":
+                    arg = "X"
+                    x_found = True
+                elif arg == "?y":
+                    arg = "Y"
+                    y_found = True
+                if part_args == "":
+                    part_args = arg
+                else:
+                    part_args = part_args + "," + arg
+            list.append(f"~ {part.predicate}({part_args})")
+        if not isinstance(part, Atom) and not isinstance(part, NegatedAtom):
+            for p in part.parts:
+                neg = False
+                if isinstance(p, NegatedAtom):
+                    neg = True
+                part_args = ""
+                for arg in p.args:
+                    if arg == " ":
+                        arg = "ö"
+                    elif arg == "?x":
+                        arg = "X"
+                        x_found = True
+                    elif arg == "?y":
+                        arg = "Y"
+                        y_found = True
+                    if part_args == "":
+                        part_args = arg
+                    else:
+                        part_args = part_args + "," + arg
+                if neg:
+                    list.append(f"~ {p.predicate}({part_args})")
+                else:
+                    list.append(f"{p.predicate}({part_args})")
+        l.append((list, part_type, x_found, y_found))
     return l
 
 
+def write_formula_to_fof(formula, type, file, counter):
+    file.write("fof(formula{}, ".format(counter) + type + ",")
+    if isinstance(formula, Conjunction):
+        list_formula, x_found, y_found = formula_to_list(formula)
+        if x_found and y_found:
+            file.write("![X]: ![Y]:")
+        elif x_found:
+            file.write("![X]:")
+        elif y_found:
+            file.write("![Y]:")
+        file.write(" & ".join(list_formula) + ").\n")
+    elif isinstance(formula, Disjunction):
+        list_formula, x_found, y_found = formula_to_list(formula)
+        if x_found and y_found:
+            file.write("![X]: ![Y]:")
+        elif x_found:
+            file.write("![X]:")
+        elif y_found:
+            file.write("![Y]:")
+        file.write(" | ".join(list_formula) + ").\n")
+    elif isinstance(formula, JunctorCondition):
+        list_formula = junctor_to_list(formula)
+        part_to_write = ""
+        counter = 0
+        tx_found = False
+        ty_found = False
+        for list, part_type, x_found, y_found in list_formula:
+            if part_type == "conj":
+                part_to_write += " & ".join(list)
+            elif part_type == "disj":
+                 part_to_write += " | ".join(list)
+            else:
+                part_to_write += "".join(list)
+            if counter == 0:
+                part_to_write += " => "
+            else:
+                part_to_write += ").\n"
+            counter += 1
+            if x_found:
+                tx_found = True
+            if y_found:
+                ty_found = True
+        if tx_found and ty_found:
+            file.write("![X]: ![Y]:")
+        elif tx_found:
+            file.write("![X]:")
+        elif ty_found:
+            file.write("![Y]:")
+        file.write(part_to_write)
+    elif isinstance(formula, Atom):
+        part_args = ""
+        x_found = False
+        y_found = False
+        for arg in formula.args:
+            if arg == " ":
+                arg = "ö"
+            elif arg == "?x":
+                arg = "X"
+                x_found = True
+            elif arg == "?y":
+                arg = "Y"
+                y_found = True
+            if part_args == "":
+                part_args = arg
+            else:
+                part_args = part_args + "," + arg
+        if x_found and y_found:
+            file.write("![X]: ![Y]:")
+        elif x_found:
+            file.write("![X]:")
+        elif y_found:
+            file.write("![Y]:")
+        s = f"{formula.predicate}({part_args})).\n"
+        file.write(s)
+    elif isinstance(formula, NegatedAtom):
+        part_args = ""
+        x_found = False
+        y_found = False
+        for arg in formula.args:
+            if arg == " ":
+                arg = "ö"
+            elif arg == "?x":
+                arg = "X"
+                x_found = True
+            elif arg == "?y":
+                arg = "Y"
+                y_found = True
+            if part_args == "":
+                part_args = arg
+            else:
+                part_args = part_args + "," + arg
+        if x_found and y_found:
+            file.write("![X]: ![Y]:")
+        elif x_found:
+            file.write("![X]:")
+        elif y_found:
+            file.write("![Y]:")
+        s = f"~ {formula.predicate}({part_args})).\n"
+        file.write(s)
 def is_sat(temp_union, axiom_list):
     with open("src/translate/tptp-formulas.p", "w") as file:
-        # test with rules:
-        counter = 0
-        for axiom in axiom_list:
-            formula = formula_to_list(axiom)
-            file.write("fof(formula{}, axiom,".format(counter))
+        counter = 1
+        for formula in axiom_list:
+            write_formula_to_fof(formula, "axiom", file, counter)
             counter += 1
-        # TODO: write axioms with ?x and ?y into files
-        file.write("fof(init, axiom,")
+        #union_as_formula = Conjunction([temp_union])
+        write_formula_to_fof(temp_union, "conjecture", file, 0)
 
-        file.write("fof(init, axiom,")
-
-        file.write(" & ".join(init) + ").\n")
-        counter = 0
-        for formula in temp_union:
-            list_formula = formula_to_list(formula)
-            file.write("fof(formula{}, conjecture,".format(counter))
-            counter += 1
-
-            if isinstance(formula, Conjunction):
-                file.write(" & ".join(list_formula) + ").\n")
-            elif isinstance(formula, Disjunction):
-                file.write(" | ".join(list_formula) + ").\n")
     result = subprocess.run(['vampire', 'src/translate/tptp-formulas.p'], capture_output=True)
     print(result.stdout.decode())
+    return result.returncode
 
 
 def create_invariant_candidates(task):
@@ -235,6 +399,8 @@ def get_schematic_invariants(relaxed_reachable, atoms, actions, goal_list, axiom
     d = Atom(predicate="clear", args=["b"])
     conj1 = Conjunction([a, b])
     conj2 = Conjunction([c.negate(), d.negate()])
+    conj2notnegated = Conjunction([c, d])
+    conj3fortest2 = JunctorCondition([conj1, conj2notnegated])
     conj3 = JunctorCondition([conj1, conj2])
     axiom1_1 = Atom(predicate="on", args=["?x", "?y"])
     axiom1_2 = Atom(predicate="ontable", args=["?x"])
@@ -243,14 +409,16 @@ def get_schematic_invariants(relaxed_reachable, atoms, actions, goal_list, axiom
 
     axiom2_1 = Atom(predicate="clear", args=["?x"])
     junctorAxiom2 = JunctorCondition([axiom1_1, axiom2_1.negate()])
-    axiom3 = Atom(predicate="on", args=["?x, ?x"]).negate()
+    axiom3 = Atom(predicate="on", args=["?x", "?x"]).negate()
     disAxiom4= Disjunction([axiom2_1, axiom1_1])
     junctorAxiom4 = JunctorCondition([axiom1_2, disAxiom4])
 
 
     axiom_list = [conjAxiom1, junctorAxiom2, axiom3, junctorAxiom4]
-    test_sat_true = is_sat(set(conj3), axiom_list)
-    print(test_sat_true)
+    test_sat_true = is_sat(conj3, axiom_list)
+    test_sat_false = is_sat(conj3fortest2, axiom_list)
+    print("first try: true if 0: ", test_sat_true)
+    print("second try: false if 1: ", test_sat_false)
     print("end test sat")
     return
     #print(list_of_possible_actions)
