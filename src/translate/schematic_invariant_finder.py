@@ -402,6 +402,7 @@ def get_schematic_invariants(relaxed_reachable, atoms, actions, goal_list, axiom
     conj2notnegated = Conjunction([c.negate(), d])
     conj3fortest2 = JunctorCondition([conj1, conj2notnegated])
     conj3 = JunctorCondition([conj1, conj2])
+    # nicht junctro
     axiom1_1 = Atom(predicate="on", args=["?x", "?y"])
     axiom_on_y_x = Atom(predicate="on", args=["?y", "?x"])
     axiom1_2 = Atom(predicate="ontable", args=["?x"])
