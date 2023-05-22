@@ -201,3 +201,44 @@ für weaken: Let A be set of state variables. 1. a and \lnot a for state variabl
     Atom on(d, a)
     Atom ontable(b)
     Atom clear(c)
+
+
+def create_invariant_candidates1(task):
+    inv_list = []
+    name_arg_list = []
+    for pred in task.predicates:
+        if pred.name != "=":
+            arg_list = []
+            for arg in pred.arguments:
+                arg_list.append(arg.name)
+            name_arg_list.append((pred.name, arg_list))
+    obj_list = []
+    for obj in task.objects:
+        obj_list.append(obj.name)
+    for (name, args) in name_arg_list:
+        if len(args) == 0:
+            inv_list.append(Atom(predicate=name, args=["z"]))
+        elif len(args) == 1:
+            inv_list.append(Atom(predicate=name, args=[args[0]]))
+            for obj in obj_list:
+                inv_list.append(Atom(predicate=name, args=obj))
+        else:
+            for obj in obj_list:
+                for arg in args:
+                    inv_list.append(Atom(predicate=name, args=[obj, arg]))
+                    inv_list.append(Atom(predicate=name, args=[arg, obj]))
+                    for arg1 in args:
+                        if arg != arg:
+                            inv_list.append(Atom(predicate=name, args=[arg, arg1]))
+                            inv_list.append(Atom(predicate=name, args=[arg1, arg]))
+                for obj1 in obj_list:
+                    if obj != obj1:
+                        inv_list.append(Atom(predicate=name, args=[obj1, obj]))
+                        inv_list.append(Atom(predicate=name, args=[obj, obj1]))
+    # TODO: X -> l_1 \lor l_2 richtig?
+    temp_inv_list = []
+    for inv in inv_list:
+        for inv1 in inv_list:
+            if inv != inv1:
+                temp_inv_list.append(Disjunction([inv, inv1]))
+    return inv_list
