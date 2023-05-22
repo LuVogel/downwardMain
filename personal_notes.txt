@@ -52,3 +52,5 @@ sollten C_0 und C Conjunctions sein oder Listen? --> im Falle von Union: werden 
 für weaken: Let A be set of state variables. 1. a and \lnot a for state variables a \in A are effects
 --> weaken clause: {c v a | a in A} U {c v !a | a in A}
 --> ist nun a in c v a ein effect oder eine State variable? falls state variable: was ist das in meinem Fall
+
+/home/lukas/git/downward-benchmarks/blocks/domain.pddl /home/lukas/git/downward-benchmarks/blocks/probBLOCKS-4-0.pddl --search "astar(lmcut())"

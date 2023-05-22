@@ -1,11 +1,8 @@
-import random
 import subprocess
 from src.translate.pddl.effects import *
 from pddl.conditions import *
 
-# ist keine action sondern state-variable --> oder doch effects? 2 Definitions 1. a and not a for state variables a in A are effects?
-def negate_state_var(operator):
-    return operator
+
 
 # weaken: return {c \lor a | a \in A} U {c \lor \lnot a | a \in A}
 
@@ -17,8 +14,9 @@ def weaken(c, action):
         union.append(Disjunction([c, e.negate()]))
     return list(set(union))
 
-
-
+def regression(formula, operator):
+    eff_list = get_effects_from_action(operator)
+    return Conjunction([Conjunction(operator.precondition), regression_rec(formula, Conjunction(eff_list))]).simplified()
 
 def regression_rec(formula, effect):
     if isinstance(formula, Truth):
@@ -53,8 +51,7 @@ def eff_con(atomic_effect, effect):
     return Falsity()
 
 
-# TODO: condition weiter behalten und in liste hinzufügen --> falls cond nicht leer dann conditional effect sonst normaler effect
-# --> somit kann auch oben mit isinstance(effect, ConditionalEffect) geprüft werden.
+
 def get_effects_from_action(operator):
     eff_list = []
     for cond, eff in operator.add_effects:
@@ -70,9 +67,7 @@ def get_effects_from_action(operator):
     return eff_list
 
 
-def regression(formula, operator):
-    eff_list = get_effects_from_action(operator)
-    return Conjunction([Conjunction(operator.precondition), regression_rec(formula, Conjunction(eff_list))]).simplified()
+
 
 
 
@@ -109,6 +104,7 @@ def formula_to_list(formula):
 
 
 def junctor_to_list(formula):
+    print("junctor needed")
     l = []
     x_found = False
     y_found = False
