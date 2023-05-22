@@ -1,45 +1,10 @@
-fof(formula1, axiom,holding(b)).
-fof(formula2, axiom,![Y]:on(a,Y)).
-fof(formula3, axiom,![Y]:on(b,Y)).
-fof(formula4, axiom,ontable(d)).
-fof(formula5, axiom,![X]:ontable(X)).
-fof(formula6, axiom,![Y]:on(c,Y)).
-fof(formula7, axiom,clear(c)).
-fof(formula8, axiom,clear(b)).
-fof(formula9, axiom,on(c,b)).
-fof(formula10, axiom,![X]:on(X,d)).
-fof(formula11, axiom,handempty(z)).
-fof(formula12, axiom,on(d,b)).
-fof(formula13, axiom,ontable(a)).
-fof(formula14, axiom,![X]:on(X,a)).
-fof(formula15, axiom,ontable(c)).
-fof(formula16, axiom,on(b,d)).
-fof(formula17, axiom,on(a,b)).
-fof(formula18, axiom,![X]:on(X,c)).
-fof(formula19, axiom,![Y]:on(Y,b)).
-fof(formula20, axiom,on(b,a)).
-fof(formula21, axiom,![X]:holding(X)).
-fof(formula22, axiom,![X]:on(a,X)).
-fof(formula23, axiom,ontable(b)).
-fof(formula24, axiom,on(b,c)).
-fof(formula25, axiom,on(d,a)).
-fof(formula26, axiom,on(a,d)).
-fof(formula27, axiom,holding(d)).
-fof(formula28, axiom,![X]:on(b,X)).
-fof(formula29, axiom,![Y]:on(Y,d)).
-fof(formula30, axiom,on(d,c)).
-fof(formula31, axiom,on(c,d)).
-fof(formula32, axiom,![X]:on(c,X)).
-fof(formula33, axiom,![X]:clear(X)).
-fof(formula34, axiom,clear(d)).
-fof(formula35, axiom,holding(a)).
-fof(formula36, axiom,![X]:on(d,X)).
-fof(formula37, axiom,holding(c)).
-fof(formula38, axiom,![Y]:on(Y,a)).
-fof(formula39, axiom,clear(a)).
-fof(formula40, axiom,on(c,a)).
-fof(formula41, axiom,on(a,c)).
-fof(formula42, axiom,![Y]:on(d,Y)).
-fof(formula43, axiom,![Y]:on(Y,c)).
-fof(formula44, axiom,![X]:on(X,b)).
-fof(formula0, negated_conjecture,clear(a) & ontable(a) & handempty(z) & holding(b)).
+fof(formula1, axiom,clear(c) | clear(d) | handempty(z) | holding(a) | ontable(b) | holding(d) | ontable(d) | ontable(a) | ontable(c) | holding(c) | on(d,c) | clear(b) | on(d,b)).
+fof(formula2, axiom,clear(b) | clear(d) | holding(b) | holding(a) | ontable(d) | ontable(c) | handempty(z) | on(a,c) | holding(c) | clear(a) | on(a,b) | on(d,a) | on(c,d) | on(d,b) | clear(c)).
+fof(formula3, axiom,ontable(a) | ontable(d) | handempty(z) | holding(a) | on(c,a) | holding(b) | on(a,b) | on(a,d) | clear(c) | clear(a) | holding(d) | clear(b) | on(c,d) | on(d,b) | holding(c) | on(b,c)).
+fof(formula4, axiom,ontable(b) | ontable(d) | clear(c) | holding(a) | on(d,a) | ontable(a) | holding(c) | clear(d) | ontable(c) | on(a,c) | holding(b) | on(c,d) | handempty(z) | clear(a) | holding(d) | on(b,c)).
+fof(formula5, axiom,handempty(z) | handempty(z) | clear(b) | ontable(a) | on(d,c) | handempty(z) | on(b,c) | clear(c) | clear(a) | ontable(d) | clear(d)).
+fof(formula6, axiom,ontable(c) | ontable(d) | on(c,b) | holding(c) | handempty(z) | on(a,c) | holding(d) | on(d,a) | clear(d) | holding(a) | clear(a) | ontable(b) | clear(b) | clear(c)).
+fof(formula7, axiom,clear(a) | clear(d) | holding(d) | holding(c) | handempty(z) | ontable(d) | on(c,d) | on(b,d) | holding(a) | ontable(c) | on(b,c) | clear(b) | holding(b) | clear(c)).
+fof(formula8, axiom,ontable(d) | ontable(b) | holding(c) | on(b,c) | handempty(z) | holding(d) | clear(a) | on(a,b) | holding(b) | on(b,d) | ontable(c) | holding(a) | clear(c) | on(c,a) | on(c,b) | ontable(a) | on(a,c) | clear(b) | on(d,c)).
+fof(formula9, axiom,clear(d) | clear(b) | on(a,c) | ontable(c) | handempty(z) | holding(a) | on(a,b) | on(b,c) | holding(c) | ontable(a) | on(b,d) | ontable(d) | on(b,a) | on(c,a) | clear(a) | on(d,a) | ontable(b) | clear(c)).
+fof(formula0, negated_conjecture,
