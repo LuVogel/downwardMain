@@ -1,3 +1,2 @@
-fof(test1, axiom, a).
-fof(test2, axiom, b).
-fof(test, conjecture, a & b).
+fof(test2, axiom, ~a).
+fof(test, negated_conjecture, a).

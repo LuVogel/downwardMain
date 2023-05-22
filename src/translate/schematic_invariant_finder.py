@@ -93,7 +93,7 @@ def formula_to_list(formula):
         part_args = ""
         for arg in part.args:
             if arg == " ":
-                arg = "ö"
+                arg = "z"
             elif arg == "?x":
                 arg = "X"
                 x_found = True
@@ -123,7 +123,7 @@ def junctor_to_list(formula):
             part_args = ""
             for arg in part.args:
                 if arg == " ":
-                    arg = "ö"
+                    arg = "z"
                 elif arg == "?x":
                     arg = "X"
                     x_found = True
@@ -140,7 +140,7 @@ def junctor_to_list(formula):
             part_args = ""
             for arg in part.args:
                 if arg == " ":
-                    arg = "ö"
+                    arg = "z"
                 elif arg == "?x":
                     arg = "X"
                     x_found = True
@@ -160,7 +160,7 @@ def junctor_to_list(formula):
                 part_args = ""
                 for arg in p.args:
                     if arg == " ":
-                        arg = "ö"
+                        arg = "z"
                     elif arg == "?x":
                         arg = "X"
                         x_found = True
@@ -234,7 +234,7 @@ def write_formula_to_fof(formula, type, file, counter):
         y_found = False
         for arg in formula.args:
             if arg == " ":
-                arg = "ö"
+                arg = "z"
             elif arg == "?x":
                 arg = "X"
                 x_found = True
@@ -259,7 +259,7 @@ def write_formula_to_fof(formula, type, file, counter):
         y_found = False
         for arg in formula.args:
             if arg == " ":
-                arg = "ö"
+                arg = "z"
             elif arg == "?x":
                 arg = "X"
                 x_found = True
@@ -278,17 +278,18 @@ def write_formula_to_fof(formula, type, file, counter):
             file.write("![Y]:")
         s = f"~{formula.predicate}({part_args})).\n"
         file.write(s)
-def is_sat(temp_union, axiom_list):
+def is_sat(negated_conjecture, axiom_list):
     with open("src/translate/tptp-formulas.p", "w") as file:
         counter = 1
         for formula in axiom_list:
             write_formula_to_fof(formula, "axiom", file, counter)
             counter += 1
         #union_as_formula = Conjunction([temp_union])
-        write_formula_to_fof(temp_union, "conjecture", file, 0)
+        write_formula_to_fof(negated_conjecture, "negated_conjecture", file, 0)
 
     result = subprocess.run(['vampire', 'src/translate/tptp-formulas.p'], capture_output=True)
     print(result.stdout.decode())
+    print(result.returncode)
     return result.returncode
 
 
@@ -306,7 +307,7 @@ def create_invariant_candidates(task):
         obj_list.append(obj.name)
     for (name, args) in name_arg_list:
         if len(args) == 0:
-            inv_list.append(Atom(predicate=name, args=[]))
+            inv_list.append(Atom(predicate=name, args=["z"]))
         elif len(args) == 1:
             inv_list.append(Atom(predicate=name, args=[args[0]]))
             for obj in obj_list:
@@ -330,7 +331,7 @@ def create_invariant_candidates(task):
         for inv1 in inv_list:
             if inv != inv1:
                 temp_inv_list.append(Disjunction([inv, inv1]))
-    return inv_list + temp_inv_list
+    return inv_list
 
 
 def create_union(C_0, x):
@@ -343,6 +344,19 @@ def create_union(C_0, x):
 
     return Conjunction(union_list)
 
+
+def handempty_conversion(x):
+    if isinstance(x, Conjunction) or isinstance(x, Disjunction):
+        for part in x.parts:
+            if isinstance(part, Conjunction) or isinstance(part, Conjunction):
+                return handempty_conversion(part)
+            if isinstance(part, Atom) or isinstance(part, NegatedAtom):
+                if part.predicate == "handempty":
+                    part.args = ["z"]
+    if isinstance(x, Atom) or isinstance(x, NegatedAtom):
+        if x.predicate == "handempty":
+            x.args = ["z"]
+    return x
 
 
 def get_schematic_invariants(relaxed_reachable, atoms, actions, goal_list, axioms,
@@ -360,12 +374,12 @@ def get_schematic_invariants(relaxed_reachable, atoms, actions, goal_list, axiom
     # print("task_objects: ", task.objects)
     print("invariant candidates start: ")
     invariant_candidates = set(create_invariant_candidates(task))
-    # for inv in invariant_candidates:
-    #     if isinstance(inv, Disjunction):
-    #         inv.dump()
-    #     else:
-    #         print(inv)
-    # print("invariant candidates end.")
+    for inv in invariant_candidates:
+         if isinstance(inv, Disjunction):
+             inv.dump()
+         else:
+             print(inv)
+    print("invariant candidates end.")
     #invariant candidates:
     # [<Atom on(b, ?x)>, <Atom holding(d)>, <Atom on(?y, b)>, <Atom on(d, ?y)>, <Atom on(a, ?y)>, <Atom clear(d)>,
     # <Atom ontable(b)>, <Atom ontable(?x)>, <Atom on(d, a)>, <Atom holding(c)>, <Atom on(b, d)>, <Atom clear(c)>,
@@ -393,38 +407,38 @@ def get_schematic_invariants(relaxed_reachable, atoms, actions, goal_list, axiom
     #     if temp == 11:
     #         action_temp = a
     #     temp += 1
-    a = Atom(predicate="on", args=["a", "b"])
-    b = Atom(predicate="on", args=["b", "c"])
-    c = Atom(predicate="clear", args=["a"])
-    d = Atom(predicate="clear", args=["b"])
-    conj1 = Conjunction([a, b])
-    conj2 = Conjunction([c, d.negate()])
-    conj2notnegated = Conjunction([c.negate(), d])
-    conj3fortest2 = JunctorCondition([conj1, conj2notnegated])
-    conj3 = JunctorCondition([conj1, conj2])
-    # nicht junctro
-    axiom1_1 = Atom(predicate="on", args=["?x", "?y"])
-    axiom_on_y_x = Atom(predicate="on", args=["?y", "?x"])
-    axiom1_2 = Atom(predicate="ontable", args=["?x"])
-    axiom1_3 = Atom(predicate="holding", args=["?x"])
-    conjAxiom1 = Disjunction([axiom1_1, axiom1_2, axiom1_3])
-
-    axiom2_1 = Atom(predicate="clear", args=["?x"])
-    axiom2_2 = Atom(predicate="clear", args=["?y"])
-
-    junctorAxiom2 = JunctorCondition([axiom1_1, axiom2_2.negate()])
-    axiom3 = Atom(predicate="on", args=["?x", "?x"]).negate()
-    disAxiom4= Disjunction([axiom2_1, axiom_on_y_x])
-    junctorAxiom4 = JunctorCondition([axiom1_2, disAxiom4])
-
-
-    axiom_list = [conjAxiom1, junctorAxiom2, axiom3, junctorAxiom4]
-    test_sat_true = is_sat(conj3, axiom_list)
-    test_sat_false = is_sat(conj3fortest2, axiom_list)
-    print("first try: true if 0: ", test_sat_true)
-    print("second try: false if 1: ", test_sat_false)
-    print("end test sat")
-    return
+    # a = Atom(predicate="on", args=["a", "b"])
+    # b = Atom(predicate="on", args=["b", "c"])
+    # c = Atom(predicate="clear", args=["a"])
+    # d = Atom(predicate="clear", args=["b"])
+    # conj1 = Conjunction([a, b])
+    # conj2 = Conjunction([c, d.negate()])
+    # conj2notnegated = Conjunction([c.negate(), d])
+    # conj3fortest2 = JunctorCondition([conj1, conj2notnegated])
+    # conj3 = JunctorCondition([conj1, conj2])
+    # # nicht junctro
+    # axiom1_1 = Atom(predicate="on", args=["?x", "?y"])
+    # axiom_on_y_x = Atom(predicate="on", args=["?y", "?x"])
+    # axiom1_2 = Atom(predicate="ontable", args=["?x"])
+    # axiom1_3 = Atom(predicate="holding", args=["?x"])
+    # conjAxiom1 = Disjunction([axiom1_1, axiom1_2, axiom1_3])
+    #
+    # axiom2_1 = Atom(predicate="clear", args=["?x"])
+    # axiom2_2 = Atom(predicate="clear", args=["?y"])
+    #
+    # junctorAxiom2 = JunctorCondition([axiom1_1, axiom2_2.negate()])
+    # axiom3 = Atom(predicate="on", args=["?x", "?x"]).negate()
+    # disAxiom4= Disjunction([axiom2_1, axiom_on_y_x])
+    # junctorAxiom4 = JunctorCondition([axiom1_2, disAxiom4])
+    #
+    #
+    # axiom_list = [conjAxiom1, junctorAxiom2, axiom3, junctorAxiom4]
+    # test_sat_true = is_sat(conj3, axiom_list)
+    # test_sat_false = is_sat(conj3fortest2, axiom_list)
+    # print("first try: true if 0: ", test_sat_true)
+    # print("second try: false if 1: ", test_sat_false)
+    # print("end test sat")
+    # return
     #print(list_of_possible_actions)
 
     #conj = Conjunction([a, b])
@@ -444,16 +458,12 @@ def get_schematic_invariants(relaxed_reachable, atoms, actions, goal_list, axiom
                 x = regression(c.negate(), action).simplified()
                 print("after regression in while loop")
                 x.dump()
-                temp_union = create_union(C_0, x)
-                print("temp_union: ")
-                temp_union.dump()
-                # TODO: is_sat --> im moment wird True zurück gegeben
-                # könnte z.b mit pycosat gemacht werden (sat-solver), dann muss jedoch formula umgeformt werden
-                # eigenen sat solver implementieren
-                if is_sat(temp_union):
+                x = handempty_conversion(x)
+                satTest = is_sat(x, C_0)
+                if satTest == 0:
                     # TODO: Test weaken?
                     invariant_candidates.remove(c)
-                    invariant_candidates = set(invariant_candidates + weaken(c, action))
+                    invariant_candidates.add(weaken(c))
                 # TODO: since isSat always true: invariant candidates gets bigger each iteration,
                 #  and therefore endless loop for c in invariant_candidates
                 break

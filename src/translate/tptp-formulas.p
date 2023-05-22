@@ -1,5 +1,45 @@
-fof(formula1, axiom,![X]: ![Y]:on(X,Y) | ontable(X) | holding(X)).
-fof(formula2, axiom,![X]: ![Y]:on(X,Y) => ~clear(Y)).
-fof(formula3, axiom,![X]:~on(X,X)).
-fof(formula4, axiom,![X]: ![Y]:ontable(X) => clear(X) | on(Y,X)).
-fof(formula0, conjecture,on(a,b) & on(b,c) => clear(a) & ~clear(b)).
+fof(formula1, axiom,![X]:on(X,b)).
+fof(formula2, axiom,clear(d)).
+fof(formula3, axiom,handempty(z)).
+fof(formula4, axiom,![Y]:on(Y,a)).
+fof(formula5, axiom,on(b,a)).
+fof(formula6, axiom,on(c,a)).
+fof(formula7, axiom,on(b,d)).
+fof(formula8, axiom,holding(b)).
+fof(formula9, axiom,on(d,a)).
+fof(formula10, axiom,ontable(a)).
+fof(formula11, axiom,clear(b)).
+fof(formula12, axiom,on(a,d)).
+fof(formula13, axiom,![X]:on(X,c)).
+fof(formula14, axiom,ontable(d)).
+fof(formula15, axiom,![X]:holding(X)).
+fof(formula16, axiom,![X]:clear(X)).
+fof(formula17, axiom,![Y]:on(Y,d)).
+fof(formula18, axiom,on(c,d)).
+fof(formula19, axiom,holding(c)).
+fof(formula20, axiom,clear(c)).
+fof(formula21, axiom,on(d,b)).
+fof(formula22, axiom,ontable(b)).
+fof(formula23, axiom,on(a,b)).
+fof(formula24, axiom,![X]:on(b,X)).
+fof(formula25, axiom,![Y]:on(Y,c)).
+fof(formula26, axiom,![X]:on(d,X)).
+fof(formula27, axiom,![Y]:on(b,Y)).
+fof(formula28, axiom,![Y]:on(Y,b)).
+fof(formula29, axiom,![X]:on(a,X)).
+fof(formula30, axiom,![X]:ontable(X)).
+fof(formula31, axiom,![X]:on(X,a)).
+fof(formula32, axiom,on(b,c)).
+fof(formula33, axiom,![Y]:on(d,Y)).
+fof(formula34, axiom,on(c,b)).
+fof(formula35, axiom,on(d,c)).
+fof(formula36, axiom,![Y]:on(a,Y)).
+fof(formula37, axiom,![X]:on(X,d)).
+fof(formula38, axiom,ontable(c)).
+fof(formula39, axiom,on(a,c)).
+fof(formula40, axiom,![X]:on(c,X)).
+fof(formula41, axiom,holding(a)).
+fof(formula42, axiom,clear(a)).
+fof(formula43, axiom,holding(d)).
+fof(formula44, axiom,![Y]:on(c,Y)).
+fof(formula0, negated_conjecture,![X]:on(d,c) & clear(d) & handempty(z) & on(X,b)).
