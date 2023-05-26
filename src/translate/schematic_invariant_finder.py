@@ -4,6 +4,7 @@ import subprocess
 
 from src.translate.pddl.effects import *
 from pddl.conditions import *
+import invariant_candidate
 
 def weaken(formula, objects):
     # weaken of form X -> l_1 to X -> l_1 v l_2
@@ -227,13 +228,14 @@ def handempty_conversion(x):
 
 def create_invariant_candidates(task):
     # create simple invariants: all atoms in init are used as invariant candidates
-    inv_list = []
+    inv_list = set()
     for a in task.init:
         if a.predicate != "=":
-            if a.predicate == "handempty":
-                a.args = ["noargs"]
-            inv_list.append(a)
-    return inv_list
+            inv_list.add(invariant_candidate.InvariantCandidate(a))
+            # if a.predicate == "handempty":
+            #     a.args = ["noargs"]
+            #     inv_list.append(a)
+    return set(inv_list)
 
 
 def get_schematic_invariants(task, actions):
@@ -254,17 +256,19 @@ def get_schematic_invariants(task, actions):
             list_of_possible_actions.append(a)
     # start algorithm from Rintannen
     while True:
-        C_0 = list(C)
+        C_0 = set(C)
         print("C")
         for part in C_0:
             part.dump()
         print("end c ")
         for action in list_of_possible_actions:
+            # TODO:
             # kommt in der aktion ein negiertes literal vor welches in c enthalten ist --> kann action überhaupt effekt auf candidates haben
             # if else check
             print("action:")
             action.dump()
             for c in C:
+                # TODO:
                 # hier alle möglichen c instanziierungen (mit unterschiedlichen objekten testen) --> nur wenn mit action ungültig gemacht werden
                 #
                 print("c")
@@ -283,6 +287,7 @@ def get_schematic_invariants(task, actions):
                     print("c length: ", len(C))
                     # aktion übergeben zu sat test
                     # schwächt schematische invarianten ab
+                    # TODO:
                     # hier muss geprüft werden ob C wächst, falls nicht --> emptyObject oder so übergeben (da C sonst grösse ändert innerhalb iteration)
                     C.add(weaken(c, task.objects))
                     print("c length: ", len(C))
