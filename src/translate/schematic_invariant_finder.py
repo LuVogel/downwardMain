@@ -61,6 +61,8 @@ def regression(formula, operator):
     # eff_list = eff(o)
     eff_list = get_effects_from_action(operator)
     # start recursive call
+    for pre in operator.precondition:
+        handempty_conversion(pre)
     return Conjunction([Conjunction(operator.precondition), regression_rec(formula, Conjunction(eff_list))]).simplified()
 
 def regression_rec(formula, effect):
@@ -101,15 +103,15 @@ def get_effects_from_action(operator):
     # add all add_effects
     for cond, eff in operator.add_effects:
         if len(cond) == 0:
-            eff_list.append(eff)
+            eff_list.append(handempty_conversion(eff))
         else:
-            eff_list.append(ConditionalEffect(condition=cond, effect=eff))
+            eff_list.append(ConditionalEffect(condition=cond, effect=handempty_conversion(eff)))
     # add all del_effects as negated effect
     for cond, eff in operator.del_effects:
         if len(cond) == 0:
-            eff_list.append(eff.negate())
+            eff_list.append(handempty_conversion(eff.negate()))
         else:
-            eff_list.append(ConditionalEffect(condition=cond, effect=eff.negate()))
+            eff_list.append(ConditionalEffect(condition=cond, effect=handempty_conversion(eff.negate())))
     return eff_list
 
 
@@ -202,7 +204,7 @@ def is_sat(negated_conjecture, axiom_list):
         counter = 1
         # create for all axioms the tptp file
         for formula in axiom_list:
-            write_formula_to_fof(formula, "axiom", file, counter)
+            write_formula_to_fof(formula.part, "axiom", file, counter)
             counter += 1
         # add formula we want to check to tptp file
         write_formula_to_fof(negated_conjecture, "negated_conjecture", file, 0)
@@ -215,7 +217,7 @@ def handempty_conversion(x):
     # since vampire doesn't recognize empty claues, use "noargs" for handempty()
     if isinstance(x, Conjunction) or isinstance(x, Disjunction):
         for part in x.parts:
-            if isinstance(part, Conjunction) or isinstance(part, Conjunction):
+            if isinstance(part, Conjunction) or isinstance(part, Disjunction):
                 return handempty_conversion(part)
             if isinstance(part, Atom) or isinstance(part, NegatedAtom):
                 if part.predicate == "handempty":
@@ -238,9 +240,81 @@ def create_invariant_candidates(task):
     return set(inv_list)
 
 
+def runAlgorithm(action, c, C_0, C, task, temp_c_list):
+    print("action:")
+    action.dump()
+    # TODO:
+    # hier alle möglichen c instanziierungen (mit unterschiedlichen objekten testen) --> nur wenn mit action ungültig gemacht werden
+    #
+    print("c")
+    c.dump()
+
+    after_reg = regression(c.negate(), action).simplified()
+    print("after reg:")
+    print("first c, then reg: ")
+    c.dump()
+    after_reg.dump()
+    after_reg_and_conv = handempty_conversion(after_reg)
+
+    sat_test = is_sat(after_reg_and_conv, C_0)
+    if sat_test:
+        print("no invariant")
+        print("inv list in where we remove")
+        for inv in temp_c_list:
+            inv.dump()
+        print("to remove: ")
+        invcand = invariant_candidate.InvariantCandidate(c)
+        invcand.dump()
+        temp_c_list.remove(invcand)
+        # aktion übergeben zu sat test
+        # schwächt schematische invarianten ab
+        # TODO:
+        # hier muss geprüft werden ob C wächst, falls nicht --> emptyObject oder so übergeben (da C sonst grösse ändert innerhalb iteration)
+        x = weaken(c, task.objects)
+        print("weaken result: ", x)
+        x.dump()
+
+        temp_c_list.add(invariant_candidate.InvariantCandidate(x))
+    else:
+        print("invariant")
+
+
+
+def create_c_temp(c, available_objects):
+    if isinstance(c.part, Atom) or isinstance(c.part, NegatedAtom):
+        if c.part.predicate == "handempty":
+            return c.part
+        elif len(c.part.args) == 1:
+            for obj1 in available_objects:
+                if c.part.args[0] == "?x" or c.part.args[0] == "?y":
+                    if isinstance(c.part, Atom):
+                        return Atom(predicate=c.part.predicate, args=[obj1])
+                    else:
+                        return NegatedAtom(predicate=c.part.predicate, args=[obj1])
+        elif len(c.part.args) == 2:
+            for obj1 in available_objects:
+                for obj2 in available_objects:
+                    if obj1 != obj2:
+                        if c.part.args[0] == "?x" and c.part.args[1] == "?y":
+                            if isinstance(c.part, Atom):
+                                return Atom(predicate=c.part.predicate, args=[obj1, obj2])
+                            else:
+                                return NegatedAtom(predicate=c.part.predicate, args=[obj1, obj2])
+    elif isinstance(c.part, Disjunction) or isinstance((c.part, Conjunction)):
+        part_list = set()
+        for part in c.part.parts:
+            part_list.add(create_c_temp(part))
+        if isinstance(c.part, Disjunction):
+            return Disjunction(part_list)
+        else:
+            return Conjunction(part_list)
+
 def get_schematic_invariants(task, actions):
     # use deepcopy, so we can modify actions and task freely
     task = copy.deepcopy(task)
+    available_objects = []
+    for obj in task.objects:
+        available_objects.append(obj.name)
     actions = copy.deepcopy(actions)
     C = set(create_invariant_candidates(task))
     list_of_possible_actions = []
@@ -265,34 +339,18 @@ def get_schematic_invariants(task, actions):
             # TODO:
             # kommt in der aktion ein negiertes literal vor welches in c enthalten ist --> kann action überhaupt effekt auf candidates haben
             # if else check
-            print("action:")
-            action.dump()
+            temp_c_list = set(C)
             for c in C:
-                # TODO:
-                # hier alle möglichen c instanziierungen (mit unterschiedlichen objekten testen) --> nur wenn mit action ungültig gemacht werden
-                #
-                print("c")
-                c.dump()
-
-                after_reg = regression(c.negate(), action).simplified()
-                print("after reg:")
-                after_reg.dump()
-                after_reg_and_conv = handempty_conversion(after_reg)
-
-                sat_test = is_sat(after_reg_and_conv, C_0)
-                if sat_test:
-                    print("no invariant")
-                    print("c length: ", len(C))
-                    C.remove(c)
-                    print("c length: ", len(C))
-                    # aktion übergeben zu sat test
-                    # schwächt schematische invarianten ab
-                    # TODO:
-                    # hier muss geprüft werden ob C wächst, falls nicht --> emptyObject oder so übergeben (da C sonst grösse ändert innerhalb iteration)
-                    C.add(weaken(c, task.objects))
-                    print("c length: ", len(C))
+                if c.contains(action):
+                    print("c in while loop: ")
+                    c.dump()
+                    c_temp = create_c_temp(c, available_objects)
+                    print("created c_temp: ")
+                    c_temp.dump()
+                    runAlgorithm(action, c_temp, C_0, C, task, temp_c_list)
                 else:
-                    print("invariant")
+                    print("action has no influence")
+            C = set(temp_c_list)
         if C == C_0:
             # solution found, return
             return C
