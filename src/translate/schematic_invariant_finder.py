@@ -271,7 +271,7 @@ def runAlgorithm(action, c, C_0, C, task, temp_c_list):
         # TODO:
         # hier muss geprüft werden ob C wächst, falls nicht --> emptyObject oder so übergeben (da C sonst grösse ändert innerhalb iteration)
         x = weaken(c, task.objects)
-        print("weaken result: ", x)
+        print("weaken result: ")
         x.dump()
 
         temp_c_list.add(invariant_candidate.InvariantCandidate(x))
