@@ -5,9 +5,11 @@ import subprocess
 from src.translate.pddl.effects import *
 from pddl.conditions import *
 import invariant_candidate
-
+from invariant_candidate import *
 def weaken(formula, objects):
     # weaken of form X -> l_1 to X -> l_1 v l_2
+    print("inside weaken, formula: type: ")
+    print(type(formula))
     if isinstance(formula, Atom) or isinstance(formula, NegatedAtom):
         # handempty has no argument and on has two arguments --> the rest has exactly one argument
         if formula.predicate != "handempty" and formula.predicate != "on":
@@ -28,34 +30,34 @@ def weaken(formula, objects):
                 cond_obj2 = random.choice(objects).name
             return Disjunction(parts=[formula, Atom(predicate="on", args=[cond_obj1, cond_obj2])])
     # weaken of form X -> l_1 v ... v l_n to X -> l_1 v .. v l_n v l_n+1
-    # elif isinstance(formula, Disjunction):
-    #     list = []
-    #     for part in formula.parts:
-    #         list.append(part)
-    #     # start with a condition (Atom) which is in formula
-    #     cond = list[0]
-    #     # as long as condition is in list
-    #     while cond in list:
-    #         # choose random predicate
-    #         cond_pred = random.choice(["on", "handempty", "ontable", "clear", "holding"])
-    #         # if on was choosen, chose two random objects (on(x,y)) with x != y and set this to cond
-    #         if cond_pred == "on":
-    #             cond_obj1 = random.choice(objects).name
-    #             cond_obj2 = random.choice(objects).name
-    #             while cond_obj2 == cond_obj1:
-    #                 cond_obj2 = random.choice(objects).name
-    #             cond = Atom(predicate=cond_pred, args=[cond_obj1, cond_obj2])
-    #         # if handempty, create new atom handempty
-    #         elif cond_pred == "handempty":
-    #             cond = Atom(predicate=cond_pred, args=["noargs"])
-    #         else:
-    #             # in other cases, create cond with random object
-    #             cond_obj = random.choice(objects).name
-    #             cond = Atom(predicate=cond_pred, args=[cond_obj])
-    #     # if we land here, that means we created an new Atom which wasn't already in the formula.
-    #     # therefore add it to list and return a disjunction (formula = x1 v...v xn) return x1 v...v xn v cond
-    #     list.append(cond)
-    #     return Disjunction(list)
+    elif isinstance(formula, Disjunction):
+        list = []
+        for part in formula.parts:
+            list.append(part)
+        # start with a condition (Atom) which is in formula
+        cond = list[0]
+        # as long as condition is in list
+        while cond in list:
+            # choose random predicate
+            cond_pred = random.choice(["on", "handempty", "ontable", "clear", "holding"])
+            # if on was choosen, chose two random objects (on(x,y)) with x != y and set this to cond
+            if cond_pred == "on":
+                cond_obj1 = random.choice(objects).name
+                cond_obj2 = random.choice(objects).name
+                while cond_obj2 == cond_obj1:
+                    cond_obj2 = random.choice(objects).name
+                cond = Atom(predicate=cond_pred, args=[cond_obj1, cond_obj2])
+            # if handempty, create new atom handempty
+            elif cond_pred == "handempty":
+                cond = Atom(predicate=cond_pred, args=["noargs"])
+            else:
+                # in other cases, create cond with random object
+                cond_obj = random.choice(objects).name
+                cond = Atom(predicate=cond_pred, args=[cond_obj])
+        # if we land here, that means we created an new Atom which wasn't already in the formula.
+        # therefore add it to list and return a disjunction (formula = x1 v...v xn) return x1 v...v xn v cond
+        list.append(cond)
+        return Disjunction(list)
 
 def regression(formula, operator):
     # eff_list = eff(o)
@@ -233,6 +235,7 @@ def create_invariant_candidates(task):
     inv_list = set()
     for a in task.init:
         if a.predicate != "=":
+            # TODO ersetzen hier drin machen (vari und objekte)
             inv_list.add(invariant_candidate.InvariantCandidate(a))
             # if a.predicate == "handempty":
             #     a.args = ["noargs"]
@@ -265,6 +268,7 @@ def runAlgorithm(action, c, C_0, C, task, temp_c_list):
         print("to remove: ")
         invcand = invariant_candidate.InvariantCandidate(c)
         invcand.dump()
+        # TODO: inv candidates X_1 or X_2 == X_2 or X_1 --> im moment wird das nicht als gleich erkannt und daher key error
         temp_c_list.remove(invcand)
         # aktion übergeben zu sat test
         # schwächt schematische invarianten ab
@@ -281,33 +285,36 @@ def runAlgorithm(action, c, C_0, C, task, temp_c_list):
 
 
 def create_c_temp(c, available_objects):
-    if isinstance(c.part, Atom) or isinstance(c.part, NegatedAtom):
-        if c.part.predicate == "handempty":
-            return c.part
-        elif len(c.part.args) == 1:
-            for obj1 in available_objects:
-                if c.part.args[0] == "?x" or c.part.args[0] == "?y":
-                    if isinstance(c.part, Atom):
-                        return Atom(predicate=c.part.predicate, args=[obj1])
-                    else:
-                        return NegatedAtom(predicate=c.part.predicate, args=[obj1])
-        elif len(c.part.args) == 2:
-            for obj1 in available_objects:
-                for obj2 in available_objects:
-                    if obj1 != obj2:
-                        if c.part.args[0] == "?x" and c.part.args[1] == "?y":
-                            if isinstance(c.part, Atom):
-                                return Atom(predicate=c.part.predicate, args=[obj1, obj2])
-                            else:
-                                return NegatedAtom(predicate=c.part.predicate, args=[obj1, obj2])
-    elif isinstance(c.part, Disjunction) or isinstance((c.part, Conjunction)):
-        part_list = set()
-        for part in c.part.parts:
-            part_list.add(create_c_temp(part))
-        if isinstance(c.part, Disjunction):
-            return Disjunction(part_list)
-        else:
-            return Conjunction(part_list)
+    if isinstance(c, InvariantCandidate):
+        return create_c_temp(c.part, available_objects)
+    else:
+        if isinstance(c, Atom) or isinstance(c, NegatedAtom):
+            if c.predicate == "handempty":
+                return c
+            elif len(c.args) == 1:
+                for obj1 in available_objects:
+                    if c.args[0] == "?x" or c.args[0] == "?y":
+                        if isinstance(c, Atom):
+                            return Atom(predicate=c.predicate, args=[obj1])
+                        else:
+                            return NegatedAtom(predicate=c.predicate, args=[obj1])
+            elif len(c.args) == 2:
+                for obj1 in available_objects:
+                    for obj2 in available_objects:
+                        if obj1 != obj2:
+                            if c.args[0] == "?x" and c.args[1] == "?y":
+                                if isinstance(c, Atom):
+                                    return Atom(predicate=c.predicate, args=[obj1, obj2])
+                                else:
+                                    return NegatedAtom(predicate=c.predicate, args=[obj1, obj2])
+        elif isinstance(c, Disjunction) or isinstance((c, Conjunction)):
+            part_list = set()
+            for part in c.parts:
+                part_list.add(create_c_temp(part, available_objects))
+            if isinstance(c, Disjunction):
+                return Disjunction(part_list)
+            else:
+                return Conjunction(part_list)
 
 def get_schematic_invariants(task, actions):
     # use deepcopy, so we can modify actions and task freely
@@ -341,7 +348,7 @@ def get_schematic_invariants(task, actions):
             # if else check
             temp_c_list = set(C)
             for c in C:
-                if c.contains(action):
+                if c.contains(c.part, action):
                     print("c in while loop: ")
                     c.dump()
                     c_temp = create_c_temp(c, available_objects)

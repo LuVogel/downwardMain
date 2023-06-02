@@ -60,13 +60,18 @@ class InvariantCandidate:
         self.part.dump(indent + "  ")
     def _dump(self):
         return self.__class__.__name__
-    def contains(self, action):
-        for cond, eff in action.add_effects:
-            if isinstance(eff, NegatedAtom):
-                if self.part.predicate == eff.predicate:
-                    return True
-        # add all del_effects as negated effect
-        for cond, eff in action.del_effects:
-            if isinstance(eff, Atom):
-                if self.part.predicate == eff.negate().predicate:
-                    return True
+    def contains(self, condition, action):
+        if isinstance(condition, Atom) or isinstance(condition, NegatedAtom):
+            for cond, eff in action.add_effects:
+                if isinstance(eff, NegatedAtom):
+                    if condition.predicate == eff.predicate:
+                        return True
+            # add all del_effects as negated effect
+            for cond, eff in action.del_effects:
+                if isinstance(eff, Atom):
+                    if condition.predicate == eff.negate().predicate:
+                        return True
+        elif isinstance(condition, Conjunction) or isinstance(condition, Disjunction):
+            for parts in condition.parts:
+                return self.contains(parts, action)
+
