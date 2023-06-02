@@ -236,7 +236,7 @@ def create_invariant_candidates(task):
     for a in task.init:
         if a.predicate != "=":
             # TODO ersetzen hier drin machen (vari und objekte)
-            inv_list.add(invariant_candidate.InvariantCandidate(a))
+            inv_list.add(invariant_candidate.InvariantCandidate([a]))
             # if a.predicate == "handempty":
             #     a.args = ["noargs"]
             #     inv_list.append(a)
@@ -266,7 +266,7 @@ def runAlgorithm(action, c, C_0, C, task, temp_c_list):
         for inv in temp_c_list:
             inv.dump()
         print("to remove: ")
-        invcand = invariant_candidate.InvariantCandidate(c)
+        invcand = invariant_candidate.InvariantCandidate([c])
         invcand.dump()
         # TODO: inv candidates X_1 or X_2 == X_2 or X_1 --> im moment wird das nicht als gleich erkannt und daher key error
         temp_c_list.remove(invcand)
@@ -278,7 +278,7 @@ def runAlgorithm(action, c, C_0, C, task, temp_c_list):
         print("weaken result: ")
         x.dump()
 
-        temp_c_list.add(invariant_candidate.InvariantCandidate(x))
+        temp_c_list.add(invariant_candidate.InvariantCandidate([x]))
     else:
         print("invariant")
 
@@ -286,10 +286,10 @@ def runAlgorithm(action, c, C_0, C, task, temp_c_list):
 
 def create_c_temp(c, available_objects):
     if isinstance(c, InvariantCandidate):
-        return create_c_temp(c.part, available_objects)
+        return create_c_temp(c.parts, available_objects)
     else:
         if isinstance(c, Atom) or isinstance(c, NegatedAtom):
-            if c.predicate == "handempty":
+            if len(c.args) == 0:
                 return c
             elif len(c.args) == 1:
                 for obj1 in available_objects:
@@ -348,7 +348,7 @@ def get_schematic_invariants(task, actions):
             # if else check
             temp_c_list = set(C)
             for c in C:
-                if c.contains(c.part, action):
+                if c.contains(action):
                     print("c in while loop: ")
                     c.dump()
                     c_temp = create_c_temp(c, available_objects)
