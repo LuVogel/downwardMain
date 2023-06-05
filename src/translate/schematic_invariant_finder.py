@@ -1,7 +1,9 @@
 import copy
 import random
 import subprocess
+from typing import List
 
+from src.translate.pddl import Atom
 from src.translate.pddl.effects import *
 from pddl.conditions import *
 import invariant_candidate
@@ -230,17 +232,40 @@ def handempty_conversion(x):
     return x
 
 
+def parse_objects_with_current_pred(task, task_objects, task_pred):
+    cand_list: list[Atom] = []
+    p_should_have_length = 0
+
+    if len(task_pred.arguments) == 2:
+        p_should_have_length = len(task_objects) * len(task_objects)
+    elif len(task_pred.arguments) == 1:
+        p_should_have_length = len(task_objects)
+    elif len(task_pred.arguments) == 0:
+        p_should_have_length = 1
+    count_pred_in_init = 0
+    for atom in task.init:
+        if atom.predicate == task_pred.name:
+            count_pred_in_init += 1
+    if count_pred_in_init == p_should_have_length:
+        return InvariantCandidate(part=[Atom(predicate=task_pred.name, args=task_pred.arguments)])
+    elif count_pred_in_init == 0:
+        return InvariantCandidate(part=[NegatedAtom(predicate=task_pred.name, args=task_pred.arguments)])
+    else:
+        return None
+
+
+
 def create_invariant_candidates(task):
     # create simple invariants: all atoms in init are used as invariant candidates
     inv_list = set()
-    for a in task.init:
-        if a.predicate != "=":
-            # TODO ersetzen hier drin machen (vari und objekte)
-            inv_list.add(invariant_candidate.InvariantCandidate([a]))
-            # if a.predicate == "handempty":
-            #     a.args = ["noargs"]
-            #     inv_list.append(a)
+    task_objects = list(task.objects)
+    for task_pred in task.predicates:
+        inv_cand = parse_objects_with_current_pred(task, task_objects, task_pred)
+        if inv_cand is not None:
+            inv_list.add(inv_cand)
     return set(inv_list)
+
+
 
 
 def runAlgorithm(action, c, C_0, C, task, temp_c_list):
@@ -284,37 +309,35 @@ def runAlgorithm(action, c, C_0, C, task, temp_c_list):
 
 
 
-def create_c_temp(c, available_objects):
-    if isinstance(c, InvariantCandidate):
-        return create_c_temp(c.parts, available_objects)
-    else:
-        if isinstance(c, Atom) or isinstance(c, NegatedAtom):
-            if len(c.args) == 0:
-                return c
-            elif len(c.args) == 1:
-                for obj1 in available_objects:
-                    if c.args[0] == "?x" or c.args[0] == "?y":
-                        if isinstance(c, Atom):
-                            return Atom(predicate=c.predicate, args=[obj1])
-                        else:
-                            return NegatedAtom(predicate=c.predicate, args=[obj1])
-            elif len(c.args) == 2:
-                for obj1 in available_objects:
-                    for obj2 in available_objects:
-                        if obj1 != obj2:
-                            if c.args[0] == "?x" and c.args[1] == "?y":
-                                if isinstance(c, Atom):
-                                    return Atom(predicate=c.predicate, args=[obj1, obj2])
-                                else:
-                                    return NegatedAtom(predicate=c.predicate, args=[obj1, obj2])
-        elif isinstance(c, Disjunction) or isinstance((c, Conjunction)):
-            part_list = set()
-            for part in c.parts:
-                part_list.add(create_c_temp(part, available_objects))
-            if isinstance(c, Disjunction):
-                return Disjunction(part_list)
+def create_c_sigma(inv_cand:InvariantCandidate, task_objects:list[TypedObject]):
+    c_sigma = []
+    if len(inv_cand.parts) == 1:
+        negated = False
+        if isinstance(inv_cand.parts[0], Atom):
+            negated = True
+        if len(inv_cand.parts[0].args) == 0:
+            if negated:
+                c_sigma.append(NegatedAtom(predicate=inv_cand.parts[0].predicate, args=[]))
             else:
-                return Conjunction(part_list)
+                c_sigma.append(Atom(predicate=inv_cand.parts[0].predicate, args=[]))
+        elif len(inv_cand.parts[0].args) == 1:
+            for obj in task_objects:
+                if negated:
+                    c_sigma.append(NegatedAtom(predicate=inv_cand.parts[0].predicate, args=[obj.name]))
+                else:
+                    c_sigma.append(Atom(predicate=inv_cand.parts[0].predicate, args=[obj.name]))
+        elif len(inv_cand.parts[0].args) == 2:
+            for obj in task_objects:
+                for obj2 in task_objects:
+                    if negated:
+                        c_sigma.append(NegatedAtom(predicate=inv_cand.parts[0].predicate, args=[obj.name, obj2.name]))
+                    else:
+                        c_sigma.append(Atom(predicate=inv_cand.parts[0].predicate, args=[obj.name, obj2.name]))
+        return c_sigma
+        # TODO: return c sigma: each item in list test in regression and sat test, if any is sat --> then weaken inv cand
+    else:
+        print("inv cand is disjunction")
+
 
 def get_schematic_invariants(task, actions):
     # use deepcopy, so we can modify actions and task freely
@@ -323,7 +346,7 @@ def get_schematic_invariants(task, actions):
     for obj in task.objects:
         available_objects.append(obj.name)
     actions = copy.deepcopy(actions)
-    C = set(create_invariant_candidates(task))
+    inv_cand_set_C = set(create_invariant_candidates(task))
     list_of_possible_actions = []
     # create all possible actions which can be done in the game
     for a in actions:
@@ -337,27 +360,29 @@ def get_schematic_invariants(task, actions):
             list_of_possible_actions.append(a)
     # start algorithm from Rintannen
     while True:
-        C_0 = set(C)
-        print("C")
-        for part in C_0:
-            part.dump()
-        print("end c ")
+        inv_cand_set_C_0 = set(inv_cand_set_C)
+        print("inv_cand_set_C_0")
+        for inv_cand in inv_cand_set_C_0:
+            inv_cand.dump()
+        print("end inv_cand_set_C0 ")
         for action in list_of_possible_actions:
             # TODO:
             # kommt in der aktion ein negiertes literal vor welches in c enthalten ist --> kann action überhaupt effekt auf candidates haben
             # if else check
-            temp_c_list = set(C)
-            for c in C:
-                if c.contains(action):
+            inv_cand_temp_set = set(inv_cand_set_C)
+            for inv_cand in inv_cand_set_C:
+                if inv_cand.contains(action):
                     print("c in while loop: ")
-                    c.dump()
-                    c_temp = create_c_temp(c, available_objects)
+                    inv_cand.dump()
+                    # TODO: return c sigma: each item in list test in regression and sat test, if any is sat --> then weaken inv cand
+
+                    inv_cand_temp = create_c_sigma(inv_cand, task.objects)
                     print("created c_temp: ")
-                    c_temp.dump()
-                    runAlgorithm(action, c_temp, C_0, C, task, temp_c_list)
+                    inv_cand_temp.dump()
+                    runAlgorithm(action, inv_cand_temp, inv_cand_set_C_0, inv_cand_set_C, task, inv_cand_temp_set)
                 else:
                     print("action has no influence")
-            C = set(temp_c_list)
-        if C == C_0:
+            inv_cand_set_C = set(inv_cand_temp_set)
+        if inv_cand_set_C == inv_cand_set_C_0:
             # solution found, return
-            return C
+            return inv_cand_set_C
