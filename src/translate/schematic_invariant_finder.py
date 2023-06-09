@@ -8,60 +8,27 @@ from src.translate.pddl.effects import *
 from pddl.conditions import *
 import invariant_candidate
 from invariant_candidate import *
-def weaken(formula, objects):
+def weaken(inv_cand : InvariantCandidate, action : PropositionalAction):
+    print("inv_cand: ")
+    print(type(inv_cand))
+    inv_cand.dump()
+    inv_cand_set = set()
+    curr_inv_list = set(inv_cand.parts)
+    for cond, eff in action.add_effects:
+        if eff not in curr_inv_list:
+            curr_inv_list.add(eff)
+            inv_cand_set.add(InvariantCandidate(part=curr_inv_list))
+            curr_inv_list.remove(eff)
+    for cond, eff in action.del_effects:
+        if eff.negate() not in curr_inv_list:
+            curr_inv_list.add(eff.negate())
+            inv_cand_set.add(InvariantCandidate(part=curr_inv_list))
+            curr_inv_list.remove(eff.negate())
+    return inv_cand_set
     # weaken of form X -> l_1 to X -> l_1 v l_2
-    print("inside weaken, formula: type: ")
-    print(type(formula))
-    if isinstance(formula, Atom) or isinstance(formula, NegatedAtom):
-        # handempty has no argument and on has two arguments --> the rest has exactly one argument
-        if formula.predicate != "handempty" and formula.predicate != "on":
-            for obj in objects:
-                if formula.args[0] != obj.name:
-                    # if object found which is not arg of formula e.g. ontable(d) and c found, return ontable(d) v ontable(c)
-                    return Disjunction(parts=[formula, Atom(predicate=formula.predicate, args=[obj.name])])
-        elif formula.predicate == "handempty":
-            # if handempty, just negate
-            return Disjunction(parts=[formula, formula.negate()])
-        elif formula.predicate == "on":
-            # if on: e.g. on(x,y) search z where x != z, and then search u where u != z and return on(u,z)
-            cond_obj1 = formula.args[0]
-            while cond_obj1 == formula.args[0]:
-                cond_obj1 = random.choice(objects).name
-            cond_obj2 = random.choice(objects).name
-            while cond_obj2 == cond_obj1:
-                cond_obj2 = random.choice(objects).name
-            return Disjunction(parts=[formula, Atom(predicate="on", args=[cond_obj1, cond_obj2])])
-    # weaken of form X -> l_1 v ... v l_n to X -> l_1 v .. v l_n v l_n+1
-    elif isinstance(formula, Disjunction):
-        list = []
-        for part in formula.parts:
-            list.append(part)
-        # start with a condition (Atom) which is in formula
-        cond = list[0]
-        # as long as condition is in list
-        while cond in list:
-            # choose random predicate
-            cond_pred = random.choice(["on", "handempty", "ontable", "clear", "holding"])
-            # if on was choosen, chose two random objects (on(x,y)) with x != y and set this to cond
-            if cond_pred == "on":
-                cond_obj1 = random.choice(objects).name
-                cond_obj2 = random.choice(objects).name
-                while cond_obj2 == cond_obj1:
-                    cond_obj2 = random.choice(objects).name
-                cond = Atom(predicate=cond_pred, args=[cond_obj1, cond_obj2])
-            # if handempty, create new atom handempty
-            elif cond_pred == "handempty":
-                cond = Atom(predicate=cond_pred, args=["noargs"])
-            else:
-                # in other cases, create cond with random object
-                cond_obj = random.choice(objects).name
-                cond = Atom(predicate=cond_pred, args=[cond_obj])
-        # if we land here, that means we created an new Atom which wasn't already in the formula.
-        # therefore add it to list and return a disjunction (formula = x1 v...v xn) return x1 v...v xn v cond
-        list.append(cond)
-        return Disjunction(list)
 
-def regression(formula, operator):
+
+def regression(formula : Condition, operator : PropositionalAction):
     # eff_list = eff(o)
     eff_list = get_effects_from_action(operator)
     # start recursive call
@@ -69,7 +36,7 @@ def regression(formula, operator):
         handempty_conversion(pre)
     return Conjunction([Conjunction(operator.precondition), regression_rec(formula, Conjunction(eff_list))]).simplified()
 
-def regression_rec(formula, effect):
+def regression_rec(formula : Condition, effect : Condition):
     if isinstance(formula, Truth):
         return Truth()
     if isinstance(formula, Falsity):
@@ -87,7 +54,7 @@ def regression_rec(formula, effect):
     return Disjunction([eff_con(formula, effect), Conjunction([formula, eff_con(formula.negate(), effect).negate()])])
 
 
-def eff_con(atomic_effect, effect):
+def eff_con(atomic_effect : Condition, effect : Condition):
     if isinstance(effect, Truth):
         return Falsity()
     if isinstance(effect, Conjunction):
@@ -102,7 +69,7 @@ def eff_con(atomic_effect, effect):
     return Falsity()
 
 
-def get_effects_from_action(operator):
+def get_effects_from_action(operator : Condition):
     eff_list = []
     # add all add_effects
     for cond, eff in operator.add_effects:
@@ -119,7 +86,7 @@ def get_effects_from_action(operator):
     return eff_list
 
 
-def formula_to_list(formula):
+def formula_to_list(formula : Condition):
 
     l = []
     x_found = False
@@ -148,7 +115,7 @@ def formula_to_list(formula):
     # return list of formulas as well as if generic variables were found (e.g. not objects a,b,c but vars x,y)
     return l, x_found, y_found
 
-def write_formula_to_fof(formula, type, file, counter):
+def write_formula_to_fof(formula : Condition, type : str, file, counter : int):
     # write one line to tptp-formulas.p
     file.write("fof(formula{}, ".format(counter) + type + ",")
     if isinstance(formula, Conjunction):
@@ -209,7 +176,7 @@ def write_formula_to_fof(formula, type, file, counter):
         file.write(s)
 
 
-def is_sat(negated_conjecture, axiom_list):
+def is_sat(negated_conjecture : Condition, axiom_list : list[Condition]):
     with open("src/translate/tptp-formulas.p", "w") as file:
         counter = 1
         # create for all axioms the tptp file
@@ -226,7 +193,7 @@ def is_sat(negated_conjecture, axiom_list):
     # return 0 for Satisfiable, else Refutation
     return result.returncode == 0
 
-def handempty_conversion(condition):
+def handempty_conversion(condition : Condition):
     # since vampire doesn't recognize empty claues, use "noargs" for handempty()
     if isinstance(condition, Conjunction) or isinstance(condition, Disjunction):
         for part in condition.parts:
@@ -241,8 +208,7 @@ def handempty_conversion(condition):
     return condition
 
 
-def parse_objects_with_current_pred(task, task_objects, task_pred):
-    cand_list: list[Atom] = []
+def parse_objects_with_current_pred(task: Task, task_objects : list[TypedObject], task_pred : Predicate):
     p_should_have_length = 0
 
     if len(task_pred.arguments) == 2:
@@ -264,7 +230,7 @@ def parse_objects_with_current_pred(task, task_objects, task_pred):
 
 
 
-def create_invariant_candidates(task):
+def create_invariant_candidates(task : Task):
     # create simple invariants: all atoms in init are used as invariant candidates
     inv_list = set()
     task_objects = list(task.objects)
@@ -275,7 +241,7 @@ def create_invariant_candidates(task):
     return set(inv_list)
 
 
-def remove_inv_cand(inv_cand_temp_set, inv_cand):
+def remove_inv_cand(inv_cand_temp_set : set[InvariantCandidate], inv_cand : InvariantCandidate):
     for curr_cand in inv_cand_temp_set:
         if len(inv_cand.parts) == 1 and len(curr_cand.parts) == 1:
             if curr_cand.parts[0].predicate == inv_cand.parts[0].predicate:
@@ -301,31 +267,34 @@ def remove_inv_cand(inv_cand_temp_set, inv_cand):
                             return set(inv_cand_temp_set)
         elif len(inv_cand.parts) == 2 and len(curr_cand.parts) == 2:
             print("inv cand is disjunction")
-
-
-
     return set(inv_cand_temp_set)
 
-def remove_and_weaken(inv_cand_temp, task, inv_cand_temp_set):
+def remove_and_weaken(inv_cand_temp : InvariantCandidate, task : Task, inv_cand_temp_set : set[InvariantCandidate], action : PropositionalAction):
     print("no invariant")
     print("inv list in where we remove")
     for inv in inv_cand_temp_set:
         inv.dump()
     print("to remove: ")
-    inv_cand = invariant_candidate.InvariantCandidate([inv_cand_temp])
+    inv_cand = invariant_candidate.InvariantCandidate(inv_cand_temp.parts)
     inv_cand.dump()
-    # TODO: inv candidates X_1 or X_2 == X_2 or X_1 --> im moment wird das nicht als gleich erkannt und daher key error
+    # inv candidates X_1 or X_2 == X_2 or X_1 --> im moment wird das nicht als gleich erkannt und daher key error
+    # --> wurde behoben --> remove_inv_cand überprüft ob invariant candidate is in set falls ja entferne diesen (sollte zu diesem zeitpunkt im set sein)
     inv_cand_temp_set = remove_inv_cand(set(inv_cand_temp_set), inv_cand)
     # aktion übergeben zu sat test
     # schwächt schematische invarianten ab
-    # TODO:
     # hier muss geprüft werden ob C wächst, falls nicht --> emptyObject oder so übergeben (da C sonst grösse ändert innerhalb iteration)
-    x = weaken(inv_cand_temp, task.objects)
-    print("weaken result: ")
-    x.dump()
 
-    inv_cand_temp_set.add(invariant_candidate.InvariantCandidate([x]))
-    return set(inv_cand_temp_set)
+    weakened_inv_cand_set = weaken(inv_cand, action)
+    print("weaken result: ")
+    for weakend_inv_cand in weakened_inv_cand_set:
+        if weakend_inv_cand is not None:
+            weakend_inv_cand.dump()
+            inv_cand_temp_set.add(weakend_inv_cand)
+    check_set = set()
+    for check_for_none in inv_cand_temp_set:
+        if check_for_none is not None:
+            check_set.add(check_for_none)
+    return set(check_set)
 
 
 
@@ -338,29 +307,31 @@ def create_c_sigma(inv_cand:InvariantCandidate, task_objects:list[TypedObject]):
             negated = True
         if len(inv_cand.parts[0].args) == 0:
             if negated:
-                c_sigma.append(NegatedAtom(predicate=inv_cand.parts[0].predicate, args=[]))
+                c_sigma.append(InvariantCandidate(part=[NegatedAtom(predicate=inv_cand.parts[0].predicate, args=[])]))
             else:
-                c_sigma.append(Atom(predicate=inv_cand.parts[0].predicate, args=[]))
+                c_sigma.append(InvariantCandidate(part=[Atom(predicate=inv_cand.parts[0].predicate, args=[])]))
         elif len(inv_cand.parts[0].args) == 1:
             for obj in task_objects:
                 if negated:
-                    c_sigma.append(NegatedAtom(predicate=inv_cand.parts[0].predicate, args=[obj.name]))
+                    c_sigma.append(InvariantCandidate(part=[NegatedAtom(predicate=inv_cand.parts[0].predicate, args=[obj.name])]))
                 else:
-                    c_sigma.append(Atom(predicate=inv_cand.parts[0].predicate, args=[obj.name]))
+                    c_sigma.append(InvariantCandidate(part=[Atom(predicate=inv_cand.parts[0].predicate, args=[obj.name])]))
         elif len(inv_cand.parts[0].args) == 2:
             for obj in task_objects:
                 for obj2 in task_objects:
                     if negated:
-                        c_sigma.append(NegatedAtom(predicate=inv_cand.parts[0].predicate, args=[obj.name, obj2.name]))
+                        c_sigma.append(InvariantCandidate(part=[NegatedAtom(predicate=inv_cand.parts[0].predicate, args=[obj.name, obj2.name])]))
                     else:
-                        c_sigma.append(Atom(predicate=inv_cand.parts[0].predicate, args=[obj.name, obj2.name]))
+                        c_sigma.append(InvariantCandidate(part=[Atom(predicate=inv_cand.parts[0].predicate, args=[obj.name, obj2.name])]))
         return set(c_sigma)
         # TODO: return c sigma: each item in list test in regression and sat test, if any is sat --> then weaken inv cand
     else:
         print("inv cand is disjunction")
+        l = set()
+        l.add(inv_cand)
+        return l
 
-
-def regr_and_sat(action, inv_cand_temp, inv_cand_set_C_0):
+def regr_and_sat(action : PropositionalAction, inv_cand_temp : InvariantCandidate, inv_cand_set_C_0 : set[InvariantCandidate]):
     print("action:")
     action.dump()
     # TODO:
@@ -368,8 +339,13 @@ def regr_and_sat(action, inv_cand_temp, inv_cand_set_C_0):
     #
     print("inv_cand_temp")
     inv_cand_temp.dump()
+    input_for_regression = None
+    if len(inv_cand_temp.parts) == 1:
+        input_for_regression = inv_cand_temp.parts[0]
+    else:
+        input_for_regression = Disjunction(inv_cand_temp.parts)
 
-    after_reg = regression(inv_cand_temp.negate(), action).simplified()
+    after_reg = regression(input_for_regression.negate(), action).simplified()
     print("after reg:")
     after_reg.dump()
     after_reg_and_conv = handempty_conversion(after_reg)
@@ -377,7 +353,7 @@ def regr_and_sat(action, inv_cand_temp, inv_cand_set_C_0):
     return is_sat(after_reg_and_conv, inv_cand_set_C_0)
 
 
-def get_schematic_invariants(task, actions):
+def get_schematic_invariants(task : Task, actions : list[PropositionalAction]):
     # use deepcopy, so we can modify actions and task freely
     task = copy.deepcopy(task)
     available_objects = []
@@ -404,7 +380,6 @@ def get_schematic_invariants(task, actions):
             inv_cand.dump()
         print("end inv_cand_set_C0 ")
         for action in list_of_possible_actions:
-            # TODO:
             # kommt in der aktion ein negiertes literal vor welches in c enthalten ist --> kann action überhaupt effekt auf candidates haben
             # if else check
             inv_cand_temp_set = set(inv_cand_set_C)
@@ -412,7 +387,7 @@ def get_schematic_invariants(task, actions):
                 if inv_cand.contains(action):
                     print("c in while loop: ")
                     inv_cand.dump()
-                    # TODO: return c sigma: each item in list test in regression and sat test, if any is sat --> then weaken inv cand
+                    # return c sigma: each item in list test in regression and sat test, if any is sat --> then weaken inv cand
                     inv_cand_temp_set = create_c_sigma(inv_cand, task.objects)
                     print("created c_temp: ")
                     is_inv_cand_sat = False
@@ -422,7 +397,7 @@ def get_schematic_invariants(task, actions):
                             is_inv_cand_sat = True
                             break
                     if is_inv_cand_sat:
-                        inv_cand_temp_set = remove_and_weaken(inv_cand_temp, task, set(inv_cand_temp_set))
+                        inv_cand_temp_set = remove_and_weaken(inv_cand_temp, task, set(inv_cand_temp_set), action)
                     else:
                         print("invariant")
                 else:
