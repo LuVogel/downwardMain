@@ -27,8 +27,6 @@ def regression(formula: Condition, operator: PropositionalAction):
     # eff_list = eff(o)
     eff_list = get_effects_from_action(operator)
     # start recursive call
-    for pre in operator.precondition:
-        handempty_conversion(pre)
     return Conjunction(
         [Conjunction(operator.precondition), regression_rec(formula, Conjunction(eff_list))]).simplified()
 
@@ -71,15 +69,15 @@ def get_effects_from_action(operator: Condition):
     # add all add_effects
     for cond, eff in operator.add_effects:
         if len(cond) == 0:
-            eff_list.append(handempty_conversion(eff))
+            eff_list.append(eff)
         else:
-            eff_list.append(ConditionalEffect(condition=cond, effect=handempty_conversion(eff)))
+            eff_list.append(ConditionalEffect(condition=cond, effect=eff))
     # add all del_effects as negated effect
     for cond, eff in operator.del_effects:
         if len(cond) == 0:
-            eff_list.append(handempty_conversion(eff.negate()))
+            eff_list.append(eff.negate())
         else:
-            eff_list.append(ConditionalEffect(condition=cond, effect=handempty_conversion(eff.negate())))
+            eff_list.append(ConditionalEffect(condition=cond, effect=eff.negate()))
     return eff_list
 
 
@@ -90,22 +88,22 @@ def formula_to_list(formula: Condition):
     # iterate through all parts in formulas and all arguments from each part
     for part in formula.parts:
         part_args = ""
-        for arg in part.args:
-            if isinstance(arg, TypedObject):
-                arg = arg.name
-            # handempty: fof file don't recognize empty brackets
-            if arg == " ":
-                arg = "noargs"
-            elif arg == "?x":
-                arg = "X"
-                x_found = True
-            elif arg == "?y":
-                arg = "Y"
-                y_found = True
-            if part_args == "":
-                part_args = arg
-            else:
-                part_args = part_args + "," + arg
+        if len(part.args) == 0:
+            part_args = "noargs"
+        else:
+            for arg in part.args:
+                if isinstance(arg, TypedObject):
+                    arg = arg.name
+                if arg == "?x":
+                    arg = "X"
+                    x_found = True
+                elif arg == "?y":
+                    arg = "Y"
+                    y_found = True
+                if part_args == "":
+                    part_args = arg
+                else:
+                    part_args = part_args + "," + arg
         # add entry to list for each part we have one line
         l.append(f"{part.predicate}({part_args})")
     # return list of formulas as well as if generic variables were found (e.g. not objects a,b,c but vars x,y)
@@ -191,19 +189,19 @@ def is_sat(negated_conjecture: Condition, axiom_list: list[Condition]):
     return result.returncode == 0
 
 
-def handempty_conversion(condition: Condition):
-    # since vampire doesn't recognize empty claues, use "noargs" for handempty()
-    if isinstance(condition, Conjunction) or isinstance(condition, Disjunction):
-        for part in condition.parts:
-            if isinstance(part, Conjunction) or isinstance(part, Disjunction):
-                return handempty_conversion(part)
-            if isinstance(part, Atom) or isinstance(part, NegatedAtom):
-                if len(part.args) == 0:
-                    part.args = ["noargs"]
-    if isinstance(condition, Atom) or isinstance(condition, NegatedAtom):
-        if len(condition.args) == 0:
-            condition.args = ["noargs"]
-    return condition
+# def handempty_conversion(condition: Condition):
+#     # since vampire doesn't recognize empty claues, use "noargs" for handempty()
+#     if isinstance(condition, Conjunction) or isinstance(condition, Disjunction):
+#         for part in condition.parts:
+#             if isinstance(part, Conjunction) or isinstance(part, Disjunction):
+#                 return handempty_conversion(part)
+#             if isinstance(part, Atom) or isinstance(part, NegatedAtom):
+#                 if len(part.args) == 0:
+#                     part.args = ["noargs"]
+#     if isinstance(condition, Atom) or isinstance(condition, NegatedAtom):
+#         if len(condition.args) == 0:
+#             condition.args = ["noargs"]
+#     return condition
 
 
 def parse_objects_with_current_pred(task: Task, task_objects: list[TypedObject], task_pred: Predicate):
@@ -341,7 +339,7 @@ def regr_and_sat(action: PropositionalAction, inv_cand_temp: InvariantCandidate,
         input_for_regression = Disjunction(inv_cand_temp.parts)
 
     after_reg = regression(input_for_regression.negate(), action).simplified()
-    after_reg_and_conv = handempty_conversion(after_reg)
+    after_reg_and_conv = after_reg
     return is_sat(after_reg_and_conv, inv_cand_set_C_0)
 
 
@@ -385,7 +383,6 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction]):
                         if regr_and_sat(action, inv_cand_temp, inv_cand_set_C_0):
                             is_inv_cand_sat = True
                             break
-                    # TODO: inv_cand_set_C wird grösser während Schleife --> diese auch überprüfen --> jetzt wird das set immer in der Schlaufe überschrieben
                     if is_inv_cand_sat:
                         inv_cand_temp_set = remove_and_weaken(inv_cand_temp, set(inv_cand_temp_set), action)
                     else:
