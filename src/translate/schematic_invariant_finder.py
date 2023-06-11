@@ -6,6 +6,12 @@ from invariant_candidate import *
 from pddl.conditions import *
 
 
+
+# TODO: check weaken
+# im moment: für jede add/del effect in Action: Invariant Candidate bekommt einen part mehr (also literal zu Disjunktion,
+# disjunktion zu disjunktion mit einer Klausel mehr
+# für jeden add effect und del effect der nicht schon als part in Inv-Kandidat ist, wird ein neuer Invariant Candidate erstellt
+# weaken führ so je nach dem zu mehreren neuen Invariant kandidaten
 def weaken(inv_cand: InvariantCandidate, action: PropositionalAction):
     inv_cand_set = set()
     curr_inv_list = set(inv_cand.parts)
@@ -23,6 +29,7 @@ def weaken(inv_cand: InvariantCandidate, action: PropositionalAction):
     # weaken of form X -> l_1 to X -> l_1 v l_2
 
 
+# Regression ruft rekursiv regression_rec und eff_con auf und gibt am Schluss eine Conjunktion zurück die auch Truth oder Falsity sein kann
 def regression(formula: Condition, operator: PropositionalAction):
     # eff_list = eff(o)
     eff_list = get_effects_from_action(operator)
@@ -81,6 +88,7 @@ def get_effects_from_action(operator: Condition):
     return eff_list
 
 
+# nur als vorbereitung für vampire
 def formula_to_list(formula: Condition):
     l = []
     x_found = False
@@ -110,6 +118,7 @@ def formula_to_list(formula: Condition):
     return l, x_found, y_found
 
 
+# schreibt die formeln (axiome und zu beweisen) ins fof file
 def write_formula_to_fof(formula: Condition, type: str, file, counter: int):
     # write one line to tptp-formulas.p
     file.write("fof(formula{}, ".format(counter) + type + ",")
@@ -171,6 +180,7 @@ def write_formula_to_fof(formula: Condition, type: str, file, counter: int):
         file.write(s)
 
 
+# tested ob die formeln satisfiable sind. negated_conjecture kann Truth/Falsity sein, was bei vampire auf probleme stösst
 def is_sat(negated_conjecture: Condition, axiom_list: list[Condition]):
     with open("src/translate/tptp-formulas.p", "w") as file:
         counter = 1
@@ -189,24 +199,13 @@ def is_sat(negated_conjecture: Condition, axiom_list: list[Condition]):
     return result.returncode == 0
 
 
-# def handempty_conversion(condition: Condition):
-#     # since vampire doesn't recognize empty claues, use "noargs" for handempty()
-#     if isinstance(condition, Conjunction) or isinstance(condition, Disjunction):
-#         for part in condition.parts:
-#             if isinstance(part, Conjunction) or isinstance(part, Disjunction):
-#                 return handempty_conversion(part)
-#             if isinstance(part, Atom) or isinstance(part, NegatedAtom):
-#                 if len(part.args) == 0:
-#                     part.args = ["noargs"]
-#     if isinstance(condition, Atom) or isinstance(condition, NegatedAtom):
-#         if len(condition.args) == 0:
-#             condition.args = ["noargs"]
-#     return condition
-
-
+# wird am anfang gebraucht um alle prädikate und objekte die im task enthalten sind u erstellen.
+# erstelle zuerst alle möglichen kombination aus objekten mit dem gegebenen prädikat
+# kommen alle diese erstellten kombination in task.init vor --> als invariant candidate hinzufügen
+# kommen keine dieser erstellten kombination in task.init vor --< als invariant candidate hinzufügen (aber als Negated)
+# sonst --> kein Invariant Candidate return None
 def parse_objects_with_current_pred(task: Task, task_objects: list[TypedObject], task_pred: Predicate):
     p_should_have_length = 0
-
     if len(task_pred.arguments) == 2:
         p_should_have_length = len(task_objects) * len(task_objects)
     elif len(task_pred.arguments) == 1:
@@ -224,7 +223,7 @@ def parse_objects_with_current_pred(task: Task, task_objects: list[TypedObject],
     else:
         return None
 
-
+# mit obiger parsing function werden kandidaten erstellt
 def create_invariant_candidates(task: Task):
     # create simple invariants: all atoms in init are used as invariant candidates
     inv_list = set()
@@ -235,43 +234,59 @@ def create_invariant_candidates(task: Task):
             inv_list.add(inv_cand)
     return set(inv_list)
 
-
+# schaut das set durch und entfernt den gegebenen kandidaten sofern vorhanden
 def remove_inv_cand(inv_cand_temp_set: set[InvariantCandidate], inv_cand: InvariantCandidate):
     for curr_cand in inv_cand_temp_set:
-        if len(inv_cand.parts) == 1 and len(curr_cand.parts) == 1:
-            if curr_cand.parts[0].predicate == inv_cand.parts[0].predicate:
-                if len(curr_cand.parts[0].args) == 0:
-                    if (isinstance(curr_cand.parts[0], Atom) and isinstance(inv_cand.parts[0], Atom)) or (
-                            isinstance(curr_cand.parts[0], NegatedAtom) and isinstance(inv_cand.parts[0], Atom)):
-                        inv_cand_temp_set.remove(curr_cand)
-                        return set(inv_cand_temp_set)
-                elif len(curr_cand.parts[0].args) == 1:
-                    if isinstance(curr_cand.parts[0].args[0], TypedObject) and not isinstance(inv_cand.parts[0].args[0],
-                                                                                              TypedObject):
-                        print("try to compare typed object and string")
-                    elif curr_cand.parts[0].args[0] == inv_cand.parts[0].args[0]:
-                        if (isinstance(curr_cand.parts[0], Atom) and isinstance(inv_cand.parts[0], Atom)) or (
-                                isinstance(curr_cand.parts[0], NegatedAtom) and isinstance(inv_cand.parts[0],
-                                                                                           Atom)):
-                            inv_cand_temp_set.remove(curr_cand)
-                            return set(inv_cand_temp_set)
-                elif len(curr_cand.parts[0].args) == 2:
-                    if isinstance(curr_cand.parts[0].args[0], TypedObject) and not isinstance(inv_cand.parts[0].args[0],
-                                                                                              TypedObject):
-                        print("try to compare typed object and string")
-                    elif (curr_cand.parts[0].args[0] == inv_cand.parts[0].args[0]) and (
-                            curr_cand.parts[0].args[1] == inv_cand.parts[0].args[1]):
-                        if (isinstance(curr_cand.parts[0], Atom) and isinstance(inv_cand.parts[0], Atom)) or (
-                                isinstance(curr_cand.parts[0], NegatedAtom) and isinstance(inv_cand.parts[0],
-                                                                                           Atom)):
-                            inv_cand_temp_set.remove(curr_cand)
-                            return set(inv_cand_temp_set)
-        elif len(inv_cand.parts) == 2 and len(curr_cand.parts) == 2:
-            pass
-            #print("inv cand is disjunction")
+        print("to remove: ")
+        inv_cand.dump()
+        print("check current: ")
+        curr_cand.dump()
+        if set(inv_cand.parts) == set(curr_cand.parts):
+            print("current and to remove are same")
+            inv_cand_temp_set.remove(curr_cand)
+            return set(inv_cand_temp_set)
+        # if len(inv_cand.parts) == 1 and len(curr_cand.parts) == 1:
+        #     if curr_cand.parts[0].predicate == inv_cand.parts[0].predicate:
+        #         if len(curr_cand.parts[0].args) == 0:
+        #             if (isinstance(curr_cand.parts[0], Atom) and isinstance(inv_cand.parts[0], Atom)) or (
+        #                     isinstance(curr_cand.parts[0], NegatedAtom) and isinstance(inv_cand.parts[0], Atom)):
+        #                 inv_cand_temp_set.remove(curr_cand)
+        #                 return set(inv_cand_temp_set)
+        #         elif len(curr_cand.parts[0].args) == 1:
+        #             if isinstance(curr_cand.parts[0].args[0], TypedObject) and not isinstance(inv_cand.parts[0].args[0],
+        #                                                                                       TypedObject):
+        #                 pass
+        #             elif curr_cand.parts[0].args[0] == inv_cand.parts[0].args[0]:
+        #                 if (isinstance(curr_cand.parts[0], Atom) and isinstance(inv_cand.parts[0], Atom)) or (
+        #                         isinstance(curr_cand.parts[0], NegatedAtom) and isinstance(inv_cand.parts[0],
+        #                                                                                    Atom)):
+        #                     inv_cand_temp_set.remove(curr_cand)
+        #                     return set(inv_cand_temp_set)
+        #         elif len(curr_cand.parts[0].args) == 2:
+        #             if isinstance(curr_cand.parts[0].args[0], TypedObject) and not isinstance(inv_cand.parts[0].args[0],
+        #                                                                                       TypedObject):
+        #                 pass
+        #             elif (curr_cand.parts[0].args[0] == inv_cand.parts[0].args[0]) and (
+        #                     curr_cand.parts[0].args[1] == inv_cand.parts[0].args[1]):
+        #                 if (isinstance(curr_cand.parts[0], Atom) and isinstance(inv_cand.parts[0], Atom)) or (
+        #                         isinstance(curr_cand.parts[0], NegatedAtom) and isinstance(inv_cand.parts[0],
+        #                                                                                    Atom)):
+        #                     inv_cand_temp_set.remove(curr_cand)
+        #                     return set(inv_cand_temp_set)
+        # elif len(inv_cand.parts) > 0 and len(curr_cand.parts) == len(inv_cand.parts):
+        #     print("try to remove disjunction")
+        #     print("to remove: ")
+        #     inv_cand.dump()
+        #     print("check current: ")
+        #     curr_cand.dump()
+        #     if set(inv_cand.parts) == set(curr_cand.parts):
+        #         print("current and to remove are same")
+        #         inv_cand_temp_set.remove(curr_cand)
+        #         return set(inv_cand_temp_set)
+
     return set(inv_cand_temp_set)
 
-
+# zuerst entfernen mit obiger funktionen und dann wird weaken aufgerufen
 def remove_and_weaken(inv_cand_temp: InvariantCandidate, inv_cand_temp_set: set[InvariantCandidate],
                       action: PropositionalAction):
     #print("no invariant")
@@ -293,44 +308,42 @@ def remove_and_weaken(inv_cand_temp: InvariantCandidate, inv_cand_temp_set: set[
             check_set.add(check_for_none)
     return set(check_set)
 
-
+# erstellt aus schematischen invarianten gegroundete
+# --> TODO: nur nötig sofern inv_cand schematisch ist? falls schon gegroundet nichts machen??
 def create_c_sigma(inv_cand: InvariantCandidate, task_objects: list[TypedObject]):
     c_sigma = []
-    if len(inv_cand.parts) == 1:
+    for parts in inv_cand.parts:
         negated = False
-        if isinstance(inv_cand.parts[0], Atom):
+        if isinstance(parts, Atom):
             negated = True
-        if len(inv_cand.parts[0].args) == 0:
+        if len(parts.args) == 0:
             if negated:
-                c_sigma.append(InvariantCandidate(part=[NegatedAtom(predicate=inv_cand.parts[0].predicate, args=[])]))
+                c_sigma.append(
+                    InvariantCandidate(part=[NegatedAtom(predicate=parts.predicate, args=[])]))
             else:
-                c_sigma.append(InvariantCandidate(part=[Atom(predicate=inv_cand.parts[0].predicate, args=[])]))
-        elif len(inv_cand.parts[0].args) == 1:
+                c_sigma.append(InvariantCandidate(part=[Atom(predicate=parts.predicate, args=[])]))
+        elif len(parts.args) == 1:
             for obj in task_objects:
                 if negated:
                     c_sigma.append(
-                        InvariantCandidate(part=[NegatedAtom(predicate=inv_cand.parts[0].predicate, args=[obj.name])]))
+                        InvariantCandidate(
+                            part=[NegatedAtom(predicate=parts.predicate, args=[obj.name])]))
                 else:
                     c_sigma.append(
-                        InvariantCandidate(part=[Atom(predicate=inv_cand.parts[0].predicate, args=[obj.name])]))
-        elif len(inv_cand.parts[0].args) == 2:
+                        InvariantCandidate(part=[Atom(predicate=parts.predicate, args=[obj.name])]))
+        elif len(parts.args) == 2:
             for obj in task_objects:
                 for obj2 in task_objects:
                     if negated:
                         c_sigma.append(InvariantCandidate(
-                            part=[NegatedAtom(predicate=inv_cand.parts[0].predicate, args=[obj.name, obj2.name])]))
+                            part=[NegatedAtom(predicate=parts.predicate, args=[obj.name, obj2.name])]))
                     else:
                         c_sigma.append(InvariantCandidate(
-                            part=[Atom(predicate=inv_cand.parts[0].predicate, args=[obj.name, obj2.name])]))
-        return set(c_sigma)
-        # TODO: return c sigma: each item in list test in regression and sat test, if any is sat --> then weaken inv cand
-    else:
-        #print("inv cand is disjunction")
-        l = set()
-        l.add(inv_cand)
-        return l
+                            part=[Atom(predicate=parts.predicate, args=[obj.name, obj2.name])]))
+    return set(c_sigma)
 
 
+# startet regression und mach den sat test --> da regression Truth/falsity zurück geben kann, ist hier fehlerpotential vorhanden
 def regr_and_sat(action: PropositionalAction, inv_cand_temp: InvariantCandidate,
                  inv_cand_set_C_0: set[InvariantCandidate]):
     if len(inv_cand_temp.parts) == 1:
@@ -339,10 +352,10 @@ def regr_and_sat(action: PropositionalAction, inv_cand_temp: InvariantCandidate,
         input_for_regression = Disjunction(inv_cand_temp.parts)
 
     after_reg = regression(input_for_regression.negate(), action).simplified()
-    after_reg_and_conv = after_reg
-    return is_sat(after_reg_and_conv, inv_cand_set_C_0)
+    # TODO: after_reg kann Truth oder Falsity sein --> Fehler bei vampire da negated conjecture nicht als Truth/Falsity übergeben werden kann
+    return is_sat(after_reg, inv_cand_set_C_0)
 
-
+# eigentliche Funktion die Aktionen vorbereite, und den Algorithmus durchführt
 def get_schematic_invariants(task: Task, actions: list[PropositionalAction]):
     # use deepcopy, so we can modify actions and task freely
     task = copy.deepcopy(task)
@@ -398,6 +411,7 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction]):
             i.dump()
 
         if inv_cand_set_C == inv_cand_set_C_0:
+
             # solution found, return
             return inv_cand_set_C
         print("stating new for loop")
