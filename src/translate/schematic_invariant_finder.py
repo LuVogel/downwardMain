@@ -458,6 +458,7 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction]):
         for i in next_queue:
             i.dump()
         # TODO: print statements anpassen --> gebe grösse der queues aus damit ich sehe wann und wie die resultierende queue zu 0 wird.
+        # TODO: später: für weakening: x != y --> dafür bei InvariantCandidate neues Feld wo man sowas definieren kann
         # vorher weakening noch verbessern und restliche todos angehen
         if set(next_queue) == inv_cand_set_C_0:
 
