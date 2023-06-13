@@ -6,7 +6,9 @@ from invariant_candidate import *
 from pddl.conditions import *
 
 
-
+# a ist objekt
+# x ist variable
+# weakening
 # TODO: check weaken
 # im moment: für jede add/del effect in Action: Invariant Candidate bekommt einen part mehr (also literal zu Disjunktion,
 # disjunktion zu disjunktion mit einer Klausel mehr
@@ -352,6 +354,9 @@ def regr_and_sat(action: PropositionalAction, inv_cand_temp: InvariantCandidate,
         input_for_regression = Disjunction(inv_cand_temp.parts)
 
     after_reg = regression(input_for_regression.negate(), action).simplified()
+    # wenn after reg falsity -> direkt false return
+    # theoretisch wenn Truth dann true zurückgeben, weil anfangs ist C erfüllbar (inital state)
+    # Da weakening nur schwächere Formeln hinzufügt, bleib C in diesem Punkt erfüllbar.
     # TODO: after_reg kann Truth oder Falsity sein --> Fehler bei vampire da negated conjecture nicht als Truth/Falsity übergeben werden kann
     return is_sat(after_reg, inv_cand_set_C_0)
 
@@ -379,6 +384,8 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction]):
     print("invariant candidates found at beginning: ", len(inv_cand_set_C))
     for i in inv_cand_set_C:
         i.dump()
+    # TODO: gesehene invariant candidates als Hashmap (global)
+    # wenn inv cand erstellt überprüfen ob schon gesehen, falls nicht hinufügen und fortfahren, falls nein, skippen
     while True:
         inv_cand_set_C_0 = set(inv_cand_set_C)
         for action in list_of_possible_actions:
@@ -389,15 +396,15 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction]):
                 if inv_cand.contains(action):
                     # return c sigma: each item in list test in regression and sat test, if any is sat --> then weaken inv cand
                     c_sigma = create_c_sigma(inv_cand, task.objects)
-                    for c_sig in c_sigma:
-                        inv_cand_temp_set.add(c_sig)
                     is_inv_cand_sat = False
-                    for inv_cand_temp in inv_cand_temp_set:
-                        if regr_and_sat(action, inv_cand_temp, inv_cand_set_C_0):
+
+                    for c_sig in c_sigma:
+                        # TODO: sat test hier machen, sobald True --> weakening
+                        if regr_and_sat(action, c_sig, inv_cand_set_C_0):
                             is_inv_cand_sat = True
                             break
                     if is_inv_cand_sat:
-                        inv_cand_temp_set = remove_and_weaken(inv_cand_temp, set(inv_cand_temp_set), action)
+                        inv_cand_temp_set = remove_and_weaken(inv_cand, set(inv_cand_temp_set), action)
                     else:
                         pass
                         #print("invariant")
