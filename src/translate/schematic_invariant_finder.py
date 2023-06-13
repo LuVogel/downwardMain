@@ -1,15 +1,20 @@
+import collections
 import copy
 import subprocess
+from queue import Queue
 
 import invariant_candidate
 from invariant_candidate import *
 from pddl.conditions import *
 
 
+seen_inv_candidates = {}
+
 # a ist objekt
 # x ist variable
 # weakening
-# TODO: check weaken
+# TODO: check weaken --> hier müssen schematische inv cand hinzugefügt werden, im moment sind sie gegroundet
+# parsing function von action effects  (objekten) zu möglichen variabeln
 # im moment: für jede add/del effect in Action: Invariant Candidate bekommt einen part mehr (also literal zu Disjunktion,
 # disjunktion zu disjunktion mit einer Klausel mehr
 # für jeden add effect und del effect der nicht schon als part in Inv-Kandidat ist, wird ein neuer Invariant Candidate erstellt
@@ -237,16 +242,15 @@ def create_invariant_candidates(task: Task):
     return set(inv_list)
 
 # schaut das set durch und entfernt den gegebenen kandidaten sofern vorhanden
-def remove_inv_cand(inv_cand_temp_set: set[InvariantCandidate], inv_cand: InvariantCandidate):
-    for curr_cand in inv_cand_temp_set:
-        print("to remove: ")
-        inv_cand.dump()
-        print("check current: ")
-        curr_cand.dump()
-        if set(inv_cand.parts) == set(curr_cand.parts):
-            print("current and to remove are same")
-            inv_cand_temp_set.remove(curr_cand)
-            return set(inv_cand_temp_set)
+def remove_inv_cand(inv_cand_queue: Queue[InvariantCandidate], inv_cand: InvariantCandidate):
+    if inv_cand in inv_cand_queue.queue:
+        while not inv_cand_queue.empty():
+            item = inv_cand_queue.get()
+            if item != inv_cand:
+                inv_cand_queue.put(item)
+            else:
+                break
+
         # if len(inv_cand.parts) == 1 and len(curr_cand.parts) == 1:
         #     if curr_cand.parts[0].predicate == inv_cand.parts[0].predicate:
         #         if len(curr_cand.parts[0].args) == 0:
@@ -286,7 +290,7 @@ def remove_inv_cand(inv_cand_temp_set: set[InvariantCandidate], inv_cand: Invari
         #         inv_cand_temp_set.remove(curr_cand)
         #         return set(inv_cand_temp_set)
 
-    return set(inv_cand_temp_set)
+    return inv_cand_queue
 
 # zuerst entfernen mit obiger funktionen und dann wird weaken aufgerufen
 def remove_and_weaken(inv_cand_temp: InvariantCandidate, inv_cand_temp_set: set[InvariantCandidate],
@@ -311,7 +315,7 @@ def remove_and_weaken(inv_cand_temp: InvariantCandidate, inv_cand_temp_set: set[
     return set(check_set)
 
 # erstellt aus schematischen invarianten gegroundete
-# --> TODO: nur nötig sofern inv_cand schematisch ist? falls schon gegroundet nichts machen??
+# --> TODO: nur nötig sofern inv_cand schematisch ist? falls schon gegroundet nichts machen?? --> inv_cand kann nur schematisch sein!!
 def create_c_sigma(inv_cand: InvariantCandidate, task_objects: list[TypedObject]):
     c_sigma = []
     for parts in inv_cand.parts:
@@ -357,8 +361,12 @@ def regr_and_sat(action: PropositionalAction, inv_cand_temp: InvariantCandidate,
     # wenn after reg falsity -> direkt false return
     # theoretisch wenn Truth dann true zurückgeben, weil anfangs ist C erfüllbar (inital state)
     # Da weakening nur schwächere Formeln hinzufügt, bleib C in diesem Punkt erfüllbar.
-    # TODO: after_reg kann Truth oder Falsity sein --> Fehler bei vampire da negated conjecture nicht als Truth/Falsity übergeben werden kann
-    return is_sat(after_reg, inv_cand_set_C_0)
+    if isinstance(after_reg, Falsity):
+        return False
+    elif isinstance(after_reg, Truth):
+        return True
+    else:
+        return is_sat(after_reg, inv_cand_set_C_0)
 
 # eigentliche Funktion die Aktionen vorbereite, und den Algorithmus durchführt
 def get_schematic_invariants(task: Task, actions: list[PropositionalAction]):
@@ -381,44 +389,78 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction]):
         else:
             list_of_possible_actions.append(a)
     # start algorithm from Rintannen
-    print("invariant candidates found at beginning: ", len(inv_cand_set_C))
+
+    next_queue = collections.deque()
     for i in inv_cand_set_C:
-        i.dump()
-    # TODO: gesehene invariant candidates als Hashmap (global)
+        next_queue.append(i)
+    # TODO: gesehene invariant candidates als Hashmap (global) --> damit nicht mehrmals in queue hinzugefügt wird durch weaken (bzw in weakening schon beachten)
     # wenn inv cand erstellt überprüfen ob schon gesehen, falls nicht hinufügen und fortfahren, falls nein, skippen
     while True:
-        inv_cand_set_C_0 = set(inv_cand_set_C)
+        print("invariant candidates found at beginning of each while loop: ", len(next_queue))
+        for i in next_queue:
+            i.dump()
+        inv_cand_set_C_0 = set(next_queue)
         for action in list_of_possible_actions:
+            print("picked action: ")
+            action.dump()
+            queue_cq = next_queue.copy()
+            print("current queue: ")
+            for i in queue_cq:
+                i.dump()
+
+            next_queue = collections.deque()
             # kommt in der aktion ein negiertes literal vor welches in c enthalten ist --> kann action überhaupt effekt auf candidates haben
             # if else check
-            inv_cand_temp_set = set(inv_cand_set_C)
-            for inv_cand in inv_cand_set_C:
+            while len(queue_cq) != 0:
+                inv_cand = queue_cq.popleft()
+                print("picked invariant candidate: ")
+                inv_cand.dump()
+                print("remaining... ")
+                for i in queue_cq:
+                    i.dump()
+                print("end remaining.")
                 if inv_cand.contains(action):
                     # return c sigma: each item in list test in regression and sat test, if any is sat --> then weaken inv cand
                     c_sigma = create_c_sigma(inv_cand, task.objects)
                     is_inv_cand_sat = False
 
                     for c_sig in c_sigma:
-                        # TODO: sat test hier machen, sobald True --> weakening
                         if regr_and_sat(action, c_sig, inv_cand_set_C_0):
                             is_inv_cand_sat = True
                             break
                     if is_inv_cand_sat:
-                        inv_cand_temp_set = remove_and_weaken(inv_cand, set(inv_cand_temp_set), action)
+                        print("invariant candidate is sat")
+                        # remove not needed, since already removed. if not inv cand: add to next queue
+
+                        # then weaken
+                        weakend_inv_cand_set = weaken(inv_cand, action)
+                        print("appending to weakend candidates to queue...")
+                        for weakend_inv_cand in weakend_inv_cand_set:
+                            if weakend_inv_cand is not None:
+                                print("appending: ")
+                                weakend_inv_cand.dump()
+                                queue_cq.append(weakend_inv_cand)
+                        print("appending done.")
                     else:
-                        pass
-                        #print("invariant")
+                        next_queue.append(inv_cand)
+                        print("invariant, append to next_queue")
                 else:
                     pass
-                    # print("action has no influence")
-            inv_cand_set_C = set(inv_cand_temp_set)
-        print("end of both for-loops")
-        print("number of invariant candidates at current status: ", len(inv_cand_set_C))
-        for i in inv_cand_set_C:
-            i.dump()
+                    print("action has no influence")
+            print("while loop ended: ")
+            print("passing queue: ")
+            for i in next_queue:
+                i.dump()
+            print("end passing queue...")
 
-        if inv_cand_set_C == inv_cand_set_C_0:
+        print("end of both for-loops")
+        print("number of invariant candidates at current status: ", len(next_queue))
+        for i in next_queue:
+            i.dump()
+        # TODO: print statements anpassen --> gebe grösse der queues aus damit ich sehe wann und wie die resultierende queue zu 0 wird.
+        # vorher weakening noch verbessern und restliche todos angehen
+        if set(next_queue) == inv_cand_set_C_0:
 
             # solution found, return
-            return inv_cand_set_C
+            return set(next_queue)
         print("stating new for loop")
