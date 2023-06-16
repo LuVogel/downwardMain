@@ -1,5 +1,6 @@
 import collections
 import copy
+import itertools
 import subprocess
 from queue import Queue
 
@@ -8,7 +9,41 @@ from invariant_candidate import *
 from pddl.conditions import *
 
 
-seen_inv_candidates = {}
+seen_inv_candidates = []
+
+
+def parse_literal_with_objects_to_literals_with_vars(literal: Literal, task: Task, negated: bool):
+    objects = task.objects
+    current_pred = None
+    for pred in task.predicates:
+        if literal.predicate == pred.name:
+            if negated:
+                return [NegatedAtom(predicate=pred.name, args=pred.arguments)]
+            else:
+                return [Atom(predicate=pred.name, args=pred.arguments)]
+            current_pred = pred
+            break
+
+    object_list = []
+    for _ in range(len(current_pred.arguments)):
+        object_list.append(objects)
+    combinations = list(itertools.product(*object_list))
+    result = []
+    for combo in combinations:
+        typelist = []
+        for obj in combo:
+            for args in current_pred.arguments:
+                if obj.type_name == args.type_name:
+                    typelist.append(TypedObject(name="?" + obj.name, type_name=obj.type_name))
+        if len(typelist) == len(current_pred.arguments):
+            if negated:
+                result.append(NegatedAtom(predicate=pred.name, args=typelist))
+            else:
+                result.append(Atom(predicate=pred.name, args=typelist))
+
+    return result
+
+
 
 # a ist objekt
 # x ist variable
@@ -19,21 +54,36 @@ seen_inv_candidates = {}
 # disjunktion zu disjunktion mit einer Klausel mehr
 # für jeden add effect und del effect der nicht schon als part in Inv-Kandidat ist, wird ein neuer Invariant Candidate erstellt
 # weaken führ so je nach dem zu mehreren neuen Invariant kandidaten
-def weaken(inv_cand: InvariantCandidate, action: PropositionalAction):
+def weaken(inv_cand: InvariantCandidate, action: PropositionalAction, task: Task):
     inv_cand_set = set()
     curr_inv_list = set(inv_cand.parts)
     for cond, eff in action.add_effects:
         if eff not in curr_inv_list:
-            curr_inv_list.add(eff)
-            inv_cand_set.add(InvariantCandidate(part=curr_inv_list))
-            curr_inv_list.remove(eff)
+            temp_list = parse_literal_with_objects_to_literals_with_vars(eff, task, negated=False)
+            for temp in temp_list:
+                curr_inv_list.add(temp)
+            curr_inv_list = set(curr_inv_list)
+            new_inv_cand = InvariantCandidate(part=curr_inv_list)
+            if new_inv_cand not in seen_inv_candidates:
+                inv_cand_set.add(inv_cand)
+            for temp in temp_list:
+                curr_inv_list.remove(temp)
     for cond, eff in action.del_effects:
         if eff.negate() not in curr_inv_list:
-            curr_inv_list.add(eff.negate())
-            inv_cand_set.add(InvariantCandidate(part=curr_inv_list))
-            curr_inv_list.remove(eff.negate())
-    return inv_cand_set
+            temp_list = parse_literal_with_objects_to_literals_with_vars(eff.negate(), task, negated=True)
+            for temp in temp_list:
+                curr_inv_list.add(temp)
+            curr_inv_list = set(curr_inv_list)
+            new_inv_cand = InvariantCandidate(part=curr_inv_list)
+            if new_inv_cand not in seen_inv_candidates:
+                inv_cand_set.add(inv_cand)
+            for temp in temp_list:
+                curr_inv_list.remove(temp)
+    return set(inv_cand_set)
     # weaken of form X -> l_1 to X -> l_1 v l_2
+
+
+
 
 
 # Regression ruft rekursiv regression_rec und eff_con auf und gibt am Schluss eine Conjunktion zurück die auch Truth oder Falsity sein kann
@@ -250,51 +300,11 @@ def remove_inv_cand(inv_cand_queue: Queue[InvariantCandidate], inv_cand: Invaria
                 inv_cand_queue.put(item)
             else:
                 break
-
-        # if len(inv_cand.parts) == 1 and len(curr_cand.parts) == 1:
-        #     if curr_cand.parts[0].predicate == inv_cand.parts[0].predicate:
-        #         if len(curr_cand.parts[0].args) == 0:
-        #             if (isinstance(curr_cand.parts[0], Atom) and isinstance(inv_cand.parts[0], Atom)) or (
-        #                     isinstance(curr_cand.parts[0], NegatedAtom) and isinstance(inv_cand.parts[0], Atom)):
-        #                 inv_cand_temp_set.remove(curr_cand)
-        #                 return set(inv_cand_temp_set)
-        #         elif len(curr_cand.parts[0].args) == 1:
-        #             if isinstance(curr_cand.parts[0].args[0], TypedObject) and not isinstance(inv_cand.parts[0].args[0],
-        #                                                                                       TypedObject):
-        #                 pass
-        #             elif curr_cand.parts[0].args[0] == inv_cand.parts[0].args[0]:
-        #                 if (isinstance(curr_cand.parts[0], Atom) and isinstance(inv_cand.parts[0], Atom)) or (
-        #                         isinstance(curr_cand.parts[0], NegatedAtom) and isinstance(inv_cand.parts[0],
-        #                                                                                    Atom)):
-        #                     inv_cand_temp_set.remove(curr_cand)
-        #                     return set(inv_cand_temp_set)
-        #         elif len(curr_cand.parts[0].args) == 2:
-        #             if isinstance(curr_cand.parts[0].args[0], TypedObject) and not isinstance(inv_cand.parts[0].args[0],
-        #                                                                                       TypedObject):
-        #                 pass
-        #             elif (curr_cand.parts[0].args[0] == inv_cand.parts[0].args[0]) and (
-        #                     curr_cand.parts[0].args[1] == inv_cand.parts[0].args[1]):
-        #                 if (isinstance(curr_cand.parts[0], Atom) and isinstance(inv_cand.parts[0], Atom)) or (
-        #                         isinstance(curr_cand.parts[0], NegatedAtom) and isinstance(inv_cand.parts[0],
-        #                                                                                    Atom)):
-        #                     inv_cand_temp_set.remove(curr_cand)
-        #                     return set(inv_cand_temp_set)
-        # elif len(inv_cand.parts) > 0 and len(curr_cand.parts) == len(inv_cand.parts):
-        #     print("try to remove disjunction")
-        #     print("to remove: ")
-        #     inv_cand.dump()
-        #     print("check current: ")
-        #     curr_cand.dump()
-        #     if set(inv_cand.parts) == set(curr_cand.parts):
-        #         print("current and to remove are same")
-        #         inv_cand_temp_set.remove(curr_cand)
-        #         return set(inv_cand_temp_set)
-
     return inv_cand_queue
 
 # zuerst entfernen mit obiger funktionen und dann wird weaken aufgerufen
 def remove_and_weaken(inv_cand_temp: InvariantCandidate, inv_cand_temp_set: set[InvariantCandidate],
-                      action: PropositionalAction):
+                      action: PropositionalAction, task: Task):
     #print("no invariant")
     inv_cand = invariant_candidate.InvariantCandidate(inv_cand_temp.parts)
     # inv candidates X_1 or X_2 == X_2 or X_1 --> im moment wird das nicht als gleich erkannt und daher key error
@@ -304,7 +314,7 @@ def remove_and_weaken(inv_cand_temp: InvariantCandidate, inv_cand_temp_set: set[
     # schwächt schematische invarianten ab
     # hier muss geprüft werden ob C wächst, falls nicht --> emptyObject oder so übergeben (da C sonst grösse ändert innerhalb iteration)
 
-    weakened_inv_cand_set = weaken(inv_cand, action)
+    weakened_inv_cand_set = weaken(inv_cand, action, task)
     for weakend_inv_cand in weakened_inv_cand_set:
         if weakend_inv_cand is not None:
             inv_cand_temp_set.add(weakend_inv_cand)
@@ -315,7 +325,7 @@ def remove_and_weaken(inv_cand_temp: InvariantCandidate, inv_cand_temp_set: set[
     return set(check_set)
 
 # erstellt aus schematischen invarianten gegroundete
-# --> TODO: nur nötig sofern inv_cand schematisch ist? falls schon gegroundet nichts machen?? --> inv_cand kann nur schematisch sein!!
+#  inv_cand kann nur schematisch sein!!
 def create_c_sigma(inv_cand: InvariantCandidate, task_objects: list[TypedObject]):
     c_sigma = []
     for parts in inv_cand.parts:
@@ -397,28 +407,19 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction]):
     # wenn inv cand erstellt überprüfen ob schon gesehen, falls nicht hinufügen und fortfahren, falls nein, skippen
     while True:
         print("invariant candidates found at beginning of each while loop: ", len(next_queue))
-        for i in next_queue:
-            i.dump()
         inv_cand_set_C_0 = set(next_queue)
         for action in list_of_possible_actions:
-            print("picked action: ")
-            action.dump()
             queue_cq = next_queue.copy()
-            print("current queue: ")
-            for i in queue_cq:
-                i.dump()
+            print("len current queue in action loop: ", len(queue_cq))
 
             next_queue = collections.deque()
+            print("len next queue in action loop: ", len(next_queue))
             # kommt in der aktion ein negiertes literal vor welches in c enthalten ist --> kann action überhaupt effekt auf candidates haben
             # if else check
             while len(queue_cq) != 0:
+                print("len current queue in inv loop: ", len(queue_cq))
                 inv_cand = queue_cq.popleft()
-                print("picked invariant candidate: ")
-                inv_cand.dump()
-                print("remaining... ")
-                for i in queue_cq:
-                    i.dump()
-                print("end remaining.")
+                print("removed a inv cand from current queue in inv loop, len: ", len(queue_cq))
                 if inv_cand.contains(action):
                     # return c sigma: each item in list test in regression and sat test, if any is sat --> then weaken inv cand
                     c_sigma = create_c_sigma(inv_cand, task.objects)
@@ -429,34 +430,19 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction]):
                             is_inv_cand_sat = True
                             break
                     if is_inv_cand_sat:
-                        print("invariant candidate is sat")
                         # remove not needed, since already removed. if not inv cand: add to next queue
-
+                        seen_inv_candidates.append(inv_cand)
                         # then weaken
-                        weakend_inv_cand_set = weaken(inv_cand, action)
-                        print("appending to weakend candidates to queue...")
+                        weakend_inv_cand_set = weaken(inv_cand, action, task)
+                        print("appending current queue")
                         for weakend_inv_cand in weakend_inv_cand_set:
                             if weakend_inv_cand is not None:
-                                print("appending: ")
-                                weakend_inv_cand.dump()
                                 queue_cq.append(weakend_inv_cand)
-                        print("appending done.")
                     else:
+                        print("appending next queue")
                         next_queue.append(inv_cand)
-                        print("invariant, append to next_queue")
                 else:
                     pass
-                    print("action has no influence")
-            print("while loop ended: ")
-            print("passing queue: ")
-            for i in next_queue:
-                i.dump()
-            print("end passing queue...")
-
-        print("end of both for-loops")
-        print("number of invariant candidates at current status: ", len(next_queue))
-        for i in next_queue:
-            i.dump()
         # TODO: print statements anpassen --> gebe grösse der queues aus damit ich sehe wann und wie die resultierende queue zu 0 wird.
         # TODO: später: für weakening: x != y --> dafür bei InvariantCandidate neues Feld wo man sowas definieren kann
         # vorher weakening noch verbessern und restliche todos angehen
