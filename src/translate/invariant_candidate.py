@@ -7,8 +7,8 @@ class InvariantCandidate:
     # part2 is l_1 or l_2 // l_1
     # X is empty of conjuction of inequalities
     # l_1/l_2 are bool/schematic state variables
-    def __init__(self, part: List[conditions.Literal]):
-        self.parts = tuple(part)
+    def __init__(self, parts: List[conditions.Literal]):
+        self.parts = tuple(parts)
         self.hash = hash((self.__class__, self.parts))
 
     def __hash__(self):
