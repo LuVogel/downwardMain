@@ -79,9 +79,8 @@ def weaken2(inv_cand: InvariantCandidate):
             extended.append(new_var)
             new_used = set(used)
             new_used.add(new_var)
-            fill_params(new_used, num_to_add - 1, extended, params)
+            fill_params(new_used, num_to_add -1, extended, params)
 
-            print("after recursive call, should return, with num_to_add: ", num_to_add)
             # use an existing variable
             for var in used:
                 extended = list(current)
@@ -95,13 +94,13 @@ def weaken2(inv_cand: InvariantCandidate):
         exist_vars = set(inv_cand.parts[0].args)
         for pred, type_names in predicates_in_task.items():
             new_vars = []
-            params = fill_params(exist_vars, len(type_names))
+            params = fill_params(exist_vars,len(type_names))
 
             for args in params:
                 type_counter = 0
                 arg_temp = []
                 for arg in args:
-                    arg_temp.append(TypedObject(name=arg, type_name=type_names[type_counter].type_name))
+                    arg_temp.append(TypedObject(name=arg, type_name=type_names[type_counter]))
                     type_counter += 1
                 pos = Atom(pred, arg_temp)
                 neg = NegatedAtom(pred, arg_temp)
@@ -435,9 +434,6 @@ def create_c_sigma(inv_cand: InvariantCandidate):
         for object in list_of_objects:
             list_of_vars.append(object_types_in_task[object.type_name])
         c_sigma += create_grounded_invariant_for_c_sigma(list_of_vars, literal.predicate, negated)
-    print("created c_sigma: ")
-    for i in c_sigma:
-        i.dump()
     return c_sigma
 
 def count_predicates_in_init(task: Task):
@@ -535,7 +531,9 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction]):
                 if inv_cand.contains(action):
                     # return c sigma: each item in list test in regression and sat test, if any is sat --> then weaken inv cand
                     c_sigma = create_c_sigma(inv_cand)
-
+                    print("created c_sigma: ")
+                    for i in c_sigma:
+                        i.dump()
                     is_inv_cand_sat = False
 
                     for c_sig in c_sigma:
@@ -565,4 +563,5 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction]):
         if set(next_queue) == inv_cand_set_C_0:
 
             # solution found, return
-            return
+            return set(next_queue)
+        print("stating new for loop")
