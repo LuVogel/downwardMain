@@ -68,6 +68,7 @@ def weaken2(inv_cand: InvariantCandidate):
             else:
                 return f"?val{val}"
 
+    # TODO: fill params funktioniert nicht
     def fill_params(used, num_to_add, current=[], params=[]):
         if num_to_add == 0:
             params.append(current)
@@ -80,8 +81,6 @@ def weaken2(inv_cand: InvariantCandidate):
             new_used = set(used)
             new_used.add(new_var)
             fill_params(new_used, num_to_add - 1, extended, params)
-
-            print("after recursive call, should return, with num_to_add: ", num_to_add)
             # use an existing variable
             for var in used:
                 extended = list(current)
@@ -339,7 +338,7 @@ def is_sat(negated_conjecture: Condition, axiom_list: list[Condition]):
     # run vampire
     result = subprocess.run(['vampire', 'src/translate/tptp-formulas.p'], capture_output=True)
     print("result of vampire: ")
-    print(result.stderr)
+    print(result.stdout[350:450])
     # return 0 for Satisfiable, else Refutation
     return result.returncode == 0
 
