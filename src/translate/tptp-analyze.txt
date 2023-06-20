@@ -1,0 +1,3184 @@
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & at(package1,l2) & free(a1,truck1) & free(a1,truck1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & at(package1,l2) & free(a1,truck1) & free(a2,truck1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & at(package1,l2) & free(a2,truck1) & new-axiom@0(a2,truck1) & free(a1,truck1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & at(package1,l2) & free(a2,truck1) & new-axiom@0(a2,truck1) & free(a2,truck1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & at(package2,l2) & free(a1,truck1) & free(a1,truck1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & at(package2,l2) & free(a1,truck1) & free(a2,truck1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & at(package2,l2) & free(a2,truck1) & new-axiom@0(a2,truck1) & free(a1,truck1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & at(package2,l2) & free(a2,truck1) & new-axiom@0(a2,truck1) & free(a2,truck1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & at(package3,l2) & free(a1,truck1) & free(a1,truck1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & at(package3,l2) & free(a1,truck1) & free(a2,truck1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & at(package3,l2) & free(a2,truck1) & new-axiom@0(a2,truck1) & free(a1,truck1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & at(package3,l2) & free(a2,truck1) & new-axiom@0(a2,truck1) & free(a2,truck1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & in(package1,truck1,a1) & in(package1,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & in(package1,truck1,a1) & in(package1,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & in(package1,truck1,a1) & in(package2,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & in(package1,truck1,a1) & in(package2,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & in(package1,truck1,a1) & in(package3,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & in(package1,truck1,a1) & in(package3,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & in(package1,truck1,a1) & in(package1,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & in(package1,truck1,a1) & in(package1,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & in(package1,truck1,a1) & in(package2,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & in(package1,truck1,a1) & in(package2,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & in(package1,truck1,a1) & in(package3,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & in(package1,truck1,a1) & in(package3,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & in(package1,truck1,a1) & in(package1,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & in(package1,truck1,a1) & in(package1,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & in(package1,truck1,a1) & in(package2,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & in(package1,truck1,a1) & in(package2,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & in(package1,truck1,a1) & in(package3,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & in(package1,truck1,a1) & in(package3,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & in(package1,truck1,a2) & new-axiom@0(a2,truck1) & in(package1,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & in(package1,truck1,a2) & new-axiom@0(a2,truck1) & in(package1,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & in(package1,truck1,a2) & new-axiom@0(a2,truck1) & in(package2,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & in(package1,truck1,a2) & new-axiom@0(a2,truck1) & in(package2,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & in(package1,truck1,a2) & new-axiom@0(a2,truck1) & in(package3,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & in(package1,truck1,a2) & new-axiom@0(a2,truck1) & in(package3,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & in(package1,truck1,a2) & new-axiom@0(a2,truck1) & in(package1,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & in(package1,truck1,a2) & new-axiom@0(a2,truck1) & in(package1,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & in(package1,truck1,a2) & new-axiom@0(a2,truck1) & in(package2,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & in(package1,truck1,a2) & new-axiom@0(a2,truck1) & in(package2,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & in(package1,truck1,a2) & new-axiom@0(a2,truck1) & in(package3,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & in(package1,truck1,a2) & new-axiom@0(a2,truck1) & in(package3,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & in(package1,truck1,a2) & new-axiom@0(a2,truck1) & in(package1,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & in(package1,truck1,a2) & new-axiom@0(a2,truck1) & in(package1,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & in(package1,truck1,a2) & new-axiom@0(a2,truck1) & in(package2,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & in(package1,truck1,a2) & new-axiom@0(a2,truck1) & in(package2,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & in(package1,truck1,a2) & new-axiom@0(a2,truck1) & in(package3,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & in(package1,truck1,a2) & new-axiom@0(a2,truck1) & in(package3,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & in(package2,truck1,a1) & in(package1,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & in(package2,truck1,a1) & in(package1,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & in(package2,truck1,a1) & in(package2,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & in(package2,truck1,a1) & in(package2,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & in(package2,truck1,a1) & in(package3,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & in(package2,truck1,a1) & in(package3,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & in(package2,truck1,a1) & in(package1,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & in(package2,truck1,a1) & in(package1,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & in(package2,truck1,a1) & in(package2,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & in(package2,truck1,a1) & in(package2,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & in(package2,truck1,a1) & in(package3,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & in(package2,truck1,a1) & in(package3,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & in(package2,truck1,a1) & in(package1,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & in(package2,truck1,a1) & in(package1,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & in(package2,truck1,a1) & in(package2,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & in(package2,truck1,a1) & in(package2,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & in(package2,truck1,a1) & in(package3,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & in(package2,truck1,a1) & in(package3,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & in(package2,truck1,a2) & new-axiom@0(a2,truck1) & in(package1,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & in(package2,truck1,a2) & new-axiom@0(a2,truck1) & in(package1,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & in(package2,truck1,a2) & new-axiom@0(a2,truck1) & in(package2,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & in(package2,truck1,a2) & new-axiom@0(a2,truck1) & in(package2,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & in(package2,truck1,a2) & new-axiom@0(a2,truck1) & in(package3,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & in(package2,truck1,a2) & new-axiom@0(a2,truck1) & in(package3,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & in(package2,truck1,a2) & new-axiom@0(a2,truck1) & in(package1,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & in(package2,truck1,a2) & new-axiom@0(a2,truck1) & in(package1,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & in(package2,truck1,a2) & new-axiom@0(a2,truck1) & in(package2,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & in(package2,truck1,a2) & new-axiom@0(a2,truck1) & in(package2,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & in(package2,truck1,a2) & new-axiom@0(a2,truck1) & in(package3,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & in(package2,truck1,a2) & new-axiom@0(a2,truck1) & in(package3,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & in(package2,truck1,a2) & new-axiom@0(a2,truck1) & in(package1,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & in(package2,truck1,a2) & new-axiom@0(a2,truck1) & in(package1,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & in(package2,truck1,a2) & new-axiom@0(a2,truck1) & in(package2,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & in(package2,truck1,a2) & new-axiom@0(a2,truck1) & in(package2,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & in(package2,truck1,a2) & new-axiom@0(a2,truck1) & in(package3,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & in(package2,truck1,a2) & new-axiom@0(a2,truck1) & in(package3,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & in(package3,truck1,a1) & in(package1,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & in(package3,truck1,a1) & in(package1,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & in(package3,truck1,a1) & in(package2,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & in(package3,truck1,a1) & in(package2,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & in(package3,truck1,a1) & in(package3,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & in(package3,truck1,a1) & in(package3,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & in(package3,truck1,a1) & in(package1,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & in(package3,truck1,a1) & in(package1,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & in(package3,truck1,a1) & in(package2,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & in(package3,truck1,a1) & in(package2,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & in(package3,truck1,a1) & in(package3,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & in(package3,truck1,a1) & in(package3,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & in(package3,truck1,a1) & in(package1,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & in(package3,truck1,a1) & in(package1,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & in(package3,truck1,a1) & in(package2,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & in(package3,truck1,a1) & in(package2,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & in(package3,truck1,a1) & in(package3,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & in(package3,truck1,a1) & in(package3,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & in(package3,truck1,a2) & new-axiom@0(a2,truck1) & in(package1,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & in(package3,truck1,a2) & new-axiom@0(a2,truck1) & in(package1,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & in(package3,truck1,a2) & new-axiom@0(a2,truck1) & in(package2,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & in(package3,truck1,a2) & new-axiom@0(a2,truck1) & in(package2,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & in(package3,truck1,a2) & new-axiom@0(a2,truck1) & in(package3,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & in(package3,truck1,a2) & new-axiom@0(a2,truck1) & in(package3,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & in(package3,truck1,a2) & new-axiom@0(a2,truck1) & in(package1,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & in(package3,truck1,a2) & new-axiom@0(a2,truck1) & in(package1,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & in(package3,truck1,a2) & new-axiom@0(a2,truck1) & in(package2,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & in(package3,truck1,a2) & new-axiom@0(a2,truck1) & in(package2,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & in(package3,truck1,a2) & new-axiom@0(a2,truck1) & in(package3,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & in(package3,truck1,a2) & new-axiom@0(a2,truck1) & in(package3,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & in(package3,truck1,a2) & new-axiom@0(a2,truck1) & in(package1,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & in(package3,truck1,a2) & new-axiom@0(a2,truck1) & in(package1,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & in(package3,truck1,a2) & new-axiom@0(a2,truck1) & in(package2,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & in(package3,truck1,a2) & new-axiom@0(a2,truck1) & in(package2,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & in(package3,truck1,a2) & new-axiom@0(a2,truck1) & in(package3,truck1,a1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l2) & in(package3,truck1,a2) & new-axiom@0(a2,truck1) & in(package3,truck1,a2)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & at(package1,l3) & free(a1,truck1) & free(a1,truck1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & at(package1,l3) & free(a1,truck1) & free(a2,truck1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & at(package1,l3) & free(a2,truck1) & new-axiom@0(a2,truck1) & free(a1,truck1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & at(package1,l3) & free(a2,truck1) & new-axiom@0(a2,truck1) & free(a2,truck1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & at(package1,l1) & free(a1,truck1) & free(a1,truck1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & at(package1,l1) & free(a1,truck1) & free(a2,truck1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & at(package1,l1) & free(a2,truck1) & new-axiom@0(a2,truck1) & free(a1,truck1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & at(package1,l1) & free(a2,truck1) & new-axiom@0(a2,truck1) & free(a2,truck1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & at(package2,l3) & free(a1,truck1) & free(a1,truck1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & at(package2,l3) & free(a1,truck1) & free(a2,truck1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & at(package2,l3) & free(a2,truck1) & new-axiom@0(a2,truck1) & free(a1,truck1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & at(package2,l3) & free(a2,truck1) & new-axiom@0(a2,truck1) & free(a2,truck1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & at(package2,l1) & free(a1,truck1) & free(a1,truck1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & at(package2,l1) & free(a1,truck1) & free(a2,truck1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & at(package2,l1) & free(a2,truck1) & new-axiom@0(a2,truck1) & free(a1,truck1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & at(package2,l1) & free(a2,truck1) & new-axiom@0(a2,truck1) & free(a2,truck1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & at(package3,l3) & free(a1,truck1) & free(a1,truck1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & at(package3,l3) & free(a1,truck1) & free(a2,truck1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & at(package3,l3) & free(a2,truck1) & new-axiom@0(a2,truck1) & free(a1,truck1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l3) & at(package3,l3) & free(a2,truck1) & new-axiom@0(a2,truck1) & free(a2,truck1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & at(package3,l1) & free(a1,truck1) & free(a1,truck1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & at(package3,l1) & free(a1,truck1) & free(a2,truck1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & at(package3,l1) & free(a2,truck1) & new-axiom@0(a2,truck1) & free(a1,truck1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![A1]: ![T]: ~new-axiom@0(A1,T)).
+fof(formula2, axiom,![P]: ![T]: ![A]: ~in(P,T,A)).
+fof(formula3, axiom,![P]: ![L]: ![T]: ~delivered(P,L,T)).
+fof(formula4, axiom,![A]: ![T]: free(A,T)).
+fof(formula5, axiom,![P]: ![L]: ~at-destination(P,L)).
+fof(formula0, negated_conjecture,at(truck1,l1) & at(package3,l1) & free(a2,truck1) & new-axiom@0(a2,truck1) & free(a2,truck1)).
+% Running in auto input_syntax mode. Trying TPTP
+% Failed with
+% Parsing Error on line 1
+wrong number format at position 37
+% Trying SMTLIB2
+User error: list expected: fof
+end
+
+
+
+
+start
+
+
+
+
+fof(formula1, axiom,![X]: ~holding(X)).
+fof(formula2, axiom,![X]: ontable(X)).
+fof(formula3, axiom,![X]: clear(X)).
+fof(formula4, axiom,handempty(noargs)).
+fof(formula5, axiom,![X]: ![Y]: ~on(X,Y)).
+fof(formula0, negated_conjecture,clear(a) & ontable(a) & handempty(noargs) & ontable(d)).
+end
+
+
+
+
