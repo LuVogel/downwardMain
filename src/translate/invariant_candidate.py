@@ -7,9 +7,10 @@ class InvariantCandidate:
     # part2 is l_1 or l_2 // l_1
     # X is empty of conjuction of inequalities
     # l_1/l_2 are bool/schematic state variables
-    def __init__(self, parts: List[conditions.Literal]):
+    def __init__(self, parts: List[conditions.Literal], ineq):
         self.parts = tuple(parts)
-        self.hash = hash((self.__class__, self.parts))
+        self.ineq = tuple(ineq)
+        self.hash = hash((self.__class__, self.parts, self.ineq))
 
     def __hash__(self):
         return self.hash
@@ -25,12 +26,17 @@ class InvariantCandidate:
         # Compare hash first for speed reasons.
         return (self.hash == other.hash and
                 self.__class__ is other.__class__ and
-                self.parts == other.parts)
+                self.parts == other.parts and
+                self.ineq == other.ineq)
 
     def dump(self, indent="  "):
         print("%s%s" % (indent, self._dump()))
         for part in self.parts:
             part.dump(indent + "  ")
+        print("ineq: ")
+        for i in self.ineq:
+            for j in i:
+                print(j)
 
     def _dump(self):
         return self.__class__.__name__
