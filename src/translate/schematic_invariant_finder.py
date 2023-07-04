@@ -1,8 +1,10 @@
 import collections
 import copy
 import itertools
+import os
 import subprocess
 from queue import Queue
+
 
 from invariant_candidate import *
 from pddl.conditions import *
@@ -50,17 +52,9 @@ def parse_literal_with_objects_to_literals_with_vars(literal: Literal, task: Tas
     return result
 
 
-
-# a ist objekt
-# x ist variable
-# weakening
-# TODO: check weaken --> hier müssen schematische inv cand hinzugefügt werden, im moment sind sie gegroundet
-# parsing function von action effects  (objekten) zu möglichen variabeln
-# im moment: für jede add/del effect in Action: Invariant Candidate bekommt einen part mehr (also literal zu Disjunktion,
-# disjunktion zu disjunktion mit einer Klausel mehr
-# für jeden add effect und del effect der nicht schon als part in Inv-Kandidat ist, wird ein neuer Invariant Candidate erstellt
-# weaken führ so je nach dem zu mehreren neuen Invariant kandidaten
-
+# performs weakening on a given invariant candidate.
+# 1. invariant candidate is extended by a literal
+# 2. invariant candidate is extended by an inequality
 def weaken(inv_cand: InvariantCandidate):
     def get_new_var(existing):
         val = 0
@@ -96,15 +90,12 @@ def weaken(inv_cand: InvariantCandidate):
             params = fill_params(exist_vars, len(type_names))
             for args in params:
                 type_counter = 0
-                arg_temp = []
-                for arg in args:
-                    arg_temp.append(TypedObject(name=arg, type_name=type_names[type_counter].type_name))
-                    type_counter += 1
-                pos = Atom(pred, arg_temp)
-                neg = NegatedAtom(pred, arg_temp)
                 types_temp = set()
-                for arg in arg_temp:
-                    types_temp.add(arg)
+                for arg in args:
+                    types_temp.add(TypedObject(name=arg, type_name=type_names[type_counter].type_name))
+                    type_counter += 1
+                pos = Atom(pred, args)
+                neg = NegatedAtom(pred, args)
                 for part in inv_cand.parts:
                     for i in range(len(predicates_in_task[part.predicate])):
                         types_temp.add(TypedObject(name=part.args[i], type_name=predicates_in_task[part.predicate][i]))
@@ -117,10 +108,8 @@ def weaken(inv_cand: InvariantCandidate):
     exist_vars = set(inv_cand.parts[0].args)
     if len(inv_cand.parts) == 2:
         exist_vars |= set(inv_cand.parts[1].args)
-    # TODO don't add existing inequalities again
     existing_inequalities = set(inv_cand.ineq)
     for c in itertools.combinations(exist_vars, 2):
-    # for c in itertools.combinations(sorted(exist_vars), 2):
         temp = False
         if c not in existing_inequalities:
             temp = True
@@ -134,11 +123,7 @@ def weaken(inv_cand: InvariantCandidate):
     return inv_cand_set
 
 
-
-
-
-
-# Regression ruft rekursiv regression_rec und eff_con auf und gibt am Schluss eine Conjunktion zurück die auch Truth oder Falsity sein kann
+# call of regression: regression of a formula through an operator
 def regression(formula: Condition, operator: PropositionalAction):
     # eff_list = eff(o)
     eff_list = get_effects_from_action(operator)
@@ -147,6 +132,7 @@ def regression(formula: Condition, operator: PropositionalAction):
         [Conjunction(operator.precondition), regression_rec(formula, Conjunction(eff_list))]).simplified()
 
 
+# recursive call of regression: regression of a formula through an effect
 def regression_rec(formula: Condition, effect: Condition):
     if isinstance(formula, Truth):
         return Truth()
@@ -165,6 +151,7 @@ def regression_rec(formula: Condition, effect: Condition):
     return Disjunction([eff_con(formula, effect), Conjunction([formula, eff_con(formula.negate(), effect).negate()])])
 
 
+# effect condition, used in recusrive call of regression
 def eff_con(atomic_effect: Condition, effect: Condition):
     if isinstance(effect, Truth):
         return Falsity()
@@ -180,6 +167,7 @@ def eff_con(atomic_effect: Condition, effect: Condition):
     return Falsity()
 
 
+# creates a list of all effects (add/del effects) incl. their condition (if ConditionalEffect) of a given Condition
 def get_effects_from_action(operator: Condition):
     eff_list = []
     # add all add_effects
@@ -197,8 +185,8 @@ def get_effects_from_action(operator: Condition):
     return eff_list
 
 
+# writes a given invariant candidate to a given file
 def write_invariant_to_fof(inv_cand: InvariantCandidate, file, counter: int):
-
     found_variables = set()
     def get_vampire_var(variable):
         if variable.startswith("?"):
@@ -216,8 +204,6 @@ def write_invariant_to_fof(inv_cand: InvariantCandidate, file, counter: int):
             args = "noargs"
         neg = "~" if literal.negated else ""
         return f"{neg}{name}({args})"
-
-        # write one line to tptp-formulas.p
     vars = inv_cand.get_variables()
     inv_type = inv_cand.type
     all_quantifiers = " ".join("![%s]: " % get_vampire_var(var) for var in vars)
@@ -226,9 +212,8 @@ def write_invariant_to_fof(inv_cand: InvariantCandidate, file, counter: int):
     inv_type_name = inv_type.name.split("?")[1].upper()
     file.write(f"fof(formula{counter}, axiom, {all_quantifiers} ({inv_type.type_name}({inv_type_name}) => ( {parts} ))).\n")
 
-# schreibt die formeln (axiome und zu beweisen) ins fof file
+# write a given formula (as negated conjecture) into a given file
 def write_neg_conjecture_to_fof(formula: Condition, file, counter):
-
     def get_vampire_literal_for_neg_conjecture(literal: Literal):
         name = literal.predicate
         arg_list = []
@@ -241,48 +226,38 @@ def write_neg_conjecture_to_fof(formula: Condition, file, counter):
             args = "noargs"
         neg = "~" if literal.negated else ""
         return f"{neg}{name}({args})"
-
     join_s = condition_type_to_logical_string[formula.__class__]
     parts = [get_vampire_literal_for_neg_conjecture(part) for part in formula.parts]
     parts = f" {join_s} ".join(parts)
-
     file.write(f"fof(formula{counter}, negated_conjecture, ({parts})).")
 
-
-def is_sat(negated_conjecture: Condition, axiom_list: list[Condition]):
-    with open("src/translate/tptp-formulas.p", "w") as file:
+# checks with help of a given list if a given Condition is satisfiable. this is done by creating a new file
+# with previous functions and do a satisfiable-test with the help of vampire prover
+def is_sat(negated_conjecture: Condition, axiom_list: list[Condition], formula_file_counter: int):
+    path = "src/translate/vampire/tptp-formulas" + str(formula_file_counter) + ".p"
+    with open(path, "w") as file:
         counter = 1
-        # create for all axioms the tptp file
-
         for inv_cand in axiom_list:
-            print("inv_cand: ")
-            inv_cand.dump()
             write_invariant_to_fof(inv_cand, file, counter)
             counter += 1
-        # add formula we want to check to tptp file
-        # eigene funktion oder umschreiben
         write_neg_conjecture_to_fof(negated_conjecture, file, 0)
-    # run vampire
-    print("start\n-----------------")
-    with open("src/translate/tptp-formulas.p", "r") as file:
-        for line in file:
-            print("line: ", line)
-    print("end\n-----------------")
-
-    result = subprocess.run(['vampire', 'src/translate/tptp-formulas.p'], capture_output=True)
-    res = result.stdout.decode()
-    if "Termination reason: Refutation" in res:
-        return False
-    elif "Termination reason: Satisfiable" in res:
-        return True
-    else:
-        print("something went wrong in vampire")
-        print("failure: ", res)
-        # TODO: predicate-namen sind für vampire nicht lesbar (new-axiom@0(A1,T))
+    file.close()
+    command = ['vampire', path]
+    try:
+        output = subprocess.check_output(command, stderr=subprocess.STDOUT, universal_newlines=True)
+        res = output
+        if "Termination reason: Refutation" in res:
+            return False
+        elif "Termination reason: Satisfiable" in res:
+            return True
+        else:
+            print("something went wrong in vampire (not refutation, not sat, not process-error")
+            return False
+    except subprocess.CalledProcessError as e:
+        print(f"Error in vampire process: {e} in tptp-formulas{str(formula_file_counter)}")
         return False
 
-
-# schaut das set durch und entfernt den gegebenen kandidaten sofern vorhanden
+# removing a given invariant candidate from a queue of invariant candidates
 def remove_inv_cand(inv_cand_queue: Queue[InvariantCandidate], inv_cand: InvariantCandidate):
     if inv_cand in inv_cand_queue.queue:
         while not inv_cand_queue.empty():
@@ -294,27 +269,27 @@ def remove_inv_cand(inv_cand_queue: Queue[InvariantCandidate], inv_cand: Invaria
     return inv_cand_queue
 
 
-
-# startet regression und mach den sat test --> da regression Truth/falsity zurück geben kann, ist hier fehlerpotential vorhanden
+# starting regression of a formula through an operator. formula is given by parts of given invariant candidate
+# operator is given by action
+# starts the sat-test with result of regression or return True/False if result was Truth/Falsity
 def regr_and_sat(action: PropositionalAction, inv_cand_temp: InvariantCandidate,
-                 inv_cand_set_C_0: set[InvariantCandidate]):
+                 inv_cand_set_C_0: set[InvariantCandidate], formula_file_counter: int):
     if len(inv_cand_temp.parts) == 1:
         input_for_regression = inv_cand_temp.parts[0]
     else:
         input_for_regression = Disjunction(inv_cand_temp.parts)
 
     after_reg = regression(input_for_regression.negate(), action).simplified()
-    # wenn after reg falsity -> direkt false return
-    # theoretisch wenn Truth dann true zurückgeben, weil anfangs ist C erfüllbar (inital state)
-    # Da weakening nur schwächere Formeln hinzufügt, bleib C in diesem Punkt erfüllbar.
     if isinstance(after_reg, Falsity):
         return False
     elif isinstance(after_reg, Truth):
         return True
     else:
-        return is_sat(after_reg, inv_cand_set_C_0)
+        return is_sat(after_reg, inv_cand_set_C_0, formula_file_counter)
 
 
+# helper function for c_sigma
+# used if there are more possible variables which can be combined with a predicate
 def create_grounded_invariant_for_c_sigma(list_of_vars, predicate, negated):
     inv_list = []
     count_of_lists = len(list_of_vars)
@@ -340,11 +315,10 @@ def create_grounded_invariant_for_c_sigma(list_of_vars, predicate, negated):
                 inv_list.append(InvariantCandidate(parts=[NegatedAtom(predicate=predicate, args=temp_list)], ineq=[], type=type))
             else:
                 inv_list.append(InvariantCandidate(parts=[Atom(predicate=predicate, args=temp_list)], ineq=[], type=type))
-
     return inv_list
 
-# erstellt aus schematischen invarianten gegroundete
-#  inv_cand kann nur schematisch sein!!
+# create from a given predicate and variables all possible combinations
+# return list of invariant candidates used for regression
 def create_c_sigma(inv_cand: InvariantCandidate):
     c_sigma = []
     for literal in inv_cand.parts:
@@ -368,11 +342,7 @@ def collect_predicates_in_init(task: Task, fluent_predicates):
             map[atom.predicate].append(atom)
     return map
 
-# wird am anfang gebraucht um alle prädikate und objekte die im task enthalten sind u erstellen.
-# erstelle zuerst alle möglichen kombination aus objekten mit dem gegebenen prädikat
-# kommen alle diese erstellten kombination in task.init vor --> als invariant candidate hinzufügen
-# kommen keine dieser erstellten kombination in task.init vor --< als invariant candidate hinzufügen (aber als Negated)
-# sonst --> kein Invariant Candidate return None
+# parsing a given predicate to their possible types and creating invariant candidates
 def parse_objects_with_current_pred(task_pred: Predicate, init_pred_map):
     # if pred does not occurrent in init-state, we add invariant that is always false
     if task_pred.name not in init_pred_map:
@@ -420,7 +390,7 @@ def parse_objects_with_current_pred(task_pred: Predicate, init_pred_map):
 
     return None
 
-# mit obiger parsing function werden kandidaten erstellt
+# create invariant candidates from init-task.
 def create_invariant_candidates(task: Task, fluent_ground_atoms):
     # create simple invariants: all atoms in init are used as invariant candidates
     inv_list = set()
@@ -441,8 +411,16 @@ def register_object_for_type(name: str, type: str, type_dict: dict, type_to_supe
     if type_to_supertype[type] is not None:
         register_object_for_type(name, type_to_supertype[type], type_dict, type_to_supertype)
 
+def delete_vampire_files():
+    folder_path = "src/translate/vampire/"
+    file_list = os.listdir(folder_path)
+    for file_name in file_list:
+        file_path = os.path.join(folder_path, file_name)
+        os.remove(file_path)
+
 # eigentliche Funktion die Aktionen vorbereite, und den Algorithmus durchführt
 def get_schematic_invariants(task: Task, actions: list[PropositionalAction], fluent_ground_atoms):
+    delete_vampire_files()
     # use deepcopy, so we can modify actions and task freely
     task = copy.deepcopy(task)
     type_to_supertype = {t.name : t.basetype_name for t in task.types}
@@ -467,37 +445,32 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction], flu
             y = x[2].split(")")
             if x[1] != y[0]:
                 list_of_possible_actions.append(a)
-
         else:
             list_of_possible_actions.append(a)
     # start algorithm from Rintannen
-
     next_queue = collections.deque()
     print("starting with following inv-candidates: ")
+    formula_file_counter = 0
     for i in inv_cand_set_C:
         next_queue.append(i)
         i.dump()
-    # gesehene invariant candidates als Hashmap (global) --> damit nicht mehrmals in queue hinzugefügt wird durch weaken (bzw in weakening schon beachten)
-    # wenn inv cand erstellt überprüfen ob schon gesehen, falls nicht hinufügen und fortfahren, falls nein, skippen
     while True:
         inv_cand_set_C_0 = set(next_queue)
         for action in list_of_possible_actions:
             queue_cq = next_queue.copy()
             next_queue = collections.deque()
-            # kommt in der aktion ein negiertes literal vor welches in c enthalten ist --> kann action überhaupt effekt auf candidates haben
-            # if else check
             while queue_cq:
                 inv_cand = queue_cq.popleft()
                 if inv_cand.contains(action):
-                    # return c sigma: each item in list test in regression and sat test, if any is sat --> then weaken inv cand
                     c_sigma = create_c_sigma(inv_cand)
                     is_inv_cand_sat = False
                     for c_sig in c_sigma:
-                        if regr_and_sat(action, c_sig, inv_cand_set_C_0):
+                        if regr_and_sat(action, c_sig, inv_cand_set_C_0, formula_file_counter):
                             is_inv_cand_sat = True
+                            formula_file_counter += 1
                             break
+                        formula_file_counter += 1
                     if is_inv_cand_sat:
-                        # remove not needed, since already removed. if not inv cand: add to next queue
                         seen_inv_candidates.append(inv_cand)
                         weakend_inv_cand_set = weaken(inv_cand)
                         for weakend_inv_cand in weakend_inv_cand_set:
