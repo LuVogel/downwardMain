@@ -83,31 +83,42 @@ def weaken(inv_cand: InvariantCandidate):
         return params
 
     inv_cand_set = set()
+    arg_set = set()
+    for part in inv_cand.parts:
+        for arg in part.args:
+            arg_set.add(arg)
     # extend by a literal
     if len(inv_cand.parts) == 1:
+
         exist_vars = set(inv_cand.parts[0].args)
         for pred, type_names in predicates_in_task.items():
             params = fill_params(exist_vars, len(type_names))
             for args in params:
                 type_counter = 0
                 types_temp = set()
-                for arg in args:
-                    types_temp.add(TypedObject(name=arg, type_name=type_names[type_counter].type_name))
-                    type_counter += 1
+                # for arg in args:
+                #     types_temp.add(TypedObject(name=arg, type_name=type_names[type_counter].type_name))
+                #     type_counter += 1
                 pos = Atom(pred, args)
                 neg = NegatedAtom(pred, args)
                 for part in inv_cand.parts:
                     for i in range(len(predicates_in_task[part.predicate])):
                         types_temp.add(TypedObject(name=part.args[i], type_name=predicates_in_task[part.predicate][i]))
                 for type in types_temp:
-                    inv_cand_set.add(InvariantCandidate(parts=inv_cand.parts+(pos,), ineq=[], type=type))
-                    inv_cand_set.add(InvariantCandidate(parts=inv_cand.parts+(neg,), ineq=[], type=type))
+                    inv = InvariantCandidate(parts=inv_cand.parts+(pos,), ineq=[], type=type)
+                    if inv not in seen_inv_candidates:
+                        inv_cand_set.add(inv)
+                    inv = InvariantCandidate(parts=inv_cand.parts+(neg,), ineq=[], type=type)
+                    if inv not in seen_inv_candidates:
+                        inv_cand_set.add(inv)
             params.clear()
 
     # add inequality
     exist_vars = set(inv_cand.parts[0].args)
-    if len(inv_cand.parts) == 2:
+    if len(inv_cand.parts) == 2 and (len(arg_set) > len(inv_cand.ineq)):
         exist_vars |= set(inv_cand.parts[1].args)
+    else:
+        return [None]
     existing_inequalities = set(inv_cand.ineq)
     for c in itertools.combinations(exist_vars, 2):
         temp = False
@@ -119,7 +130,10 @@ def weaken(inv_cand: InvariantCandidate):
             for part in inv_cand.parts:
                 for i in range(len(predicates_in_task[part.predicate])):
                     type = TypedObject(name=part.args[i], type_name=predicates_in_task[part.predicate][i])
-                    inv_cand_set.add(InvariantCandidate(parts=inv_cand.parts, ineq=ineq, type=type))
+                    inv = InvariantCandidate(parts=inv_cand.parts, ineq=ineq, type=type)
+                    if inv not in seen_inv_candidates:
+                        inv_cand_set.add(InvariantCandidate(parts=inv_cand.parts, ineq=ineq, type=type))
+
     return inv_cand_set
 
 
@@ -233,8 +247,8 @@ def write_neg_conjecture_to_fof(formula: Condition, file, counter):
 
 # checks with help of a given list if a given Condition is satisfiable. this is done by creating a new file
 # with previous functions and do a satisfiable-test with the help of vampire prover
-def is_sat(negated_conjecture: Condition, axiom_list: list[Condition], formula_file_counter: int):
-    path = "src/translate/vampire/tptp-formulas" + str(formula_file_counter) + ".p"
+def is_sat(negated_conjecture: Condition, axiom_list: list[Condition]):
+    path = "src/translate/vampire/tptp-formulas.p"
     with open(path, "w") as file:
         counter = 1
         for inv_cand in axiom_list:
@@ -254,7 +268,7 @@ def is_sat(negated_conjecture: Condition, axiom_list: list[Condition], formula_f
             print("something went wrong in vampire (not refutation, not sat, not process-error")
             return False
     except subprocess.CalledProcessError as e:
-        print(f"Error in vampire process: {e} in tptp-formulas{str(formula_file_counter)}")
+        print(f"Error in vampire process: {e} in tptp-formulas")
         return False
 
 # removing a given invariant candidate from a queue of invariant candidates
@@ -273,7 +287,7 @@ def remove_inv_cand(inv_cand_queue: Queue[InvariantCandidate], inv_cand: Invaria
 # operator is given by action
 # starts the sat-test with result of regression or return True/False if result was Truth/Falsity
 def regr_and_sat(action: PropositionalAction, inv_cand_temp: InvariantCandidate,
-                 inv_cand_set_C_0: set[InvariantCandidate], formula_file_counter: int):
+                 inv_cand_set_C_0: set[InvariantCandidate]):
     if len(inv_cand_temp.parts) == 1:
         input_for_regression = inv_cand_temp.parts[0]
     else:
@@ -285,7 +299,7 @@ def regr_and_sat(action: PropositionalAction, inv_cand_temp: InvariantCandidate,
     elif isinstance(after_reg, Truth):
         return True
     else:
-        return is_sat(after_reg, inv_cand_set_C_0, formula_file_counter)
+        return is_sat(after_reg, inv_cand_set_C_0)
 
 
 # helper function for c_sigma
@@ -450,36 +464,44 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction], flu
     # start algorithm from Rintannen
     next_queue = collections.deque()
     print("starting with following inv-candidates: ")
-    formula_file_counter = 0
     for i in inv_cand_set_C:
         next_queue.append(i)
         i.dump()
     while True:
+        print("store nextqueue in inv cand set")
         inv_cand_set_C_0 = set(next_queue)
         for action in list_of_possible_actions:
             queue_cq = next_queue.copy()
             next_queue = collections.deque()
             while queue_cq:
+                print("remove from current queue..")
                 inv_cand = queue_cq.popleft()
                 if inv_cand.contains(action):
+                    print("create sigma, doing sat test...")
                     c_sigma = create_c_sigma(inv_cand)
                     is_inv_cand_sat = False
                     for c_sig in c_sigma:
-                        if regr_and_sat(action, c_sig, inv_cand_set_C_0, formula_file_counter):
+                        if regr_and_sat(action, c_sig, inv_cand_set_C_0):
                             is_inv_cand_sat = True
-                            formula_file_counter += 1
                             break
-                        formula_file_counter += 1
                     if is_inv_cand_sat:
+                        print("weakening...")
                         seen_inv_candidates.append(inv_cand)
                         weakend_inv_cand_set = weaken(inv_cand)
                         for weakend_inv_cand in weakend_inv_cand_set:
                             if weakend_inv_cand is not None:
                                 queue_cq.append(weakend_inv_cand)
+
                     else:
+                        print("no inv cand")
                         next_queue.append(inv_cand)
+                        delete_vampire_files()
                 else:
+                    print("action no influence")
                     next_queue.append(inv_cand)
+                    delete_vampire_files()
+        delete_vampire_files()
+        print("check is queue is same as before")
         if set(next_queue) == inv_cand_set_C_0 or set(queue_cq) == inv_cand_set_C_0:
             # solution found, return
             return next_queue
