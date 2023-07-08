@@ -64,3 +64,4 @@ class InvariantCandidate:
         for inequality in self.ineq:
             vars |= inequality
         return vars
+

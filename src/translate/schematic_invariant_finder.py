@@ -1,15 +1,17 @@
 import collections
 import copy
 import itertools
+import math
 import os
 import subprocess
+import sys
 from queue import Queue
 
 
 from invariant_candidate import *
 from pddl.conditions import *
 
-
+filenum_list = []
 seen_inv_candidates = []
 predicates_in_task = {}
 object_types_in_task = {}
@@ -88,9 +90,9 @@ def weaken(inv_cand: InvariantCandidate):
         for arg in part.args:
             arg_set.add(arg)
     # extend by a literal
+    exist_vars = set(inv_cand.parts[0].args)
     if len(inv_cand.parts) == 1:
-
-        exist_vars = set(inv_cand.parts[0].args)
+        print("weaken by extending literal")
         for pred, type_names in predicates_in_task.items():
             params = fill_params(exist_vars, len(type_names))
             for args in params:
@@ -103,34 +105,51 @@ def weaken(inv_cand: InvariantCandidate):
                 neg = NegatedAtom(pred, args)
                 for part in inv_cand.parts:
                     for i in range(len(predicates_in_task[part.predicate])):
-                        types_temp.add(TypedObject(name=part.args[i], type_name=predicates_in_task[part.predicate][i]))
+                        types_temp.add(TypedObject(name=part.args[i], type_name=predicates_in_task[part.predicate][i].type_name))
                 for type in types_temp:
                     inv = InvariantCandidate(parts=inv_cand.parts+(pos,), ineq=[], type=type)
-                    if inv not in seen_inv_candidates:
+                    if inv not in seen_inv_candidates and pos != inv_cand.parts[0]:
                         inv_cand_set.add(inv)
                     inv = InvariantCandidate(parts=inv_cand.parts+(neg,), ineq=[], type=type)
-                    if inv not in seen_inv_candidates:
+                    if inv not in seen_inv_candidates and neg != inv_cand.parts[0]:
                         inv_cand_set.add(inv)
             params.clear()
+        return inv_cand_set
 
     # add inequality
-    exist_vars = set(inv_cand.parts[0].args)
-    if len(inv_cand.parts) == 2 and (len(arg_set) > len(inv_cand.ineq)):
-        exist_vars |= set(inv_cand.parts[1].args)
-    else:
-        return [None]
     existing_inequalities = set(inv_cand.ineq)
+    max_ineq = 0
+    n = 0
+    for i in inv_cand.parts:
+        n += len(i.args)
+    for k in range(1, n + 1):
+        max_ineq += math.comb(n, k)
+
+
+    if len(inv_cand.parts) == 2:
+        exist_vars |= set(inv_cand.parts[1].args)
+    if len(existing_inequalities) >= max_ineq:
+        print("max inequalities reached")
+        return [None]
+    elif len(inv_cand.parts) > 2:
+        print("more than 2 literals in disjunction, stop weakening")
+        return [None]
     for c in itertools.combinations(exist_vars, 2):
         temp = False
         if c not in existing_inequalities:
-            temp = True
-            ineq = set(existing_inequalities)
-            ineq.add(c)
+            for part in inv_cand.parts:
+                if part.predicate == "=" and isinstance(part, Atom):
+                    if set(part.args) != set(c):
+                        temp = True
+                        ineq = set(existing_inequalities)
+                        ineq.add(c)
+                        break
         if temp:
             for part in inv_cand.parts:
                 for i in range(len(predicates_in_task[part.predicate])):
-                    type = TypedObject(name=part.args[i], type_name=predicates_in_task[part.predicate][i])
+                    type = TypedObject(name=part.args[i], type_name=predicates_in_task[part.predicate][i].type_name)
                     inv = InvariantCandidate(parts=inv_cand.parts, ineq=ineq, type=type)
+
                     if inv not in seen_inv_candidates:
                         inv_cand_set.add(InvariantCandidate(parts=inv_cand.parts, ineq=ineq, type=type))
 
@@ -217,11 +236,18 @@ def write_invariant_to_fof(inv_cand: InvariantCandidate, file, counter: int):
         if not literal.args:
             args = "noargs"
         neg = "~" if literal.negated else ""
+        if name == "=":
+            if literal.negated:
+                return f"distinct({args})"
+            else:
+                a = "=".join(args.split(","))
+                return a
         return f"{neg}{name}({args})"
     vars = inv_cand.get_variables()
     inv_type = inv_cand.type
     all_quantifiers = " ".join("![%s]: " % get_vampire_var(var) for var in vars)
     parts = [get_vampire_literal(part) for part in inv_cand.parts]
+
     parts = " | ".join(parts)
     inv_type_name = inv_type.name.split("?")[1].upper()
     file.write(f"fof(formula{counter}, axiom, {all_quantifiers} ({inv_type.type_name}({inv_type_name}) => ( {parts} ))).\n")
@@ -239,6 +265,12 @@ def write_neg_conjecture_to_fof(formula: Condition, file, counter):
         if not literal.args:
             args = "noargs"
         neg = "~" if literal.negated else ""
+        if name == "=":
+            if literal.negated:
+                return f"distinct({args})"
+            else:
+                a = "=".join(arg_list)
+                return a
         return f"{neg}{name}({args})"
     join_s = condition_type_to_logical_string[formula.__class__]
     parts = [get_vampire_literal_for_neg_conjecture(part) for part in formula.parts]
@@ -247,8 +279,8 @@ def write_neg_conjecture_to_fof(formula: Condition, file, counter):
 
 # checks with help of a given list if a given Condition is satisfiable. this is done by creating a new file
 # with previous functions and do a satisfiable-test with the help of vampire prover
-def is_sat(negated_conjecture: Condition, axiom_list: list[Condition]):
-    path = "src/translate/vampire/tptp-formulas.p"
+def is_sat(negated_conjecture: Condition, axiom_list: list[Condition], filenum):
+    path = "src/translate/vampire/tptp-formulas" + str(filenum) + ".p"
     with open(path, "w") as file:
         counter = 1
         for inv_cand in axiom_list:
@@ -260,14 +292,18 @@ def is_sat(negated_conjecture: Condition, axiom_list: list[Condition]):
     try:
         output = subprocess.check_output(command, stderr=subprocess.STDOUT, universal_newlines=True)
         res = output
+        print(res)
         if "Termination reason: Refutation" in res:
+            print("refutation")
             return False
         elif "Termination reason: Satisfiable" in res:
+            print("satisfiable")
             return True
         else:
             print("something went wrong in vampire (not refutation, not sat, not process-error")
             return False
     except subprocess.CalledProcessError as e:
+        filenum_list.append(filenum)
         print(f"Error in vampire process: {e} in tptp-formulas")
         return False
 
@@ -287,7 +323,7 @@ def remove_inv_cand(inv_cand_queue: Queue[InvariantCandidate], inv_cand: Invaria
 # operator is given by action
 # starts the sat-test with result of regression or return True/False if result was Truth/Falsity
 def regr_and_sat(action: PropositionalAction, inv_cand_temp: InvariantCandidate,
-                 inv_cand_set_C_0: set[InvariantCandidate]):
+                 inv_cand_set_C_0: set[InvariantCandidate], filenum):
     if len(inv_cand_temp.parts) == 1:
         input_for_regression = inv_cand_temp.parts[0]
     else:
@@ -299,7 +335,7 @@ def regr_and_sat(action: PropositionalAction, inv_cand_temp: InvariantCandidate,
     elif isinstance(after_reg, Truth):
         return True
     else:
-        return is_sat(after_reg, inv_cand_set_C_0)
+        return is_sat(after_reg, inv_cand_set_C_0, filenum)
 
 
 # helper function for c_sigma
@@ -429,10 +465,32 @@ def delete_vampire_files():
     folder_path = "src/translate/vampire/"
     file_list = os.listdir(folder_path)
     for file_name in file_list:
+        if any(str(num) in file_name for num in file_list):
+            continue
         file_path = os.path.join(folder_path, file_name)
         os.remove(file_path)
 
 # eigentliche Funktion die Aktionen vorbereite, und den Algorithmus durchführt
+def get_limited_instantiation(task):
+    # Let prms_t(a) be number of schema variables of type t in action a
+    # Let prms_t(p) be number of terms of type t in schematic atomic formulas with predicate p
+    max_action_params = max(len(action.parameters) for action in task.actions)
+    max_predicate_params = max(len(pred.arguments) for pred in task.predicates)
+    max_params_t = max(max_action_params, max_predicate_params)
+    return max_params_t + (2 - 1) * max_predicate_params
+
+
+def create_restricted_domain(task, actions):
+    res_dom = {}
+    for action in actions:
+        for typedobject in action.parameters:
+            if typedobject.type_name not in res_dom:
+                res_dom[typedobject.type_name] = set()
+            res_dom[typedobject.type_name].add(typedobject.name)
+    return res_dom
+
+
+
 def get_schematic_invariants(task: Task, actions: list[PropositionalAction], fluent_ground_atoms):
     delete_vampire_files()
     # use deepcopy, so we can modify actions and task freely
@@ -451,6 +509,8 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction], flu
         print(i, ": ", j)
     actions = copy.deepcopy(actions)
     inv_cand_set_C = set(create_invariant_candidates(task, fluent_ground_atoms))
+
+
     list_of_possible_actions = []
     # create all possible actions which can be done in the game
     for a in actions:
@@ -467,41 +527,58 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction], flu
     for i in inv_cand_set_C:
         next_queue.append(i)
         i.dump()
+    filenum = 0
     while True:
         print("store nextqueue in inv cand set")
         inv_cand_set_C_0 = set(next_queue)
         for action in list_of_possible_actions:
+            # user_unput = input("gibt exit ein falls du beenden möchtest")
+            # if user_unput == "exit":
+            #     delete_vampire_files()
+            #     sys.exit()
+            print("restart next_queue with action len: ", len(list_of_possible_actions), " and len current queue: ", len(next_queue))
             queue_cq = next_queue.copy()
             next_queue = collections.deque()
             while queue_cq:
                 print("remove from current queue..")
                 inv_cand = queue_cq.popleft()
                 if inv_cand.contains(action):
-                    print("create sigma, doing sat test...")
+                    print("create sigma, doing sat test with invariant candidate: ")
+                    inv_cand.dump()
+                    print("and action: ")
+                    action.dump()
                     c_sigma = create_c_sigma(inv_cand)
+
                     is_inv_cand_sat = False
                     for c_sig in c_sigma:
-                        if regr_and_sat(action, c_sig, inv_cand_set_C_0):
-                            is_inv_cand_sat = True
-                            break
+                        if c_sig not in seen_inv_candidates:
+                            if regr_and_sat(action, c_sig, inv_cand_set_C_0, filenum):
+                                seen_inv_candidates.append(c_sig)
+                                is_inv_cand_sat = True
+                                filenum += 1
+                                break
+                        filenum += 1
                     if is_inv_cand_sat:
-                        print("weakening...")
-                        seen_inv_candidates.append(inv_cand)
+
                         weakend_inv_cand_set = weaken(inv_cand)
+                        print("appending to queue from weakening...")
                         for weakend_inv_cand in weakend_inv_cand_set:
                             if weakend_inv_cand is not None:
+                                print("append: ")
+                                weakend_inv_cand.dump()
                                 queue_cq.append(weakend_inv_cand)
+                        print("done appending")
 
                     else:
                         print("no inv cand")
                         next_queue.append(inv_cand)
-                        delete_vampire_files()
                 else:
                     print("action no influence")
                     next_queue.append(inv_cand)
-                    delete_vampire_files()
-        delete_vampire_files()
         print("check is queue is same as before")
         if set(next_queue) == inv_cand_set_C_0 or set(queue_cq) == inv_cand_set_C_0:
             # solution found, return
+            print("solution finally found")
+
+
             return next_queue
