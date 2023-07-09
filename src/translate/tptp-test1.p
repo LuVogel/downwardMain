@@ -74,3 +74,19 @@ fof(formula3, axiom,![X]:~on(X,X)).
 fof(formula4, axiom,![X]: ![Y]:ontable(X) => clear(X) | on(Y,X)).
 fof(formula0, conjecture,on(a,b) & on(b,c) => clear(a) & ~clear(b)).
 
+
+
+tff(human_type, type, object: $tType).
+tff(noargs_type, type, empty: $tType).
+tff(on_decl, type, on: (object * object) > $o).
+tff(handempty_decl, type, handempty: empty > $o).
+tff(ontable_decl, type, ontable: object > $o).
+tff(holding_decl, type, holding: object > $o).
+tff(clear_decl, type, clear: object > $o).
+tff(equal_decl, type, equal: (object * object) > $o).
+tff(formula1, axiom, ![X0: object]: ![X1:object]: ~on(X0, X1)).
+tff(formula2, axiom, ![X0: object]: ~holding(X0)).
+tff(formula3, axiom, ![X0: object, X1: object]: ~on(X0, X1)).
+tff(formula4, axiom, ![X0: object]: ontable(X0)).
+tff(formula5, axiom, ![X0: object]: clear(X0)).
+tff(formula0, negated_conjecture, ![A:object, B:object, NOARGS:empty]: (clear(A) & ontable(B) & handempty(NOARGS) & clear(B))).

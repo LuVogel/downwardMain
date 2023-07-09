@@ -106,13 +106,16 @@ def weaken(inv_cand: InvariantCandidate):
                 for part in inv_cand.parts:
                     for i in range(len(predicates_in_task[part.predicate])):
                         types_temp.add(TypedObject(name=part.args[i], type_name=predicates_in_task[part.predicate][i].type_name))
-                for type in types_temp:
-                    inv = InvariantCandidate(parts=inv_cand.parts+(pos,), ineq=[], type=type)
-                    if inv not in seen_inv_candidates and pos != inv_cand.parts[0]:
-                        inv_cand_set.add(inv)
-                    inv = InvariantCandidate(parts=inv_cand.parts+(neg,), ineq=[], type=type)
-                    if inv not in seen_inv_candidates and neg != inv_cand.parts[0]:
-                        inv_cand_set.add(inv)
+                for i in range(len(predicates_in_task[pred])):
+                    types_temp.add(TypedObject(name=args[i], type_name=predicates_in_task[pred][i].type_name))
+                inv = InvariantCandidate(parts=inv_cand.parts + (pos,), ineq=[], types=types_temp)
+                if inv not in seen_inv_candidates and pos != inv_cand.parts[0]:
+                    inv_cand_set.add(inv)
+                inv = InvariantCandidate(parts=inv_cand.parts + (neg,), ineq=[], types=types_temp)
+                if inv not in seen_inv_candidates and neg != inv_cand.parts[0]:
+                    inv_cand_set.add(inv)
+
+
             params.clear()
         return inv_cand_set
 
@@ -146,12 +149,13 @@ def weaken(inv_cand: InvariantCandidate):
                         break
         if temp:
             for part in inv_cand.parts:
+                types = set()
                 for i in range(len(predicates_in_task[part.predicate])):
-                    type = TypedObject(name=part.args[i], type_name=predicates_in_task[part.predicate][i].type_name)
-                    inv = InvariantCandidate(parts=inv_cand.parts, ineq=ineq, type=type)
+                    types.add(TypedObject(name=part.args[i], type_name=predicates_in_task[part.predicate][i].type_name))
+                inv = InvariantCandidate(parts=inv_cand.parts, ineq=ineq, types=types)
 
-                    if inv not in seen_inv_candidates:
-                        inv_cand_set.add(InvariantCandidate(parts=inv_cand.parts, ineq=ineq, type=type))
+                if inv not in seen_inv_candidates:
+                    inv_cand_set.add(InvariantCandidate(parts=inv_cand.parts, ineq=ineq, types=types))
 
     return inv_cand_set
 
@@ -221,39 +225,78 @@ def get_effects_from_action(operator: Condition):
 # writes a given invariant candidate to a given file
 def write_invariant_to_fof(inv_cand: InvariantCandidate, file, counter: int):
     found_variables = set()
-    def get_vampire_var(variable):
+    def get_vampire_var(variable, inv_cand, quantifier):
         if variable.startswith("?"):
-            variable = variable.split("?")[1].upper()
-            found_variables.add(variable)
+            if quantifier:
+                s = ""
+                for type in inv_cand.types:
+                    if variable == type.name:
+                        s = f":{type.type_name}"
+                for ineq in inv_cand.ineq:
+                    for val in ineq:
+                        if variable == val:
+                            for part in inv_cand.parts:
+                                if variable in part.args:
+                                    pos = part.args.index(variable)
+                                    s = f":{predicates_in_task[part.predicate][pos]}"
+                variable = variable.split("?")[1].upper()
+                variable += s
+                found_variables.add(variable)
+            else:
+                variable = variable.split("?")[1].upper()
+                found_variables.add(variable)
+
             return variable
         else:
             assert False
 
-    def get_vampire_literal(literal: Literal):
+    def get_vampire_literal(literal: Literal, inv_types):
 
         name = literal.predicate
-        args = ",".join(get_vampire_var(var) for var in literal.args)
+        args = ",".join(get_vampire_var(var, inv_types, quantifier=False) for var in literal.args)
         if not literal.args:
-            args = "noargs"
+            args = "NOARGS"
         neg = "~" if literal.negated else ""
         if name == "=":
             if literal.negated:
-                return f"distinct({args})"
+                return f"{neg}equal({args})"
             else:
                 a = "=".join(args.split(","))
                 return a
+
         return f"{neg}{name}({args})"
     vars = inv_cand.get_variables()
-    inv_type = inv_cand.type
-    all_quantifiers = " ".join("![%s]: " % get_vampire_var(var) for var in vars)
-    parts = [get_vampire_literal(part) for part in inv_cand.parts]
+    inv_types = inv_cand
+    all_quantifiers = "![%s]: " % ", ".join(get_vampire_var(var, inv_cand, quantifier=True) for var in vars)
+    parts = [get_vampire_literal(part, inv_types) for part in inv_cand.parts]
 
     parts = " | ".join(parts)
-    inv_type_name = inv_type.name.split("?")[1].upper()
-    file.write(f"fof(formula{counter}, axiom, {all_quantifiers} ({inv_type.type_name}({inv_type_name}) => ( {parts} ))).\n")
+    # fof(formulaX, axiom, ![X0]: ![X1]: object(X0) -> clear(X0))
+    # tff(formulaX, axiom, ![X0: object] : ![X1: object] : clear(X0))
+    # tff(formulaX, axiom, ![X0: object, X1] : on(X0,X1))
+
+
+    file.write(f"tff(formula{counter}, axiom, {all_quantifiers}  {parts}).\n")
 
 # write a given formula (as negated conjecture) into a given file
 def write_neg_conjecture_to_fof(formula: Condition, file, counter):
+    def get_classifiers(formula):
+        s = "!["
+        for literal in formula.parts:
+            if not literal.args:
+                s += f"NOARGS:empty,"
+            types = predicates_in_task[literal.predicate]
+            for i in range(len(types)):
+                if isinstance(literal.args[i], TypedObject):
+                    lit_arg = literal.args[i].name.upper()
+                else:
+                    lit_arg = literal.args[i].upper()
+
+                s += f"{lit_arg}:{types[i].type_name},"
+        if s.endswith(","):
+            s = s[:-1]
+        s += "]:"
+        return s
     def get_vampire_literal_for_neg_conjecture(literal: Literal):
         name = literal.predicate
         arg_list = []
@@ -261,13 +304,13 @@ def write_neg_conjecture_to_fof(formula: Condition, file, counter):
             if isinstance(var, TypedObject):
                 var = var.name
             arg_list.append(var)
-        args = ",".join(arg_list)
+        args = ",".join(arg_list).upper()
         if not literal.args:
-            args = "noargs"
+            args = "NOARGS"
         neg = "~" if literal.negated else ""
         if name == "=":
             if literal.negated:
-                return f"distinct({args})"
+                return f"equal({args})"
             else:
                 a = "=".join(arg_list)
                 return a
@@ -275,13 +318,25 @@ def write_neg_conjecture_to_fof(formula: Condition, file, counter):
     join_s = condition_type_to_logical_string[formula.__class__]
     parts = [get_vampire_literal_for_neg_conjecture(part) for part in formula.parts]
     parts = f" {join_s} ".join(parts)
-    file.write(f"fof(formula{counter}, negated_conjecture, ({parts})).")
+    classifier = get_classifiers(formula)
+    file.write(f"tff(formula{counter}, negated_conjecture, {classifier} ({parts})).")
 
 # checks with help of a given list if a given Condition is satisfiable. this is done by creating a new file
 # with previous functions and do a satisfiable-test with the help of vampire prover
-def is_sat(negated_conjecture: Condition, axiom_list: list[Condition], filenum):
-    path = "src/translate/vampire/tptp-formulas" + str(filenum) + ".p"
+def write_type_restriction_to_tff(inv_cand, file, counter):
+    # fof(typeX, type, object: $tType).
+    for type in inv_cand.types:
+        file.write(f"tff(type_dec{counter}, type, {type.type_name}: $tType).")
+    pass
+
+
+def is_sat(negated_conjecture: Condition, axiom_list: list[Condition], filenum, tff_typelist):
+    # path = "src/translate/vampire/tptp-formulas" + str(filenum) + ".p"
+    path = "src/translate/vampire/tptp-formulas.p"
+
     with open(path, "w") as file:
+        for tff_line in tff_typelist:
+            file.write(tff_line)
         counter = 1
         for inv_cand in axiom_list:
             write_invariant_to_fof(inv_cand, file, counter)
@@ -292,7 +347,6 @@ def is_sat(negated_conjecture: Condition, axiom_list: list[Condition], filenum):
     try:
         output = subprocess.check_output(command, stderr=subprocess.STDOUT, universal_newlines=True)
         res = output
-        print(res)
         if "Termination reason: Refutation" in res:
             print("refutation")
             return False
@@ -323,7 +377,7 @@ def remove_inv_cand(inv_cand_queue: Queue[InvariantCandidate], inv_cand: Invaria
 # operator is given by action
 # starts the sat-test with result of regression or return True/False if result was Truth/Falsity
 def regr_and_sat(action: PropositionalAction, inv_cand_temp: InvariantCandidate,
-                 inv_cand_set_C_0: set[InvariantCandidate], filenum):
+                 inv_cand_set_C_0: set[InvariantCandidate], filenum, tff_typelist):
     if len(inv_cand_temp.parts) == 1:
         input_for_regression = inv_cand_temp.parts[0]
     else:
@@ -335,7 +389,7 @@ def regr_and_sat(action: PropositionalAction, inv_cand_temp: InvariantCandidate,
     elif isinstance(after_reg, Truth):
         return True
     else:
-        return is_sat(after_reg, inv_cand_set_C_0, filenum)
+        return is_sat(after_reg, inv_cand_set_C_0, filenum, tff_typelist)
 
 
 # helper function for c_sigma
@@ -344,12 +398,14 @@ def create_grounded_invariant_for_c_sigma(list_of_vars, predicate, negated):
     inv_list = []
     count_of_lists = len(list_of_vars)
     if count_of_lists == 1:
+        types = set()
         for var in list_of_vars[0]:
-            type = TypedObject(name=var, type_name=predicates_in_task[predicate][0])
+            types.add(TypedObject(name=var, type_name=predicates_in_task[predicate][0].type_name))
+        for var in list_of_vars[0]:
             if negated:
-                inv_list.append(InvariantCandidate(parts=[NegatedAtom(predicate=predicate, args=[var])], ineq=[], type=type))
+                inv_list.append(InvariantCandidate(parts=[NegatedAtom(predicate=predicate, args=[var])], ineq=[], types=types))
             else:
-                inv_list.append(InvariantCandidate(parts=[Atom(predicate=predicate, args=[var])], ineq=[], type=type))
+                inv_list.append(InvariantCandidate(parts=[Atom(predicate=predicate, args=[var])], ineq=[], types=types))
         return inv_list
     combo_list = []
     for combination in itertools.product(*list_of_vars):
@@ -360,11 +416,11 @@ def create_grounded_invariant_for_c_sigma(list_of_vars, predicate, negated):
         for types in predicates_in_task[predicate]:
             temp_list.append(TypedObject(name=combo[count], type_name=types.type_name))
             count += 1
-        for type in temp_list:
-            if negated:
-                inv_list.append(InvariantCandidate(parts=[NegatedAtom(predicate=predicate, args=temp_list)], ineq=[], type=type))
-            else:
-                inv_list.append(InvariantCandidate(parts=[Atom(predicate=predicate, args=temp_list)], ineq=[], type=type))
+
+        if negated:
+            inv_list.append(InvariantCandidate(parts=[NegatedAtom(predicate=predicate, args=temp_list)], ineq=[], types=temp_list))
+        else:
+            inv_list.append(InvariantCandidate(parts=[Atom(predicate=predicate, args=temp_list)], ineq=[], types=temp_list))
     return inv_list
 
 # create from a given predicate and variables all possible combinations
@@ -397,9 +453,11 @@ def parse_objects_with_current_pred(task_pred: Predicate, init_pred_map):
     # if pred does not occurrent in init-state, we add invariant that is always false
     if task_pred.name not in init_pred_map:
         args = ["?x%i"%i for i in range(len(task_pred.arguments))]
+        types = set()
         for i in range(len(args)):
-            type = TypedObject(name=args[i], type_name=predicates_in_task[task_pred.name][i].type_name)
-            yield InvariantCandidate(parts=[NegatedAtom(predicate=task_pred.name, args=args)], ineq=[], type=type)
+            types.add(TypedObject(name=args[i], type_name=predicates_in_task[task_pred.name][i].type_name))
+        for i in range(len(args)):
+            yield InvariantCandidate(parts=[NegatedAtom(predicate=task_pred.name, args=args)], ineq=[], types=types)
         return
     # next we test whether all possible instantiations are initially true, with simple counting test (considering types)
     p_should_have_length = 1
@@ -408,9 +466,11 @@ def parse_objects_with_current_pred(task_pred: Predicate, init_pred_map):
 
     if len(init_pred_map[task_pred.name]) == p_should_have_length:
         args = ["?x%i" % i for i in range(len(task_pred.arguments))]
+        types = set()
         for i in range(len(args)):
-            type = TypedObject(name=args[i], type_name=predicates_in_task[task_pred.name][i].type_name)
-            yield InvariantCandidate(parts=[Atom(predicate=task_pred.name, args=args)], ineq=[], type=type)
+            types.add(TypedObject(name=args[i], type_name=predicates_in_task[task_pred.name][i].type_name))
+        for i in range(len(args)):
+            yield InvariantCandidate(parts=[Atom(predicate=task_pred.name, args=args)], ineq=[], types=types)
         return
     # we next identify mutexes of the form x \neq y --> \lnot P(x,z) \lor P(y,z) always fixing all but one argument
     for pos, arg in enumerate(task_pred.arguments):
@@ -432,10 +492,10 @@ def parse_objects_with_current_pred(task_pred: Predicate, init_pred_map):
                 type_list.add(TypedObject(name=args1[i], type_name=predicates_in_task[task_pred.name][i].type_name))
             for i in range(len(args2)):
                 type_list.add(TypedObject(name=args2[i], type_name=predicates_in_task[task_pred.name][i].type_name))
-            for type in type_list:
-                inv = InvariantCandidate(parts=[NegatedAtom(predicate=task_pred.name, args=args1),
+
+            inv = InvariantCandidate(parts=[NegatedAtom(predicate=task_pred.name, args=args1),
                                             NegatedAtom(predicate=task_pred.name, args=args2)],
-                                     ineq=[[args1[pos], args2[pos]]], type=type)
+                                     ineq=[[args1[pos], args2[pos]]], types=type_list)
             yield inv
 
     return None
@@ -507,6 +567,34 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction], flu
     print("predicates_in_task: ")
     for i, j in predicates_in_task.items():
         print(i, ": ", j)
+    tff_type_list = []
+    type_counter = 1
+    tff_type_list.append("tff(noargs_type, type, empty: $tType).\n")
+    for type in task.types:
+        if type.basetype_name == None:
+            s = f"tff(type_dec{type_counter}, type, {type.name}: $tType).\n"
+        else:
+            s = f"tff(type_dec{type_counter}, type, {type.name}: {type.basetype_name}).\n"
+        tff_type_list.append(s)
+        type_counter += 1
+    for pred in task.predicates:
+        if pred.name == "=":
+            predname = "equal"
+        else:
+            predname = pred.name
+        s = ""
+        for arg in pred.arguments:
+            if s == "":
+                s = arg.type_name
+            else:
+                s += f" * {arg.type_name}"
+        if "*" in s:
+            tff_type_list.append(f"tff({predname}_decl, type, {predname}: ({s}) > $o).\n")
+        elif s == "":
+            tff_type_list.append(f"tff({predname}_decl, type, {predname}: NOARGS > $o).\n")
+        else:
+            tff_type_list.append(f"tff({predname}_decl, type, {predname}: {s} > $o).\n")
+
     actions = copy.deepcopy(actions)
     inv_cand_set_C = set(create_invariant_candidates(task, fluent_ground_atoms))
 
@@ -552,7 +640,7 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction], flu
                     is_inv_cand_sat = False
                     for c_sig in c_sigma:
                         if c_sig not in seen_inv_candidates:
-                            if regr_and_sat(action, c_sig, inv_cand_set_C_0, filenum):
+                            if regr_and_sat(action, c_sig, inv_cand_set_C_0, filenum, tff_type_list):
                                 seen_inv_candidates.append(c_sig)
                                 is_inv_cand_sat = True
                                 filenum += 1

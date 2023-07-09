@@ -8,11 +8,11 @@ class InvariantCandidate:
     # X is empty of conjuction of inequalities
     # l_1/l_2 are bool/schematic state variables
     # frozenset --> reihenfolge nicht beachten, hashbar im gegesatz zu set
-    def __init__(self, parts: List[conditions.Literal], ineq, type):
+    def __init__(self, parts: List[conditions.Literal], ineq, types):
         self.parts = tuple(parts)
         self.ineq = frozenset(frozenset(i) for i in ineq)
-        self.type = type
-        self.hash = hash((self.__class__, self.parts, self.ineq, self.type))
+        self.types = tuple(types)
+        self.hash = hash((self.__class__, self.parts, self.ineq, self.types))
 
     def __hash__(self):
         return self.hash
@@ -30,7 +30,7 @@ class InvariantCandidate:
                 self.__class__ is other.__class__ and
                 self.parts == other.parts and
                 self.ineq == other.ineq and
-                self.type == other.type)
+                self.types == other.types)
 
     def dump(self, indent="  "):
         print("------")
@@ -40,7 +40,8 @@ class InvariantCandidate:
         print("ineq: ")
         for i in self.ineq:
             print(i)
-        print("type: ", self.type)
+        for type in self.types:
+            print("type: ", type)
         print("------")
 
     def _dump(self):
