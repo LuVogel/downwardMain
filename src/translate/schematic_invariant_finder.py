@@ -238,7 +238,7 @@ def write_invariant_to_fof(inv_cand: InvariantCandidate, file, counter: int):
                             for part in inv_cand.parts:
                                 if variable in part.args:
                                     pos = part.args.index(variable)
-                                    s = f":{predicates_in_task[part.predicate][pos]}"
+                                    s = f":{predicates_in_task[part.predicate][pos].type_name}"
                 variable = variable.split("?")[1].upper()
                 variable += s
                 found_variables.add(variable)
