@@ -12,13 +12,14 @@ from invariant_candidate import *
 from pddl.conditions import *
 
 filenum_list = []
-seen_inv_candidates = []
+seen_inv_candidates = set()
 predicates_in_task = {}
 object_types_in_task = {}
 condition_type_to_logical_string = {
     Conjunction : "&",
     Disjunction : "|",
-    NegatedAtom : "~"
+    NegatedAtom : "~",
+    Atom : ""
 }
 
 
@@ -133,10 +134,10 @@ def weaken(inv_cand: InvariantCandidate):
         exist_vars |= set(inv_cand.parts[1].args)
     if len(existing_inequalities) >= max_ineq:
         print("max inequalities reached")
-        return [None]
+        return []
     elif len(inv_cand.parts) > 2:
         print("more than 2 literals in disjunction, stop weakening")
-        return [None]
+        return []
     for c in itertools.combinations(exist_vars, 2):
         temp = False
         if c not in existing_inequalities:
@@ -274,10 +275,10 @@ def write_invariant_to_fof(inv_cand: InvariantCandidate, file, counter: int):
     vars = inv_cand.get_variables()
     inv_types = inv_cand
     all_quantifiers = "![%s]: " % ", ".join(get_vampire_var(var, inv_cand, quantifier=True) for var in vars)
-    print("inv_cand where quantifier created: ")
-    inv_cand.dump()
-    print("created quantifiers in write formula to fof")
-    print(all_quantifiers)
+    #print("inv_cand where quantifier created: ")
+    #inv_cand.dump()
+    #print("created quantifiers in write formula to fof")
+    #print(all_quantifiers)
     parts = [get_vampire_literal(part, inv_types) for part in inv_cand.parts]
 
     parts = " | ".join(parts)
@@ -635,38 +636,36 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction], flu
             # if user_unput == "exit":
             #     delete_vampire_files()
             #     sys.exit()
-            # print("restart next_queue with action len: ", len(list_of_possible_actions), " and len current queue: ", len(next_queue))
+            print("restart next_queue with action len: ", len(list_of_possible_actions), " and len current queue: ", len(next_queue))
             queue_cq = next_queue.copy()
             next_queue = collections.deque()
             while queue_cq:
                 # print("remove from current queue..")
                 inv_cand = queue_cq.popleft()
                 if inv_cand.contains(action):
-                    # print("create sigma, doing sat test with invariant candidate: ")
-                    # inv_cand.dump()
-                    # print("and action: ")
-                    #action.dump()
+                    print("create sigma, doing sat test with invariant candidate: ")
+                    inv_cand.dump()
+                    print("and action: ")
+                    action.dump()
                     c_sigma = create_c_sigma(inv_cand)
 
                     is_inv_cand_sat = False
                     for c_sig in c_sigma:
-                        if c_sig not in seen_inv_candidates:
-                            if regr_and_sat(action, c_sig, inv_cand_set_C_0, filenum, tff_type_list):
-                                seen_inv_candidates.append(c_sig)
-                                is_inv_cand_sat = True
-                                filenum += 1
-                                break
+                        if regr_and_sat(action, c_sig, inv_cand_set_C_0, filenum, tff_type_list):
+                            is_inv_cand_sat = True
+                            filenum += 1
+                            break
                         filenum += 1
                     if is_inv_cand_sat:
 
                         weakend_inv_cand_set = weaken(inv_cand)
-                        #print("appending to queue from weakening...")
+                        print("appending to queue from weakening...")
                         for weakend_inv_cand in weakend_inv_cand_set:
-                            if weakend_inv_cand is not None:
-                                #print("append: ")
-                                #weakend_inv_cand.dump()
-                                queue_cq.append(weakend_inv_cand)
-                        #print("done appending")
+                            seen_inv_candidates.add(weakend_inv_cand)
+                            print("append: ")
+                            weakend_inv_cand.dump()
+                            queue_cq.append(weakend_inv_cand)
+                        print("done appending")
 
                     else:
                         print("no inv cand")

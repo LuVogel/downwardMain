@@ -49,13 +49,13 @@ class InvariantCandidate:
 
     def contains(self, action):
         for part in self.parts:
-            for con, eff in action.add_effects:
-                if isinstance(eff, NegatedAtom):
+            if part.negated:
+                for con, eff in action.add_effects:
                     if part.predicate == eff.predicate:
                         return True
-            for cond, eff in action.del_effects:
-                if isinstance(eff, Atom):
-                    if part.predicate == eff.negate().predicate:
+            else:
+                for cond, eff in action.del_effects:
+                    if part.predicate == eff.predicate:
                         return True
 
     def get_variables(self):

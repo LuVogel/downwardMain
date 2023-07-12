@@ -1,5 +1,18 @@
 <img src="misc/images/fast-downward.svg" width="800" alt="Fast Downward">
 
+Infos für Gabi: Einrichtung vampire und schmematic invariant finder:
+Vamire Download: https://github.com/vprover/vampire/releases
+zip-Datei herunterladen und bin-Datei dann in den Bin-Folder (von Linux) verschieben
+
+Branches in LuVogel/downwardMain: invariant_candidates --> ältere Implementation (ohne typed first order formulas)
+--> Aktueller Branch: type_candidates --> enthält aktuelle implementation mit typed first order
+
+sobald branch gewechselt: build.py ausführen und dann fast-downward.py starten. Es wird automatisch das file invariant_candidate.py ausgeführt.
+InvariantCandidates sind im File invariant_candidate.py definiert. 
+
+Vampire überschreibt/erstellt File im folder src/translate/vampire/, filename: tptp-formulas.p
+
+
 Fast Downward is a domain-independent classical planning system.
 
 Copyright 2003-2022 Fast Downward contributors (see below).

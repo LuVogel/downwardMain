@@ -8,7 +8,7 @@ tff(holding_decl, type, holding: object > $o).
 tff(equal_decl, type, equal: (object * object) > $o).
 tff(formula1, axiom, ![VAL1:object, VAL0:object, X0:object]:   clear(X0) | VAL0=VAL1).
 tff(formula2, axiom, ![VAL1:object, VAL0:object, X0:object]:   clear(X0) | VAL0=VAL1).
-tff(formula3, axiom, ![X0:object]:   clear(X0) | on(X0,X0)).
+tff(formula3, axiom, ![X0:object]:clear(X0)|on(X0,X0)).
 tff(formula4, axiom, ![X0:object]:   clear(X0) | ~handempty(NOARGS)).
 tff(formula5, axiom, ![VAL0:object, X0:object]:   ontable(X0) | on(VAL0,VAL0)).
 tff(formula6, axiom, ![VAL1:object, VAL0:object, X0:object]:   ontable(X0) | VAL0=VAL1).
