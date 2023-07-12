@@ -229,18 +229,25 @@ def write_invariant_to_fof(inv_cand: InvariantCandidate, file, counter: int):
         if variable.startswith("?"):
             if quantifier:
                 s = ""
-                for type in inv_cand.types:
-                    if variable == type.name:
-                        s = f":{type.type_name}"
-                for ineq in inv_cand.ineq:
-                    for val in ineq:
-                        if variable == val:
-                            for part in inv_cand.parts:
-                                if variable in part.args:
-                                    pos = part.args.index(variable)
-                                    s = f":{predicates_in_task[part.predicate][pos].type_name}"
+                for part in inv_cand.parts:
+                    if variable in part.args:
+                        pos = part.args.index(variable)
+                        s = f":{predicates_in_task[part.predicate][pos].type_name}"
+                        break
+                # for type in inv_cand.types:
+                #     if variable == type.name:
+                #         s = f":{type.type_name}"
+                # for ineq in inv_cand.ineq:
+                #     for val in ineq:
+                #         if variable == val:
+                #             for part in inv_cand.parts:
+                #                 if variable in part.args:
+                #                     pos = part.args.index(variable)
+                #                     s = f":{predicates_in_task[part.predicate][pos].type_name}"
                 variable = variable.split("?")[1].upper()
                 variable += s
+                if variable in found_variables:
+                    assert False
                 found_variables.add(variable)
             else:
                 variable = variable.split("?")[1].upper()
@@ -259,15 +266,18 @@ def write_invariant_to_fof(inv_cand: InvariantCandidate, file, counter: int):
         neg = "~" if literal.negated else ""
         if name == "=":
             if literal.negated:
-                return f"{neg}equal({args})"
+                return "!=".join(args.split(","))
             else:
-                a = "=".join(args.split(","))
-                return a
+                return "=".join(args.split(","))
 
         return f"{neg}{name}({args})"
     vars = inv_cand.get_variables()
     inv_types = inv_cand
     all_quantifiers = "![%s]: " % ", ".join(get_vampire_var(var, inv_cand, quantifier=True) for var in vars)
+    print("inv_cand where quantifier created: ")
+    inv_cand.dump()
+    print("created quantifiers in write formula to fof")
+    print(all_quantifiers)
     parts = [get_vampire_literal(part, inv_types) for part in inv_cand.parts]
 
     parts = " | ".join(parts)
@@ -281,18 +291,21 @@ def write_invariant_to_fof(inv_cand: InvariantCandidate, file, counter: int):
 # write a given formula (as negated conjecture) into a given file
 def write_neg_conjecture_to_fof(formula: Condition, file, counter):
     def get_classifiers(formula):
+        found_vars = []
         s = "!["
         for literal in formula.parts:
             if not literal.args:
                 s += f"NOARGS:empty,"
             types = predicates_in_task[literal.predicate]
             for i in range(len(types)):
+
                 if isinstance(literal.args[i], TypedObject):
                     lit_arg = literal.args[i].name.upper()
                 else:
                     lit_arg = literal.args[i].upper()
-
-                s += f"{lit_arg}:{types[i].type_name},"
+                if lit_arg not in found_vars:
+                    s += f"{lit_arg}:{types[i].type_name},"
+                    found_vars.append(lit_arg)
         if s.endswith(","):
             s = s[:-1]
         s += "]:"
@@ -348,7 +361,6 @@ def is_sat(negated_conjecture: Condition, axiom_list: list[Condition], filenum, 
         output = subprocess.check_output(command, stderr=subprocess.STDOUT, universal_newlines=True)
         res = output
         if "Termination reason: Refutation" in res:
-            print("refutation")
             return False
         elif "Termination reason: Satisfiable" in res:
             print("satisfiable")
@@ -591,7 +603,7 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction], flu
         if "*" in s:
             tff_type_list.append(f"tff({predname}_decl, type, {predname}: ({s}) > $o).\n")
         elif s == "":
-            tff_type_list.append(f"tff({predname}_decl, type, {predname}: NOARGS > $o).\n")
+            tff_type_list.append(f"tff({predname}_decl, type, {predname}: empty > $o).\n")
         else:
             tff_type_list.append(f"tff({predname}_decl, type, {predname}: {s} > $o).\n")
 
@@ -617,24 +629,23 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction], flu
         i.dump()
     filenum = 0
     while True:
-        print("store nextqueue in inv cand set")
         inv_cand_set_C_0 = set(next_queue)
         for action in list_of_possible_actions:
             # user_unput = input("gibt exit ein falls du beenden möchtest")
             # if user_unput == "exit":
             #     delete_vampire_files()
             #     sys.exit()
-            print("restart next_queue with action len: ", len(list_of_possible_actions), " and len current queue: ", len(next_queue))
+            # print("restart next_queue with action len: ", len(list_of_possible_actions), " and len current queue: ", len(next_queue))
             queue_cq = next_queue.copy()
             next_queue = collections.deque()
             while queue_cq:
-                print("remove from current queue..")
+                # print("remove from current queue..")
                 inv_cand = queue_cq.popleft()
                 if inv_cand.contains(action):
-                    print("create sigma, doing sat test with invariant candidate: ")
-                    inv_cand.dump()
-                    print("and action: ")
-                    action.dump()
+                    # print("create sigma, doing sat test with invariant candidate: ")
+                    # inv_cand.dump()
+                    # print("and action: ")
+                    #action.dump()
                     c_sigma = create_c_sigma(inv_cand)
 
                     is_inv_cand_sat = False
@@ -649,13 +660,13 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction], flu
                     if is_inv_cand_sat:
 
                         weakend_inv_cand_set = weaken(inv_cand)
-                        print("appending to queue from weakening...")
+                        #print("appending to queue from weakening...")
                         for weakend_inv_cand in weakend_inv_cand_set:
                             if weakend_inv_cand is not None:
-                                print("append: ")
-                                weakend_inv_cand.dump()
+                                #print("append: ")
+                                #weakend_inv_cand.dump()
                                 queue_cq.append(weakend_inv_cand)
-                        print("done appending")
+                        #print("done appending")
 
                     else:
                         print("no inv cand")
