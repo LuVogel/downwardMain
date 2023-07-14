@@ -134,8 +134,6 @@ def weaken(inv_cand: InvariantCandidate):
             else:
                 # only extend with equality of existing variables
                 params = list(itertools.combinations(exist_vars, 2))
-            print("Predicate", pred)
-            print("Params", params)
             for args in params:
                 type_counter = 0
                 types_temp = set()
@@ -648,8 +646,9 @@ def action_threatens_disjunction(action, disjunction):
     for part in disjunction.parts:
         assert isinstance(part, Literal)
         if part.negated:
+            neg = part.negate()
             for _, eff in action.add_effects:
-                if part == eff:
+                if neg == eff:
                     return True
         else:
             for _, eff in action.del_effects:
@@ -734,6 +733,9 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction], flu
                 for action in actions:
                     #if not inv_cand.contains(action):
                     if not action_threatens_disjunction(action, instance):
+                        # print(action.name, "cannot invalidate the instance:")
+                        # action.dump()
+                        # instance.dump()
                         # the action cannot invalidate the candidate instance
                         # no test necessary
                         continue
