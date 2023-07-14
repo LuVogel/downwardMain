@@ -67,15 +67,20 @@ def weaken(inv_cand: InvariantCandidate):
             else:
                 return f"?val{val}"
 
-    def fill_params(used, num_to_add, current=[], params=[]):
+    def fill_params(used, types, pos=0, current=[], params=[]):
         """
         If called with default values, this function creates the list 
-        of all tuples of arity num_to_add, where each component is either a
+        of all tuples of arity len(types), where each component is either a
         - variable from used
         - a new variable,
         - or a new variable included earlier in the tuple.
+        Moreover, the variable must respect the type specified at the corresponding
+        position in types.
         """
-        if num_to_add == 0:
+        # TODO respect types
+        print("HUHU", used)
+        #exit(1)
+        if pos == len(types):
             params.append(current)
         else:
             # use_new_variable
@@ -84,12 +89,12 @@ def weaken(inv_cand: InvariantCandidate):
             extended.append(new_var)
             new_used = set(used)
             new_used.add(new_var)
-            fill_params(new_used, num_to_add - 1, extended, params)
+            fill_params(new_used, types, pos+1, extended, params)
             # use an existing variable
             for var in used:
                 extended = list(current)
                 extended.append(var)
-                fill_params(used, num_to_add - 1, extended, params)
+                fill_params(used, types, pos+1, extended, params)
         return params
 
     inv_cand_set = set()
@@ -106,7 +111,7 @@ def weaken(inv_cand: InvariantCandidate):
             # for all predicates in the task, we determine the list of all possible
             # parameters created from existing and new variables. We also consider
             # all possible repetisions of parameters.
-            params = fill_params(exist_vars, len(type_names))
+            params = fill_params(exist_vars, type_names)
             for args in params:
                 type_counter = 0
                 types_temp = set()
@@ -121,11 +126,11 @@ def weaken(inv_cand: InvariantCandidate):
                         types_temp.add(TypedObject(name=part.args[i], type_name=predicates_in_task[part.predicate][i].type_name))
                 for i in range(len(predicates_in_task[pred])):
                     types_temp.add(TypedObject(name=args[i], type_name=predicates_in_task[pred][i].type_name))
-                inv = InvariantCandidate(parts=inv_cand.parts + (pos,), ineq=[], types=types_temp)
+                inv = InvariantCandidate(parts=inv_cand.parts | {pos}, ineq=[], types=types_temp)
                 part = next(iter(inv_cand.parts))
                 if inv not in seen_inv_candidates and pos != part:
                     inv_cand_set.add(inv)
-                inv = InvariantCandidate(parts=inv_cand.parts + (neg,), ineq=[], types=types_temp)
+                inv = InvariantCandidate(parts=inv_cand.parts | {neg}, ineq=[], types=types_temp)
                 if inv not in seen_inv_candidates and neg != part:
                     inv_cand_set.add(inv)
 
@@ -275,19 +280,22 @@ def write_invariant_to_fof(inv_cand: InvariantCandidate, file, counter: int):
 
         name = literal.predicate
         args = ",".join(get_vampire_var(var, inv_types, quantifier=False) for var in literal.args)
-        if not literal.args:
-            args = "NOARGS"
         neg = "~" if literal.negated else ""
         if name == "=":
             if literal.negated:
                 return "!=".join(args.split(","))
             else:
                 return "=".join(args.split(","))
-
-        return f"{neg}{name}({args})"
+        if not literal.args:
+            return f"{neg}{name}"
+        else:
+            return f"{neg}{name}({args})"
     vars = inv_cand.get_variables()
     inv_types = inv_cand
-    all_quantifiers = "![%s]: " % ", ".join(get_vampire_var(var, inv_cand, quantifier=True) for var in vars)
+    if vars:
+        all_quantifiers = "![%s]: " % ", ".join(get_vampire_var(var, inv_cand, quantifier=True) for var in vars)
+    else:
+        all_quantifiers = ""
     #print("inv_cand where quantifier created: ")
     #inv_cand.dump()
     #print("created quantifiers in write formula to fof")
@@ -300,7 +308,8 @@ def write_invariant_to_fof(inv_cand: InvariantCandidate, file, counter: int):
     # tff(formulaX, axiom, ![X0: object, X1] : on(X0,X1))
 
 
-    file.write(f"tff(formula{counter}, axiom, {all_quantifiers}  {parts}).\n")
+    file.write(f"tff(formula{counter}, axiom, {all_quantifiers}  ({parts})).\n")
+
 
 # write a given formula (as negated conjecture) into a given file
 def write_neg_conjecture_to_fof(formula: Condition, file, counter):
@@ -308,11 +317,10 @@ def write_neg_conjecture_to_fof(formula: Condition, file, counter):
         found_vars = []
         s = "!["
         for literal in formula.parts:
-            if not literal.args:
-                s += f"NOARGS:empty,"
+#            if not literal.args:
+#                s += f"NOARGS:empty,"
             types = predicates_in_task[literal.predicate]
             for i in range(len(types)):
-
                 if isinstance(literal.args[i], TypedObject):
                     lit_arg = literal.args[i].name.upper()
                 else:
@@ -332,21 +340,27 @@ def write_neg_conjecture_to_fof(formula: Condition, file, counter):
                 var = var.name
             arg_list.append(var)
         args = ",".join(arg_list).upper()
-        if not literal.args:
-            args = "NOARGS"
+#        if not literal.args:
+#            args = "NOARGS"
+        
         neg = "~" if literal.negated else ""
         if name == "=":
             if literal.negated:
                 return f"equal({args})"
+                # TODO why do we need equals here? Is this built-in? If not, where is it intialized?
             else:
                 a = "=".join(arg_list)
                 return a
-        return f"{neg}{name}({args})"
+        if not literal.args:
+            return f"{neg}{name}"
+        else:
+            return f"{neg}{name}({args})"
     join_s = condition_type_to_logical_string[formula.__class__]
     parts = [get_vampire_literal_for_neg_conjecture(part) for part in formula.parts]
     parts = f" {join_s} ".join(parts)
     classifier = get_classifiers(formula)
     file.write(f"tff(formula{counter}, negated_conjecture, {classifier} ({parts})).")
+    
 
 # checks with help of a given list if a given Condition is satisfiable. this is done by creating a new file
 # with previous functions and do a satisfiable-test with the help of vampire prover
@@ -385,6 +399,7 @@ def is_sat(negated_conjecture: Condition, axiom_list: list[Condition], filenum, 
     except subprocess.CalledProcessError as e:
         filenum_list.append(filenum)
         print(f"Error in vampire process: {e} in tptp-formulas")
+        exit(1)
         return False
 
 # removing a given invariant candidate from a queue of invariant candidates
@@ -468,6 +483,10 @@ def create_c_sigma(inv_cand: InvariantCandidate):
     return c_sigma
 
 def collect_predicates_in_init(task: Task, fluent_predicates):
+    """
+    Returns a map from (fluent) predicate names to the tuples of terms 
+    for which they are initially true.
+    """
     map = collections.defaultdict(list)
     for atom in task.init:
         if atom.predicate in fluent_predicates:
@@ -476,16 +495,18 @@ def collect_predicates_in_init(task: Task, fluent_predicates):
 
 # parsing a given predicate to their possible types and creating invariant candidates
 def parse_objects_with_current_pred(task_pred: Predicate, init_pred_map):
-    # if pred does not occurrent in init-state, we add invariant that is always false
+    # if pred does not occur in init-state, we add an invariant that is always false
+    # \lnot P(x0...xn)
     if task_pred.name not in init_pred_map:
         args = ["?x%i"%i for i in range(len(task_pred.arguments))]
         types = set()
-        for i in range(len(args)):
-            types.add(TypedObject(name=args[i], type_name=predicates_in_task[task_pred.name][i].type_name))
-        for i in range(len(args)):
-            yield InvariantCandidate(parts=[NegatedAtom(predicate=task_pred.name, args=args)], ineq=[], types=types)
+        for i, typed_obj in enumerate(predicates_in_task[task_pred.name]):
+            types.add(TypedObject(name=args[i], type_name=typed_obj.type_name))
+        yield InvariantCandidate(parts=[NegatedAtom(predicate=task_pred.name, args=args)], ineq=[], types=types)
         return
+
     # next we test whether all possible instantiations are initially true, with simple counting test (considering types)
+    # if yes, we add an invariant of the form P(x0...xn)
     p_should_have_length = 1
     for pred_arg in predicates_in_task[task_pred.name]:
         p_should_have_length *= len(object_types_in_task[pred_arg.type_name])
@@ -493,14 +514,18 @@ def parse_objects_with_current_pred(task_pred: Predicate, init_pred_map):
     if len(init_pred_map[task_pred.name]) == p_should_have_length:
         args = ["?x%i" % i for i in range(len(task_pred.arguments))]
         types = set()
-        for i in range(len(args)):
-            types.add(TypedObject(name=args[i], type_name=predicates_in_task[task_pred.name][i].type_name))
-        for i in range(len(args)):
-            yield InvariantCandidate(parts=[Atom(predicate=task_pred.name, args=args)], ineq=[], types=types)
+        for i, typed_obj in enumerate(predicates_in_task[task_pred.name]):
+            types.add(TypedObject(name=args[i], type_name=typed_obj.type_name))
+        yield InvariantCandidate(parts=[Atom(predicate=task_pred.name, args=args)], ineq=[], types=types)
         return
+
     # we next identify mutexes of the form x \neq y --> \lnot P(x,z) \lor P(y,z) always fixing all but one argument
+    # TODO we could go a bit further here, considering different predicates. Is it really lnot P or P?
     for pos, arg in enumerate(task_pred.arguments):
         init_dict = {}
+        # We iterate over all initial state atoms of this predicate and vary the argument at position
+        # pos. If for any assignment to the remaining arguments there is at most one completion of the
+        # position occuring in the initial state, we add the invariant.
         for atom in init_pred_map[task_pred.name]:
             atom_args = list(atom.args)
             atom_args[pos] = "?"
@@ -513,18 +538,17 @@ def parse_objects_with_current_pred(task_pred: Predicate, init_pred_map):
             args1 = ["?x%i" % i for i in range(len(task_pred.arguments))]
             args2 = list(args1)
             args2[pos] = "?x%i" % len(task_pred.arguments)
-            type_list = set()
-            for i in range(len(args1)):
-                type_list.add(TypedObject(name=args1[i], type_name=predicates_in_task[task_pred.name][i].type_name))
-            for i in range(len(args2)):
-                type_list.add(TypedObject(name=args2[i], type_name=predicates_in_task[task_pred.name][i].type_name))
+            types = set()
+            for i, typed_obj in enumerate(predicates_in_task[task_pred.name]):
+                types.add(TypedObject(name=args1[i], type_name=typed_obj.type_name))
+            # add additional variable from second literal
+            types.add(TypedObject(name=args2[pos], type_name=predicates_in_task[task_pred.name][pos].type_name))
 
             inv = InvariantCandidate(parts=[NegatedAtom(predicate=task_pred.name, args=args1),
                                             NegatedAtom(predicate=task_pred.name, args=args2)],
-                                     ineq=[[args1[pos], args2[pos]]], types=type_list)
+                                     ineq=[[args1[pos], args2[pos]]], types=types)
             yield inv
 
-    return None
 
 # create invariant candidates from init-task.
 def create_invariant_candidates(task: Task, fluent_ground_atoms):
@@ -595,7 +619,7 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction], flu
         print(i, ": ", j)
     tff_type_list = []
     type_counter = 1
-    tff_type_list.append("tff(noargs_type, type, empty: $tType).\n")
+#    tff_type_list.append("tff(noargs_type, type, empty: $tType).\n")
     for type in task.types:
         if type.basetype_name == None:
             s = f"tff(type_dec{type_counter}, type, {type.name}: $tType).\n"
@@ -617,7 +641,7 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction], flu
         if "*" in s:
             tff_type_list.append(f"tff({predname}_decl, type, {predname}: ({s}) > $o).\n")
         elif s == "":
-            tff_type_list.append(f"tff({predname}_decl, type, {predname}: empty > $o).\n")
+            tff_type_list.append(f"tff({predname}_decl, type, {predname}: $o).\n")
         else:
             tff_type_list.append(f"tff({predname}_decl, type, {predname}: {s} > $o).\n")
 
@@ -635,12 +659,14 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction], flu
                 list_of_possible_actions.append(a)
         else:
             list_of_possible_actions.append(a)
+        # TODO What's going on here?    
     # start algorithm from Rintannen
     next_queue = collections.deque()
     print("starting with following inv-candidates: ")
     for i in inv_cand_set_C:
         next_queue.append(i)
         i.dump()
+    print("--------------")
     filenum = 0
     while True:
         inv_cand_set_C_0 = set(next_queue)
