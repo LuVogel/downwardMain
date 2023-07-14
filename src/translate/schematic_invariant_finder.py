@@ -59,15 +59,16 @@ def parse_literal_with_objects_to_literals_with_vars(literal: Literal, task: Tas
 # 1. invariant candidate is extended by a literal
 # 2. invariant candidate is extended by an inequality
 def weaken(inv_cand: InvariantCandidate):
-    def get_new_var(existing):
+    def get_new_var(existing, more_existing):
         val = 0
         while True:
-            if "?val%i" % val in existing:
+            var_name = f"?val{val}"
+            if var_name in existing or var_name in more_existing:
                 val += 1
             else:
-                return f"?val{val}"
+                return var_name
 
-    def fill_params(used, types, pos=0, current=[], params=[]):
+    def fill_params(original_vars, types, pos=0, newly_used=set(), used_orig=False, current=[], params=[]):
         """
         If called with default values, this function creates the list 
         of all tuples of arity len(types), where each component is either a
@@ -76,26 +77,42 @@ def weaken(inv_cand: InvariantCandidate):
         - or a new variable included earlier in the tuple.
         Moreover, the variable must respect the type specified at the corresponding
         position in types.
+        If there is at least one parameter to fill and there are original variables,
+        we must include at least one of them
+        (otherwise the literals in the resulting disjunction will be independent).
         """
         # TODO respect types
-        # TODO there should be at least one variable from used be included
-        # print("HUHU", used)
         #exit(1)
         if pos == len(types):
+            # we filled all params and append the tuple to the list of results
             params.append(current)
         else:
-            # use_new_variable
-            new_var = get_new_var(used)
-            extended = list(current)
-            extended.append(new_var)
-            new_used = set(used)
-            new_used.add(new_var)
-            fill_params(new_used, types, pos+1, extended, params)
-            # use an existing variable
-            for var in used:
+            # we still have to set further params and do this in all possible ways
+            if pos == len(types) - 1 and not used_orig and original_vars:
+                # we haven't used one of the original variables yet and there is
+                # only one space to fill -> must select from original_vars
+                for var in original_vars:
+                    extended = list(current)
+                    extended.append(var)
+                    fill_params(original_vars, types, pos+1, newly_used, True, extended, params)
+            else:
+                # use_new_variable
+                new_var = get_new_var(original_vars, newly_used)
                 extended = list(current)
-                extended.append(var)
-                fill_params(used, types, pos+1, extended, params)
+                extended.append(new_var)
+                newly_used = newly_used.copy()
+                newly_used.add(new_var)
+                fill_params(original_vars, types, pos+1, newly_used, used_orig, extended, params)
+                # or use an original variable
+                for var in original_vars:
+                    extended = list(current)
+                    extended.append(var)
+                    fill_params(original_vars, types, pos+1, newly_used, True, extended, params)
+                # or repeat a newly introduced variable
+                for var in newly_used:
+                    extended = list(current)
+                    extended.append(var)
+                    fill_params(original_vars, types, pos+1, newly_used, used_orig, extended, params)                
         return params
 
     inv_cand_set = set()
@@ -112,7 +129,13 @@ def weaken(inv_cand: InvariantCandidate):
             # for all predicates in the task, we determine the list of all possible
             # parameters created from existing and new variables. We also consider
             # all possible repetisions of parameters.
-            params = fill_params(exist_vars, type_names)
+            if pred != "=":
+                params = fill_params(exist_vars, type_names)
+            else:
+                # only extend with equality of existing variables
+                params = list(itertools.combinations(exist_vars, 2))
+            print("Predicate", pred)
+            print("Params", params)
             for args in params:
                 type_counter = 0
                 types_temp = set()
@@ -131,9 +154,11 @@ def weaken(inv_cand: InvariantCandidate):
                 part = next(iter(inv_cand.parts))
                 if inv not in seen_inv_candidates and pos != part:
                     inv_cand_set.add(inv)
-                inv = InvariantCandidate(parts=inv_cand.parts | {neg}, ineq=[], types=types_temp)
-                if inv not in seen_inv_candidates and neg != part:
-                    inv_cand_set.add(inv)
+                if pred != "=":
+                    # we do not add inequalities because these are handled especially in the invariant candidate
+                    inv = InvariantCandidate(parts=inv_cand.parts | {neg}, ineq=[], types=types_temp)
+                    if inv not in seen_inv_candidates and neg != part:
+                        inv_cand_set.add(inv)
 
 
             params.clear()
