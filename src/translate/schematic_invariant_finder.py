@@ -78,7 +78,8 @@ def weaken(inv_cand: InvariantCandidate):
         position in types.
         """
         # TODO respect types
-        print("HUHU", used)
+        # TODO there should be at least one variable from used be included
+        # print("HUHU", used)
         #exit(1)
         if pos == len(types):
             params.append(current)
@@ -391,7 +392,7 @@ def is_sat(negated_conjecture: Condition, axiom_list: list[Condition], filenum, 
         if "Termination reason: Refutation" in res:
             return False
         elif "Termination reason: Satisfiable" in res:
-            print("satisfiable")
+            #print("satisfiable")
             return True
         else:
             print("something went wrong in vampire (not refutation, not sat, not process-error")
@@ -414,17 +415,12 @@ def remove_inv_cand(inv_cand_queue: Queue[InvariantCandidate], inv_cand: Invaria
     return inv_cand_queue
 
 
-# starting regression of a formula through an operator. formula is given by parts of given invariant candidate
+# starting regression of the negation of a formula through an operator. 
 # operator is given by action
 # starts the sat-test with result of regression or return True/False if result was Truth/Falsity
-def regr_and_sat(action: PropositionalAction, inv_cand_temp: InvariantCandidate,
+def regr_and_sat(action: PropositionalAction, formula: Condition,
                  inv_cand_set_C_0: set[InvariantCandidate], filenum, tff_typelist):
-    if len(inv_cand_temp.parts) == 1:
-        input_for_regression = next(iter(inv_cand_temp.parts))
-    else:
-        input_for_regression = Disjunction(inv_cand_temp.parts)
-
-    after_reg = regression(input_for_regression.negate(), action).simplified()
+    after_reg = regression(formula.negate(), action).simplified()
     if isinstance(after_reg, Falsity):
         return False
     elif isinstance(after_reg, Truth):
@@ -466,6 +462,7 @@ def create_grounded_invariant_for_c_sigma(list_of_vars, predicate, negated):
 
 # create from a given predicate and variables all possible combinations
 # return list of invariant candidates used for regression
+# TODO fixme
 def create_c_sigma(inv_cand: InvariantCandidate):
     c_sigma = []
     for literal in inv_cand.parts:
@@ -481,6 +478,29 @@ def create_c_sigma(inv_cand: InvariantCandidate):
                 list_of_vars.append(object_types_in_task[object.type_name])
             c_sigma += create_grounded_invariant_for_c_sigma(list_of_vars, literal.predicate, negated)
     return c_sigma
+
+
+def create_c_sigma_new(inv_cand: InvariantCandidate):
+    c_sigma = []
+    
+    # compute all possible substitutions for the variables
+    objects_by_type = object_types_in_task 
+    type_list = list(inv_cand.types)
+    val_list = [objects_by_type[t.type_name] for t in type_list]
+    for assignment in itertools.product(*val_list):
+        subst = {v.name:a for (v,a) in zip(type_list, assignment)}
+        # if the assignment does respect the inequalities, we yield the instantiation
+        for x,y in inv_cand.ineq:
+            if subst[x] == subst[y]:
+                break
+        else:
+            parts = [part.__class__(part.predicate, [subst[a] for a in part.args]) for part in inv_cand.parts]
+            # yield Disjunction(parts).simplified()
+            # we do not simplify intentionally, so that we can more easily handle the formula
+            # in the test whether it can be affected by an action
+            yield Disjunction(parts)
+
+
 
 def collect_predicates_in_init(task: Task, fluent_predicates):
     """
@@ -599,7 +619,18 @@ def create_restricted_domain(task, actions):
             res_dom[typedobject.type_name].add(typedobject.name)
     return res_dom
 
-
+def action_threatens_disjunction(action, disjunction):
+    for part in disjunction.parts:
+        assert isinstance(part, Literal)
+        if part.negated:
+            for _, eff in action.add_effects:
+                if part == eff:
+                    return True
+        else:
+            for _, eff in action.del_effects:
+                if part == eff:
+                    return True
+    return False
 
 def get_schematic_invariants(task: Task, actions: list[PropositionalAction], fluent_ground_atoms):
     delete_vampire_files()
@@ -652,6 +683,7 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction], flu
     list_of_possible_actions = []
     # create all possible actions which can be done in the game
     for a in actions:
+        print(a)
         x = a.name.split()
         if len(x) > 2:
             y = x[2].split(")")
@@ -660,9 +692,13 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction], flu
         else:
             list_of_possible_actions.append(a)
         # TODO What's going on here?    
+    print("possible actions",list_of_possible_actions)
     # start algorithm from Rintannen
+    queue_cq = collections.deque()
     next_queue = collections.deque()
-    print("starting with following inv-candidates: ")
+
+    print("initial invariant candidates:")
+#    print("starting with following inv-candidates: ")
     for i in inv_cand_set_C:
         next_queue.append(i)
         i.dump()
@@ -670,52 +706,110 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction], flu
     filenum = 0
     while True:
         inv_cand_set_C_0 = set(next_queue)
-        for action in list_of_possible_actions:
-            # user_unput = input("gibt exit ein falls du beenden möchtest")
-            # if user_unput == "exit":
-            #     delete_vampire_files()
-            #     sys.exit()
-            print("restart next_queue with action len: ", len(list_of_possible_actions), " and len current queue: ", len(next_queue))
-            queue_cq = next_queue.copy()
-            next_queue = collections.deque()
-            while queue_cq:
-                # print("remove from current queue..")
-                inv_cand = queue_cq.popleft()
-                if inv_cand.contains(action):
-                    print("create sigma, doing sat test with invariant candidate: ")
-                    inv_cand.dump()
-                    print("and action: ")
-                    action.dump()
-                    c_sigma = create_c_sigma(inv_cand)
+        print("starting iteration for candidate set")
+        for cand in inv_cand_set_C_0:
+            cand.dump()
 
-                    is_inv_cand_sat = False
-                    for c_sig in c_sigma:
-                        if regr_and_sat(action, c_sig, inv_cand_set_C_0, filenum, tff_type_list):
-                            is_inv_cand_sat = True
-                            filenum += 1
-                            break
-                        filenum += 1
-                    if is_inv_cand_sat:
+        queue_cq, next_queue = next_queue, queue_cq
+        while queue_cq:
+            inv_cand = queue_cq.popleft()
+            print("Testing ", end="")
+            inv_cand.dump()
 
+            for instance in create_c_sigma_new(inv_cand):
+                #print("consider instance", end="")
+                # instance.dump()
+                weakened = False
+                for action in list_of_possible_actions:
+                    #if not inv_cand.contains(action):
+                    if not action_threatens_disjunction(action, instance):
+                        # the action cannot invalidate the candidate instance
+                        # no test necessary
+                        continue
+                    
+                    if regr_and_sat(action, instance, inv_cand_set_C_0, filenum, tff_type_list):
+                        print(f"{action.name} invalidates the invariant on instance", end = "")
+                        instance.dump()
+                        print("Weaken...")
                         weakend_inv_cand_set = weaken(inv_cand)
-                        print("appending to queue from weakening...")
                         for weakend_inv_cand in weakend_inv_cand_set:
                             seen_inv_candidates.add(weakend_inv_cand)
-                            print("append: ")
+                            print("new: ", end="")
                             weakend_inv_cand.dump()
                             queue_cq.append(weakend_inv_cand)
-                        print("done appending")
-
+                        filenum += 1
+                        weakened = True
+                        break
                     else:
-                        print("no inv cand")
-                        next_queue.append(inv_cand)
-                else:
-                    print("action no influence")
-                    next_queue.append(inv_cand)
-        print("check is queue is same as before")
-        if set(next_queue) == inv_cand_set_C_0 or set(queue_cq) == inv_cand_set_C_0:
+                        # print(f"{action.name} does not invalidate ", end="")
+                        # inv_cand.dump()
+                        # print("on instance")
+                        # instance.dump()
+                        filenum += 1
+                if weakened:
+                    break
+            else:
+                # no action invalidated any instance of the candidate, preserve for next iteration
+                next_queue.append(inv_cand)
+        print("check if candidate set reached fixpoint")
+        if set(next_queue) == inv_cand_set_C_0:
             # solution found, return
             print("solution finally found")
-
-
             return next_queue
+
+
+    # while True:
+    #     inv_cand_set_C_0 = set(next_queue)
+    #     print("starting iteration for candidate set")
+    #     for cand in inv_cand_set_C_0:
+    #         print(cand)
+    #     for action in list_of_possible_actions:
+    #         # user_input = input("gibt exit ein falls du beenden möchtest")
+    #         # if user_input == "exit":
+    #         #     delete_vampire_files()
+    #         #     sys.exit()
+    #         print("restart next_queue with action len: ", len(list_of_possible_actions), " and len current queue: ", len(next_queue))
+    #         queue_cq = collections.deque()
+    #         queue_cq, next_queue = next_queue, queue_cq
+
+    #         while queue_cq:
+    #             # print("remove from current queue..")
+    #             inv_cand = queue_cq.popleft()
+    #             if inv_cand.contains(action):
+    #                 print("create sigma, doing sat test with invariant candidate: ")
+    #                 inv_cand.dump()
+    #                 print("and action: ")
+    #                 action.dump()
+    #                 c_sigma = create_c_sigma(inv_cand)
+
+    #                 is_inv_cand_sat = False
+    #                 for c_sig in c_sigma:
+    #                     if regr_and_sat(action, c_sig, inv_cand_set_C_0, filenum, tff_type_list):
+    #                         is_inv_cand_sat = True
+    #                         filenum += 1
+    #                         break
+    #                     filenum += 1
+    #                 if is_inv_cand_sat:
+
+    #                     weakend_inv_cand_set = weaken(inv_cand)
+    #                     print("appending to queue from weakening...")
+    #                     for weakend_inv_cand in weakend_inv_cand_set:
+    #                         seen_inv_candidates.add(weakend_inv_cand)
+    #                         print("append: ")
+    #                         weakend_inv_cand.dump()
+    #                         queue_cq.append(weakend_inv_cand)
+    #                     print("done appending")
+
+    #                 else:
+    #                     print("no inv cand")
+    #                     nex    if len(inv_cand_temp.parts) == 1:
+    #             else:
+    #                 print("action no influence")
+    #                 next_queue.append(inv_cand)
+    #     print("check is queue is same as before")
+    #     if set(next_queue) == inv_cand_set_C_0 or set(queue_cq) == inv_cand_set_C_0:
+    #         # solution found, return
+    #         print("solution finally found")
+
+
+    #         return next_queue

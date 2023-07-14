@@ -56,7 +56,7 @@ class InvariantCandidate:
         ineq = ",".join(f"{x1}≠{x2}" for x1,x2 in self.ineq)
         if self.ineq:
             ineq += " → "
-        disc = " ∨ ".join("%s(%s)" % (part.predicate, ", ".join(map(str, part.args))) for part in self.parts)
+        disc = " ∨ ".join(part_str(part) for part in self.parts)
         var_types = ", ".join(str(typed_obj) for typed_obj in self.types)
         print(f"INVARIANT CANDIDATE: {ineq}{disc} [{var_types}]")
 
@@ -81,6 +81,7 @@ class InvariantCandidate:
                 for _, eff in action.del_effects:
                     if part.predicate == eff.predicate:
                         return True
+        return False
 
     def get_variables(self):
         """returns the set of all variables occuring in the invariant candidate"""
