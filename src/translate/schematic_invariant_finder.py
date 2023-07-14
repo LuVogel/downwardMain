@@ -62,7 +62,7 @@ def weaken(inv_cand: InvariantCandidate):
     def get_new_var(existing, more_existing):
         val = 0
         while True:
-            var_name = f"?val{val}"
+            var_name = f"?var{val}"
             if var_name in existing or var_name in more_existing:
                 val += 1
             else:
@@ -85,7 +85,7 @@ def weaken(inv_cand: InvariantCandidate):
         #exit(1)
         if pos == len(types):
             # we filled all params and append the tuple to the list of results
-            params.append(current)
+            params.append((current, newly_used))
         else:
             # we still have to set further params and do this in all possible ways
             if pos == len(types) - 1 and not used_orig and original_vars:
@@ -100,9 +100,9 @@ def weaken(inv_cand: InvariantCandidate):
                 new_var = get_new_var(original_vars, newly_used)
                 extended = list(current)
                 extended.append(new_var)
-                newly_used = newly_used.copy()
-                newly_used.add(new_var)
-                fill_params(original_vars, types, pos+1, newly_used, used_orig, extended, params)
+                updated_newly_used = set(newly_used)
+                updated_newly_used.add(TypedObject(new_var, types[pos].type_name))
+                fill_params(original_vars, types, pos+1, updated_newly_used, used_orig, extended, params)
                 # or use an original variable
                 for var in original_vars:
                     extended = list(current)
@@ -111,7 +111,7 @@ def weaken(inv_cand: InvariantCandidate):
                 # or repeat a newly introduced variable
                 for var in newly_used:
                     extended = list(current)
-                    extended.append(var)
+                    extended.append(var.name)
                     fill_params(original_vars, types, pos+1, newly_used, used_orig, extended, params)                
         return params
 
@@ -134,28 +134,25 @@ def weaken(inv_cand: InvariantCandidate):
             else:
                 # only extend with equality of existing variables
                 params = list(itertools.combinations(exist_vars, 2))
-            for args in params:
+                params = [(p, set()) for p in params]
+            for args, new_vars in params:
+                print(args, new_vars)
                 type_counter = 0
-                types_temp = set()
-                # for arg in args:
-                #     types_temp.add(TypedObject(name=arg, type_name=type_names[type_counter].type_name))
-                #     type_counter += 1
+                types_temp = set(inv_cand.types)
+                types_temp |= new_vars
                 pos = Atom(pred, args)
                 neg = NegatedAtom(pred, args)
-                # create typed variables for all parameters (of the correct type)
-                for part in inv_cand.parts:
-                    for i in range(len(predicates_in_task[part.predicate])):
-                        types_temp.add(TypedObject(name=part.args[i], type_name=predicates_in_task[part.predicate][i].type_name))
-                for i in range(len(predicates_in_task[pred])):
-                    types_temp.add(TypedObject(name=args[i], type_name=predicates_in_task[pred][i].type_name))
-                inv = InvariantCandidate(parts=inv_cand.parts | {pos}, ineq=[], types=types_temp)
+                if pos == part or neg == part:
+                    # this would not weaken the invariant or lead to a tautology
+                    continue
+                inv = InvariantCandidate(parts=inv_cand.parts | {pos}, ineq=inv_cand.ineq, types=types_temp)
                 part = next(iter(inv_cand.parts))
-                if inv not in seen_inv_candidates and pos != part:
+                if inv not in seen_inv_candidates:
                     inv_cand_set.add(inv)
                 if pred != "=":
                     # we do not add inequalities because these are handled especially in the invariant candidate
-                    inv = InvariantCandidate(parts=inv_cand.parts | {neg}, ineq=[], types=types_temp)
-                    if inv not in seen_inv_candidates and neg != part:
+                    inv = InvariantCandidate(parts=inv_cand.parts | {neg}, ineq=inv_cand.ineq, types=types_temp)
+                    if inv not in seen_inv_candidates:
                         inv_cand_set.add(inv)
 
 
