@@ -679,20 +679,6 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction], flu
     actions = copy.deepcopy(actions)
     inv_cand_set_C = set(create_invariant_candidates(task, fluent_ground_atoms))
 
-
-    list_of_possible_actions = []
-    # create all possible actions which can be done in the game
-    for a in actions:
-        print(a)
-        x = a.name.split()
-        if len(x) > 2:
-            y = x[2].split(")")
-            if x[1] != y[0]:
-                list_of_possible_actions.append(a)
-        else:
-            list_of_possible_actions.append(a)
-        # TODO What's going on here?    
-    print("possible actions",list_of_possible_actions)
     # start algorithm from Rintannen
     queue_cq = collections.deque()
     next_queue = collections.deque()
@@ -720,7 +706,7 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction], flu
                 #print("consider instance", end="")
                 # instance.dump()
                 weakened = False
-                for action in list_of_possible_actions:
+                for action in actions:
                     #if not inv_cand.contains(action):
                     if not action_threatens_disjunction(action, instance):
                         # the action cannot invalidate the candidate instance
