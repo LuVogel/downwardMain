@@ -5,13 +5,14 @@ class InvariantCandidate:
 
     # part1 is X
     # part2 is l_1 or l_2 // l_1
-    # X is empty of conjuction of inequalities
+    # X is empty of conjuction of inequalities 
     # l_1/l_2 are bool/schematic state variables
     # frozenset --> reihenfolge nicht beachten, hashbar im gegesatz zu set
+    # types?!?
     def __init__(self, parts: List[conditions.Literal], ineq, types):
-        self.parts = tuple(parts)
+        self.parts = frozenset(parts)
         self.ineq = frozenset(frozenset(i) for i in ineq)
-        self.types = tuple(types)
+        self.types = frozenset(types)
         self.hash = hash((self.__class__, self.parts, self.ineq, self.types))
 
     def __hash__(self):
@@ -48,17 +49,25 @@ class InvariantCandidate:
         return self.__class__.__name__
 
     def contains(self, action):
+        """
+        True if the action can potentially invalidate the candidates.
+
+        Returns true iff the action has a delete effect on a predcate that
+        occurs positively in the invariant or an add effect on a predicate
+        occurring negatively.
+        """   
         for part in self.parts:
             if part.negated:
-                for con, eff in action.add_effects:
+                for _, eff in action.add_effects:
                     if part.predicate == eff.predicate:
                         return True
             else:
-                for cond, eff in action.del_effects:
+                for _, eff in action.del_effects:
                     if part.predicate == eff.predicate:
                         return True
 
     def get_variables(self):
+        """returns the set of all variables occuring in the invariant candidate"""
         vars = set()
         for part in self.parts:
             vars |= set(part.args)

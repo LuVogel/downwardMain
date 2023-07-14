@@ -68,6 +68,13 @@ def weaken(inv_cand: InvariantCandidate):
                 return f"?val{val}"
 
     def fill_params(used, num_to_add, current=[], params=[]):
+        """
+        If called with default values, this function creates the list 
+        of all tuples of arity num_to_add, where each component is either a
+        - variable from used
+        - a new variable,
+        - or a new variable included earlier in the tuple.
+        """
         if num_to_add == 0:
             params.append(current)
         else:
@@ -86,15 +93,19 @@ def weaken(inv_cand: InvariantCandidate):
         return params
 
     inv_cand_set = set()
-    arg_set = set()
+    arg_set = set() # set of all arguments of an atom occuring in the candidate
     for part in inv_cand.parts:
         for arg in part.args:
             arg_set.add(arg)
+    # TODO why do we distinguish arg_set and exist_vars?
     # extend by a literal
-    exist_vars = set(inv_cand.parts[0].args)
+    exist_vars = inv_cand.get_variables()
     if len(inv_cand.parts) == 1:
         print("weaken by extending literal")
         for pred, type_names in predicates_in_task.items():
+            # for all predicates in the task, we determine the list of all possible
+            # parameters created from existing and new variables. We also consider
+            # all possible repetisions of parameters.
             params = fill_params(exist_vars, len(type_names))
             for args in params:
                 type_counter = 0
@@ -104,16 +115,18 @@ def weaken(inv_cand: InvariantCandidate):
                 #     type_counter += 1
                 pos = Atom(pred, args)
                 neg = NegatedAtom(pred, args)
+                # create typed variables for all parameters (of the correct type)
                 for part in inv_cand.parts:
                     for i in range(len(predicates_in_task[part.predicate])):
                         types_temp.add(TypedObject(name=part.args[i], type_name=predicates_in_task[part.predicate][i].type_name))
                 for i in range(len(predicates_in_task[pred])):
                     types_temp.add(TypedObject(name=args[i], type_name=predicates_in_task[pred][i].type_name))
                 inv = InvariantCandidate(parts=inv_cand.parts + (pos,), ineq=[], types=types_temp)
-                if inv not in seen_inv_candidates and pos != inv_cand.parts[0]:
+                part = next(iter(inv_cand.parts))
+                if inv not in seen_inv_candidates and pos != part:
                     inv_cand_set.add(inv)
                 inv = InvariantCandidate(parts=inv_cand.parts + (neg,), ineq=[], types=types_temp)
-                if inv not in seen_inv_candidates and neg != inv_cand.parts[0]:
+                if inv not in seen_inv_candidates and neg != part:
                     inv_cand_set.add(inv)
 
 
@@ -130,8 +143,8 @@ def weaken(inv_cand: InvariantCandidate):
         max_ineq += math.comb(n, k)
 
 
-    if len(inv_cand.parts) == 2:
-        exist_vars |= set(inv_cand.parts[1].args)
+    #if len(inv_cand.parts) == 2:
+    #    exist_vars |= set(inv_cand.parts[1].args)
     if len(existing_inequalities) >= max_ineq:
         print("max inequalities reached")
         return []
@@ -392,7 +405,7 @@ def remove_inv_cand(inv_cand_queue: Queue[InvariantCandidate], inv_cand: Invaria
 def regr_and_sat(action: PropositionalAction, inv_cand_temp: InvariantCandidate,
                  inv_cand_set_C_0: set[InvariantCandidate], filenum, tff_typelist):
     if len(inv_cand_temp.parts) == 1:
-        input_for_regression = inv_cand_temp.parts[0]
+        input_for_regression = next(iter(inv_cand_temp.parts))
     else:
         input_for_regression = Disjunction(inv_cand_temp.parts)
 
