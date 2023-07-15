@@ -90,3 +90,30 @@ tff(formula3, axiom, ![X0: object, X1: object]: ~on(X0, X1)).
 tff(formula4, axiom, ![X0: object]: ontable(X0)).
 tff(formula5, axiom, ![X0: object]: clear(X0)).
 tff(formula0, negated_conjecture, ![A:object, B:object, NOARGS:empty]: (clear(A) & ontable(B) & handempty(NOARGS) & clear(B))).
+
+
+not on(x0,x1) : x1,x0: object #TODO
+clear(x0) or not on(x0, x0), x0: object #TODO
+not on(x0,var0) or claer(x0), var0, x0: object #TODO
+not ontable(x0) or clear(x0), x0:object #TODO
+clear(x0) or not on(var0,x0), var0, x0: object #TODO
+holding(x0) or clear(x0), x0: object #TODO
+ontable(x0) or not on(var0,x0), var0, x0: object #TODO
+ontable(x0) or not (on x0, var0), var0, x0: object #TODO
+ontable(x0) or holding(x0), x0: object #TODO
+ontable(x0) or not clear(x0), x0: object #TODO
+ontable(x0) or not on(x0,x0), x0:object #TODO
+not on(var0,var0) or handempty, var0: object #TODO
+not holding(x0) or not clear(x0), x0: object #TODO
+not holding(x0) or not on(var0, x0), var0, x0: object #TODO
+not ontable(x0) or not holding(x0), x0: obect #TODO
+not hoding(x0) or not on(x0,x0), x0: object #TODO
+not holding(x0) or not on(x0,ar0), var0,x0:object #TODO
+
+type:  <class 'collections.deque'> , len:  6
+INVARIANT CANDIDATE: ?x0≠?x1 → ¬clear(?x1) ∨ ¬clear(?x0) [?x0: object, ?x1: object]
+INVARIANT CANDIDATE: ?x2≠?x1 → ¬on(?x0, ?x2) ∨ ¬on(?x0, ?x1) [?x2: object, ?x0: object, ?x1: object]
+INVARIANT CANDIDATE: ?x2≠?x0 → ¬on(?x2, ?x1) ∨ ¬on(?x0, ?x1) [?x2: object, ?x0: object, ?x1: object]
+INVARIANT CANDIDATE: ?x0≠?x1 → ¬ontable(?x0) ∨ ¬ontable(?x1) [?x0: object, ?x1: object]
+INVARIANT CANDIDATE: handempty() []
+INVARIANT CANDIDATE: ¬holding(?x0) [?x0: object]

@@ -118,8 +118,8 @@ def weaken(inv_cand: InvariantCandidate):
     inv_cand_set = set()
     arg_set = set() # set of all arguments of an atom occuring in the candidate
     for part in inv_cand.parts:
-        for arg in part.args:
-            arg_set.add(arg)
+         for arg in part.args:
+             arg_set.add(arg)
     # TODO why do we distinguish arg_set and exist_vars?
     # extend by a literal
     exist_vars = inv_cand.get_variables()
@@ -367,11 +367,9 @@ def write_neg_conjecture_to_fof(formula: Condition, file, counter):
         neg = "~" if literal.negated else ""
         if name == "=":
             if literal.negated:
-                return f"equal({args})"
-                # TODO why do we need equals here? Is this built-in? If not, where is it intialized?
+                return "!=".join(arg_list)
             else:
-                a = "=".join(arg_list)
-                return a
+                return "=".join(arg_list)
         if not literal.args:
             return f"{neg}{name}"
         else:
@@ -620,7 +618,7 @@ def delete_vampire_files():
         file_path = os.path.join(folder_path, file_name)
         os.remove(file_path)
 
-# eigentliche Funktion die Aktionen vorbereite, und den Algorithmus durchführt
+# eigentliche Funktion die Aktionen vorbereitet, und den Algorithmus durchführt
 def get_limited_instantiation(task):
     # Let prms_t(a) be number of schema variables of type t in action a
     # Let prms_t(p) be number of terms of type t in schematic atomic formulas with predicate p
@@ -699,7 +697,49 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction], flu
 
     actions = copy.deepcopy(actions)
     inv_cand_set_C = set(create_invariant_candidates(task, fluent_ground_atoms))
+    limited = get_limited_instantiation(task)
+    #dom = create_restricted_domain(task, actions)
+    #print("dom: ", dom)
+    print("limited: ", limited)
+    count_action = {}
+    action_list = []
+    for action in actions:
+        name = action.name.split(" ")
+        if len(name) == 2:
+            var = name[1]
+            if var not in count_action:
+                count_action[var] = 0
+            if count_action[var] < limited:
+                count_action[var] += 1
+                action_list.append(action)
 
+        if len(name) == 3:
+            var1 = name[1]
+            var2 = name[2]
+            if var1 != var2:
+                if var1 not in count_action:
+                    count_action[var1] = 0
+                if count_action[var1] < limited:
+                    count_action[var1] += 1
+                    action_list.append(action)
+                if var2 not in count_action:
+                    count_action[var2] = 0
+                if count_action[var2] < limited:
+                    count_action[var2] += 1
+                    action_list.append(action)
+            else:
+                if var1 not in count_action:
+                    count_action[var1] = 0
+                if count_action[var1] < limited:
+                    count_action[var1] += 1
+                    action_list.append(action)
+    print("len orig actions: ", len(actions), ", len reduced actions: ", len(action_list))
+    for action in actions:
+        print(action.name)
+    print("------------------------")
+    for action in action_list:
+        print(action.name)
+    actions = list(action_list)
     # start algorithm from Rintannen
     queue_cq = collections.deque()
     next_queue = collections.deque()
