@@ -664,7 +664,6 @@ def action_threatens_disjunction(action, disjunction):
 
 
 def get_schematic_invariants(task: Task, actions: list[PropositionalAction], fluent_ground_atoms, limited_grounding):
-    delete_vampire_files()
 
 
     # use deepcopy, so we can modify actions and task freely
