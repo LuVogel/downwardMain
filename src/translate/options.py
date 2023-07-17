@@ -59,9 +59,8 @@ def parse_args():
         "into its own layer unless it is part of a cycle.")
     argparser.add_argument(
         "--limited-grounding",
-        dest="limited_grounding", action="store_false",
-        help="use Rintanen's limited grounding for invariant verification"
-    )
+        dest="limited_grounding", action="store_true",
+        help="use Rintanen's limited grounding for invariant verification")
 
 
     return argparser.parse_args()

@@ -10,7 +10,7 @@ import re
 
 from invariant_candidate import *
 from pddl.conditions import *
-import instantiate
+from src.translate import instantiate
 
 filenum_list = []
 seen_inv_candidates = set()
@@ -511,6 +511,7 @@ def create_c_sigma_new(inv_cand: InvariantCandidate):
     # compute all possible substitutions for the variables
     objects_by_type = object_types_in_task
     type_list = list(inv_cand.types)
+    # erste liste von val list enthält alle objekte vom ersten typ
     val_list = [objects_by_type[t.type_name] for t in type_list]
     for assignment in itertools.product(*val_list):
         subst = {v.name: a for (v, a) in zip(type_list, assignment)}
@@ -665,7 +666,7 @@ def action_threatens_disjunction(action, disjunction):
 
 def get_schematic_invariants(task: Task, actions: list[PropositionalAction], fluent_ground_atoms, limited_grounding):
 
-
+    print("limited ground: ", limited_grounding)
     # use deepcopy, so we can modify actions and task freely
     task = copy.deepcopy(task)
 
