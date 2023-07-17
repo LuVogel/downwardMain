@@ -394,7 +394,7 @@ def write_type_restriction_to_tff(inv_cand, file, counter):
 
 def is_sat(negated_conjecture: Condition, axiom_list: list[Condition], filenum, tff_typelist):
     # path = "src/translate/vampire/tptp-formulas" + str(filenum) + ".p"
-    path = "src/translate/vampire/tptp-formulas.p"
+    path = "src/translate/tptp-formulas-vampire.p"
 
     with open(path, "w") as file:
         for tff_line in tff_typelist:
