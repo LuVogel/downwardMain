@@ -10,12 +10,13 @@ import re
 
 from invariant_candidate import *
 from pddl.conditions import *
-from src.translate import instantiate
+import instantiate, pddl
 
 filenum_list = []
 seen_inv_candidates = set()
 predicates_in_task = {}
 object_types_in_task = {}
+
 condition_type_to_logical_string = {
     Conjunction: "&",
     Disjunction: "|",
@@ -71,7 +72,7 @@ def weaken(inv_cand: InvariantCandidate):
 
     def fill_params(original_vars, types, pos=0, newly_used=set(), used_orig=False, current=[], params=[]):
         """
-        If called with default values, this function creates the list 
+        If called with default values, this function creates the list
         of all tuples of arity len(types), where each component is either a
         - variable from used
         - a new variable,
@@ -618,6 +619,11 @@ def register_object_for_type(name: str, type: str, type_dict: dict, type_to_supe
     if type_to_supertype[type] is not None:
         register_object_for_type(name, type_to_supertype[type], type_dict, type_to_supertype)
 
+def register_type_for_supertype(obj: TypedObject, type: str, type_dict: dict, type_to_supertype: dict):
+    objects = type_dict.setdefault(type, set())
+    objects.add(obj.type_name)
+    if type_to_supertype[type] is not None:
+        register_object_for_type(obj.type_name, type_to_supertype[type], type_dict, type_to_supertype)
 
 def delete_vampire_files():
     folder_path = "src/translate/vampire/"
@@ -630,13 +636,36 @@ def delete_vampire_files():
 
 
 # eigentliche Funktion die Aktionen vorbereitet, und den Algorithmus durchführt
-def get_limited_instantiation(task):
-    # Let prms_t(a) be number of schema variables of type t in action a
-    # Let prms_t(p) be number of terms of type t in schematic atomic formulas with predicate p
-    max_action_params = max(len(action.parameters) for action in task.actions)
-    max_predicate_params = max(len(pred.arguments) for pred in task.predicates)
-    max_params_t = max(max_action_params, max_predicate_params)
-    return max_params_t + (2 - 1) * max_predicate_params
+def get_limited_instantiation(task: pddl.Task, types_and_basetypes: dict):
+    limited_map = {}
+    for type, childs in types_and_basetypes.items():
+        # Let prms_t(a) be number of schema variables of type t in action a
+        # Let prms_t(p) be number of terms of type t in schematic atomic formulas with predicate p
+        max_action = 0
+        for action in task.actions:
+            max_num = 0
+            for param in action.parameters:
+                for child in childs:
+                    if child == param.type_name:
+                        max_num += 1
+            if max_num > max_action:
+                max_action = max_num
+        max_action_params = max_action
+        #max_action_params = max(len(action.parameters) for action in task.actions if types in  action_type.type_name for action_type in action.parameters)
+        max_predicate = 0
+        for predicate in task.predicates:
+            max_num = 0
+            for args in predicate.arguments:
+                for child in childs:
+                    if child == args.type_name:
+                        max_num += 1
+            if max_num > max_predicate:
+                max_predicate = max_num
+        max_predicate_params = max_predicate
+        #max_predicate_params = max(len(pred.arguments) for pred in task.predicates if types in type_pred.type_name for type_pred in pred.arguments)
+        max_params_t = max(max_action_params, max_predicate_params)
+        limited_map[type] = max_params_t + (2 - 1) * max_predicate_params
+    return limited_map
 
 
 def create_restricted_domain(task, actions):
@@ -666,13 +695,22 @@ def action_threatens_disjunction(action, disjunction):
 
 def get_schematic_invariants(task: Task, actions: list[PropositionalAction], fluent_ground_atoms, limited_grounding):
 
-    print("limited ground: ", limited_grounding)
     # use deepcopy, so we can modify actions and task freely
     task = copy.deepcopy(task)
 
     type_to_supertype = {t.name: t.basetype_name for t in task.types}
     for obj in task.objects:
         register_object_for_type(obj.name, obj.type_name, object_types_in_task, type_to_supertype)
+    types_and_base_types = {}
+    for obj in task.objects:
+        register_type_for_supertype(obj, obj.type_name, types_and_base_types, type_to_supertype)
+
+
+    for type, base in types_and_base_types.items():
+        types_and_base_types[type] = set(base)
+        if type not in types_and_base_types[type]:
+            types_and_base_types[type].add(type)
+
 
     for pred in task.predicates:
         predicates_in_task[pred.name] = pred.arguments
@@ -712,19 +750,49 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction], flu
 
     actions = copy.deepcopy(actions)
     inv_cand_set_C = set(create_invariant_candidates(task, fluent_ground_atoms))
+    # TODO: limited instantiation für trucks??
     if limited_grounding:
-        limited = get_limited_instantiation(task)
-        # dom = create_restricted_domain(task, actions)
-        # print("dom: ", dom)
-        print("limited: ", limited)
-        removed_objects = []
-        while limited != len(task.objects):
-            removed_objects.append(task.objects.pop().name)
-        action_list = [action for action in actions if not any(
-            any(rem in params for params in action.name.split()[1:]) for rem in removed_objects
-        )]
-        actions = list(action_list)
-        print("len orig actions: ", len(actions), ", len reduced actions: ", len(action_list))
+        limited = get_limited_instantiation(task, types_and_base_types)
+        reduced_objects = set()
+        # reduce task.objects with limited instantiation and constants
+        for type, limit in limited.items():
+            type_queue = collections.deque()
+            for obj in task.objects:
+                if obj.type_name == type:
+                    type_queue.append(obj)
+            while len(type_queue) != limit:
+                current_type = type_queue.pop()
+                # make sure that all constants/fixed objects are still in task.objects
+                if current_type in task.constants:
+                    type_queue.append(current_type)
+            for t in type_queue:
+                reduced_objects.add(t)
+        task.objects = list(reduced_objects)
+        # objects are reduced in task
+        reduced_action_list = []
+        # ground schematic actions with respect to reduced task
+        for schematic_action in task.actions:
+            init_facts = set()
+            init_assignments = {}
+            for element in task.init:
+                if isinstance(element, pddl.Assign):
+                    init_assignments[element.fluent] = element.expression
+                else:
+                    init_facts.add(element)
+            type_to_objects = instantiate.get_objects_by_type(task.objects, task.types)
+            val_list = [type_to_objects[t.type_name] for t in schematic_action.parameters]
+            for assignment in itertools.product(*val_list):
+                variable_mapping = {v.name: a for (v, a) in zip(schematic_action.parameters, assignment)}
+                inst_action = schematic_action.instantiate(
+                    variable_mapping, init_facts, init_assignments,
+                    fluent_ground_atoms, type_to_objects,
+                    task.use_min_cost_metric)
+                if inst_action:
+                    reduced_action_list.append(inst_action)
+        # actions ist original list of propositional actions (all ground actions)
+        # reduced_action_list is list of propositional action with respect to reduced task
+        print("len orig actions: ", len(actions), ", len reduced actions: ", len(reduced_action_list))
+        actions = list(reduced_action_list)
     else:
         actions = list(actions)
     print("len actions: ", len(actions))
