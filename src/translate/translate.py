@@ -560,10 +560,10 @@ def pddl_to_sas(task):
     with timers.timing("Computing schematic group", block=True):
         schematic_invariants = schematic_invariant_finder.get_schematic_invariants(
            task, actions, atoms, options.limited_grounding)
-        print("invariant_candidates found: ")
-        print("type: ", type(schematic_invariants), ", len: ", len(schematic_invariants))
-        for schem in schematic_invariants:
-            schem.dump()
+        # print("invariant_candidates found: ")
+        # print("type: ", type(schematic_invariants), ", len: ", len(schematic_invariants))
+        # for schem in schematic_invariants:
+        #     schem.dump()
     exit(0)
     with timers.timing("Computing fact groups", block=True):
         groups, mutex_groups, translation_key = fact_groups.compute_groups(
