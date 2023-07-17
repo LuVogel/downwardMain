@@ -511,6 +511,7 @@ def create_c_sigma_new(inv_cand: InvariantCandidate):
     # compute all possible substitutions for the variables
     objects_by_type = object_types_in_task
     type_list = list(inv_cand.types)
+    # erste liste von val list enthält alle objekte vom ersten typ
     val_list = [objects_by_type[t.type_name] for t in type_list]
     for assignment in itertools.product(*val_list):
         subst = {v.name: a for (v, a) in zip(type_list, assignment)}
