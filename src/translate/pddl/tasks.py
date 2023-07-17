@@ -13,7 +13,7 @@ from .predicates import Predicate
 class Task:
     def __init__(self, domain_name: str, task_name: str,
                  requirements: "Requirements",
-                 types: List[Type], objects: List[TypedObject], predicates:
+                 types: List[Type], objects: List[TypedObject], constants: List[TypedObject], predicates:
                  List[Predicate], functions: List[Function],
                  init: List[Union[Atom, Assign]], goal: Condition,
                  actions: List[Action], axioms: List[Axiom],
@@ -23,6 +23,7 @@ class Task:
         self.requirements = requirements
         self.types = types
         self.objects = objects
+        self.constants = constants
         self.predicates = predicates
         self.functions = functions
         self.init = init
