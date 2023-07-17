@@ -727,7 +727,7 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction], flu
     else:
         actions = list(actions)
     print("len actions: ", len(actions))
-    exit(0)
+
 
     # start algorithm from Rintannen
     queue_cq = collections.deque()
