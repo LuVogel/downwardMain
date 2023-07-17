@@ -5,8 +5,9 @@ tff(clear_decl, type, clear: object > $o).
 tff(handempty_decl, type, handempty: $o).
 tff(holding_decl, type, holding: object > $o).
 tff(equal_decl, type, equal: (object * object) > $o).
-tff(formula1, axiom,   (handempty)).
-tff(formula2, axiom, ![X1:object, X2:object, X0:object]:   (~on(X2,X1) | ~on(X0,X1))).
-tff(formula3, axiom, ![X1:object, X2:object, X0:object]:   (~on(X0,X2) | ~on(X0,X1))).
-tff(formula4, axiom, ![X0:object]:   (~holding(X0))).
-tff(formula0, negated_conjecture, ![G:object,H:object,E:object]: (holding(G) & clear(H) & on(E,H))).
+tff(formula1, axiom, ![X1:object, X0:object]:   (~on(X0,X1))).
+tff(formula2, axiom,   (handempty)).
+tff(formula3, axiom, ![X0:object]:   (clear(X0))).
+tff(formula4, axiom, ![X0:object]:   (ontable(X0))).
+tff(formula5, axiom, ![X0:object]:   (~holding(X0))).
+tff(formula0, negated_conjecture, ![C:object,D:object]: (on(C,D) & clear(C) & handempty & on(D,C))).

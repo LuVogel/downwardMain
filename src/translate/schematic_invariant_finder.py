@@ -10,7 +10,7 @@ import re
 
 from invariant_candidate import *
 from pddl.conditions import *
-from src.translate import instantiate
+import instantiate
 
 filenum_list = []
 seen_inv_candidates = set()
@@ -666,7 +666,7 @@ def action_threatens_disjunction(action, disjunction):
 def get_schematic_invariants(task: Task, actions: list[PropositionalAction], fluent_ground_atoms, limited_grounding):
     delete_vampire_files()
 
-
+    print("limited ground: ", limited_grounding)
     # use deepcopy, so we can modify actions and task freely
     task = copy.deepcopy(task)
 
