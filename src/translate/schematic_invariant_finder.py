@@ -10,7 +10,7 @@ import re
 
 from invariant_candidate import *
 from pddl.conditions import *
-from src.translate import instantiate
+import instantiate
 
 filenum_list = []
 seen_inv_candidates = set()
