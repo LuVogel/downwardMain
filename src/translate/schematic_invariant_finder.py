@@ -6,20 +6,21 @@ import os
 import subprocess
 import sys
 from queue import Queue
-
+import re
 
 from invariant_candidate import *
 from pddl.conditions import *
+from src.translate import instantiate
 
 filenum_list = []
 seen_inv_candidates = set()
 predicates_in_task = {}
 object_types_in_task = {}
 condition_type_to_logical_string = {
-    Conjunction : "&",
-    Disjunction : "|",
-    NegatedAtom : "~",
-    Atom : ""
+    Conjunction: "&",
+    Disjunction: "|",
+    NegatedAtom: "~",
+    Atom: ""
 }
 
 
@@ -82,7 +83,7 @@ def weaken(inv_cand: InvariantCandidate):
         (otherwise the literals in the resulting disjunction will be independent).
         """
         # TODO respect types
-        #exit(1)
+        # exit(1)
         if pos == len(types):
             # we filled all params and append the tuple to the list of results
             params.append((current, newly_used))
@@ -94,7 +95,7 @@ def weaken(inv_cand: InvariantCandidate):
                 for var in original_vars:
                     extended = list(current)
                     extended.append(var)
-                    fill_params(original_vars, types, pos+1, newly_used, True, extended, params)
+                    fill_params(original_vars, types, pos + 1, newly_used, True, extended, params)
             else:
                 # use_new_variable
                 new_var = get_new_var(original_vars, newly_used)
@@ -102,24 +103,24 @@ def weaken(inv_cand: InvariantCandidate):
                 extended.append(new_var)
                 updated_newly_used = set(newly_used)
                 updated_newly_used.add(TypedObject(new_var, types[pos].type_name))
-                fill_params(original_vars, types, pos+1, updated_newly_used, used_orig, extended, params)
+                fill_params(original_vars, types, pos + 1, updated_newly_used, used_orig, extended, params)
                 # or use an original variable
                 for var in original_vars:
                     extended = list(current)
                     extended.append(var)
-                    fill_params(original_vars, types, pos+1, newly_used, True, extended, params)
+                    fill_params(original_vars, types, pos + 1, newly_used, True, extended, params)
                 # or repeat a newly introduced variable
                 for var in newly_used:
                     extended = list(current)
                     extended.append(var.name)
-                    fill_params(original_vars, types, pos+1, newly_used, used_orig, extended, params)                
+                    fill_params(original_vars, types, pos + 1, newly_used, used_orig, extended, params)
         return params
 
     inv_cand_set = set()
-    arg_set = set() # set of all arguments of an atom occuring in the candidate
+    arg_set = set()  # set of all arguments of an atom occuring in the candidate
     for part in inv_cand.parts:
-         for arg in part.args:
-             arg_set.add(arg)
+        for arg in part.args:
+            arg_set.add(arg)
     # TODO why do we distinguish arg_set and exist_vars?
     # extend by a literal
     exist_vars = inv_cand.get_variables()
@@ -155,7 +156,6 @@ def weaken(inv_cand: InvariantCandidate):
                     if inv not in seen_inv_candidates:
                         inv_cand_set.add(inv)
 
-
             params.clear()
         return inv_cand_set
 
@@ -168,8 +168,7 @@ def weaken(inv_cand: InvariantCandidate):
     for k in range(1, n + 1):
         max_ineq += math.comb(n, k)
 
-
-    #if len(inv_cand.parts) == 2:
+    # if len(inv_cand.parts) == 2:
     #    exist_vars |= set(inv_cand.parts[1].args)
     if len(existing_inequalities) >= max_ineq:
         print("max inequalities reached")
@@ -265,6 +264,7 @@ def get_effects_from_action(operator: Condition):
 # writes a given invariant candidate to a given file
 def write_invariant_to_fof(inv_cand: InvariantCandidate, file, counter: int):
     found_variables = set()
+
     def get_vampire_var(variable, inv_cand, quantifier):
         if variable.startswith("?"):
             if quantifier:
@@ -311,23 +311,23 @@ def write_invariant_to_fof(inv_cand: InvariantCandidate, file, counter: int):
             return f"{neg}{name}"
         else:
             return f"{neg}{name}({args})"
+
     vars = inv_cand.get_variables()
     inv_types = inv_cand
     if vars:
         all_quantifiers = "![%s]: " % ", ".join(get_vampire_var(var, inv_cand, quantifier=True) for var in vars)
     else:
         all_quantifiers = ""
-    #print("inv_cand where quantifier created: ")
-    #inv_cand.dump()
-    #print("created quantifiers in write formula to fof")
-    #print(all_quantifiers)
+    # print("inv_cand where quantifier created: ")
+    # inv_cand.dump()
+    # print("created quantifiers in write formula to fof")
+    # print(all_quantifiers)
     parts = [get_vampire_literal(part, inv_types) for part in inv_cand.parts]
 
     parts = " | ".join(parts)
     # fof(formulaX, axiom, ![X0]: ![X1]: object(X0) -> clear(X0))
     # tff(formulaX, axiom, ![X0: object] : ![X1: object] : clear(X0))
     # tff(formulaX, axiom, ![X0: object, X1] : on(X0,X1))
-
 
     file.write(f"tff(formula{counter}, axiom, {all_quantifiers}  ({parts})).\n")
 
@@ -338,8 +338,8 @@ def write_neg_conjecture_to_fof(formula: Condition, file, counter):
         found_vars = []
         s = "!["
         for literal in formula.parts:
-#            if not literal.args:
-#                s += f"NOARGS:empty,"
+            #            if not literal.args:
+            #                s += f"NOARGS:empty,"
             types = predicates_in_task[literal.predicate]
             for i in range(len(types)):
                 if isinstance(literal.args[i], TypedObject):
@@ -353,6 +353,7 @@ def write_neg_conjecture_to_fof(formula: Condition, file, counter):
             s = s[:-1]
         s += "]:"
         return s
+
     def get_vampire_literal_for_neg_conjecture(literal: Literal):
         name = literal.predicate
         arg_list = []
@@ -361,9 +362,9 @@ def write_neg_conjecture_to_fof(formula: Condition, file, counter):
                 var = var.name
             arg_list.append(var)
         args = ",".join(arg_list).upper()
-#        if not literal.args:
-#            args = "NOARGS"
-        
+        #        if not literal.args:
+        #            args = "NOARGS"
+
         neg = "~" if literal.negated else ""
         if name == "=":
             if literal.negated:
@@ -374,12 +375,13 @@ def write_neg_conjecture_to_fof(formula: Condition, file, counter):
             return f"{neg}{name}"
         else:
             return f"{neg}{name}({args})"
+
     join_s = condition_type_to_logical_string[formula.__class__]
     parts = [get_vampire_literal_for_neg_conjecture(part) for part in formula.parts]
     parts = f" {join_s} ".join(parts)
     classifier = get_classifiers(formula)
     file.write(f"tff(formula{counter}, negated_conjecture, {classifier} ({parts})).")
-    
+
 
 # checks with help of a given list if a given Condition is satisfiable. this is done by creating a new file
 # with previous functions and do a satisfiable-test with the help of vampire prover
@@ -410,7 +412,7 @@ def is_sat(negated_conjecture: Condition, axiom_list: list[Condition], filenum, 
         if "Termination reason: Refutation" in res:
             return False
         elif "Termination reason: Satisfiable" in res:
-            #print("satisfiable")
+            # print("satisfiable")
             return True
         else:
             print("something went wrong in vampire (not refutation, not sat, not process-error")
@@ -420,6 +422,7 @@ def is_sat(negated_conjecture: Condition, axiom_list: list[Condition], filenum, 
         print(f"Error in vampire process: {e} in tptp-formulas")
         exit(1)
         return False
+
 
 # removing a given invariant candidate from a queue of invariant candidates
 def remove_inv_cand(inv_cand_queue: Queue[InvariantCandidate], inv_cand: InvariantCandidate):
@@ -433,7 +436,7 @@ def remove_inv_cand(inv_cand_queue: Queue[InvariantCandidate], inv_cand: Invaria
     return inv_cand_queue
 
 
-# starting regression of the negation of a formula through an operator. 
+# starting regression of the negation of a formula through an operator.
 # operator is given by action
 # starts the sat-test with result of regression or return True/False if result was Truth/Falsity
 def regr_and_sat(action: PropositionalAction, formula: Condition,
@@ -458,7 +461,8 @@ def create_grounded_invariant_for_c_sigma(list_of_vars, predicate, negated):
             types.add(TypedObject(name=var, type_name=predicates_in_task[predicate][0].type_name))
         for var in list_of_vars[0]:
             if negated:
-                inv_list.append(InvariantCandidate(parts=[NegatedAtom(predicate=predicate, args=[var])], ineq=[], types=types))
+                inv_list.append(
+                    InvariantCandidate(parts=[NegatedAtom(predicate=predicate, args=[var])], ineq=[], types=types))
             else:
                 inv_list.append(InvariantCandidate(parts=[Atom(predicate=predicate, args=[var])], ineq=[], types=types))
         return inv_list
@@ -473,10 +477,13 @@ def create_grounded_invariant_for_c_sigma(list_of_vars, predicate, negated):
             count += 1
 
         if negated:
-            inv_list.append(InvariantCandidate(parts=[NegatedAtom(predicate=predicate, args=temp_list)], ineq=[], types=temp_list))
+            inv_list.append(
+                InvariantCandidate(parts=[NegatedAtom(predicate=predicate, args=temp_list)], ineq=[], types=temp_list))
         else:
-            inv_list.append(InvariantCandidate(parts=[Atom(predicate=predicate, args=temp_list)], ineq=[], types=temp_list))
+            inv_list.append(
+                InvariantCandidate(parts=[Atom(predicate=predicate, args=temp_list)], ineq=[], types=temp_list))
     return inv_list
+
 
 # create from a given predicate and variables all possible combinations
 # return list of invariant candidates used for regression
@@ -500,15 +507,15 @@ def create_c_sigma(inv_cand: InvariantCandidate):
 
 def create_c_sigma_new(inv_cand: InvariantCandidate):
     c_sigma = []
-    
+
     # compute all possible substitutions for the variables
-    objects_by_type = object_types_in_task 
+    objects_by_type = object_types_in_task
     type_list = list(inv_cand.types)
     val_list = [objects_by_type[t.type_name] for t in type_list]
     for assignment in itertools.product(*val_list):
-        subst = {v.name:a for (v,a) in zip(type_list, assignment)}
+        subst = {v.name: a for (v, a) in zip(type_list, assignment)}
         # if the assignment does respect the inequalities, we yield the instantiation
-        for x,y in inv_cand.ineq:
+        for x, y in inv_cand.ineq:
             if subst[x] == subst[y]:
                 break
         else:
@@ -519,10 +526,9 @@ def create_c_sigma_new(inv_cand: InvariantCandidate):
             yield Disjunction(parts)
 
 
-
 def collect_predicates_in_init(task: Task, fluent_predicates):
     """
-    Returns a map from (fluent) predicate names to the tuples of terms 
+    Returns a map from (fluent) predicate names to the tuples of terms
     for which they are initially true.
     """
     map = collections.defaultdict(list)
@@ -531,12 +537,13 @@ def collect_predicates_in_init(task: Task, fluent_predicates):
             map[atom.predicate].append(atom)
     return map
 
+
 # parsing a given predicate to their possible types and creating invariant candidates
 def parse_objects_with_current_pred(task_pred: Predicate, init_pred_map):
     # if pred does not occur in init-state, we add an invariant that is always false
     # \lnot P(x0...xn)
     if task_pred.name not in init_pred_map:
-        args = ["?x%i"%i for i in range(len(task_pred.arguments))]
+        args = ["?x%i" % i for i in range(len(task_pred.arguments))]
         types = set()
         for i, typed_obj in enumerate(predicates_in_task[task_pred.name]):
             types.add(TypedObject(name=args[i], type_name=typed_obj.type_name))
@@ -603,11 +610,13 @@ def create_invariant_candidates(task: Task, fluent_ground_atoms):
                 inv_list.add(inv_cand)
     return inv_list
 
+
 def register_object_for_type(name: str, type: str, type_dict: dict, type_to_supertype: dict):
     objects = type_dict.setdefault(type, [])
     objects.append(name)
     if type_to_supertype[type] is not None:
         register_object_for_type(name, type_to_supertype[type], type_dict, type_to_supertype)
+
 
 def delete_vampire_files():
     folder_path = "src/translate/vampire/"
@@ -617,6 +626,7 @@ def delete_vampire_files():
             continue
         file_path = os.path.join(folder_path, file_name)
         os.remove(file_path)
+
 
 # eigentliche Funktion die Aktionen vorbereitet, und den Algorithmus durchführt
 def get_limited_instantiation(task):
@@ -637,6 +647,7 @@ def create_restricted_domain(task, actions):
             res_dom[typedobject.type_name].add(typedobject.name)
     return res_dom
 
+
 def action_threatens_disjunction(action, disjunction):
     for part in disjunction.parts:
         assert isinstance(part, Literal)
@@ -651,11 +662,15 @@ def action_threatens_disjunction(action, disjunction):
                     return True
     return False
 
-def get_schematic_invariants(task: Task, actions: list[PropositionalAction], fluent_ground_atoms):
+
+def get_schematic_invariants(task: Task, actions: list[PropositionalAction], fluent_ground_atoms, limited_grounding):
     delete_vampire_files()
+
+
     # use deepcopy, so we can modify actions and task freely
     task = copy.deepcopy(task)
-    type_to_supertype = {t.name : t.basetype_name for t in task.types}
+
+    type_to_supertype = {t.name: t.basetype_name for t in task.types}
     for obj in task.objects:
         register_object_for_type(obj.name, obj.type_name, object_types_in_task, type_to_supertype)
 
@@ -669,7 +684,7 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction], flu
         print(i, ": ", j)
     tff_type_list = []
     type_counter = 1
-#    tff_type_list.append("tff(noargs_type, type, empty: $tType).\n")
+    #    tff_type_list.append("tff(noargs_type, type, empty: $tType).\n")
     for type in task.types:
         if type.basetype_name == None:
             s = f"tff(type_dec{type_counter}, type, {type.name}: $tType).\n"
@@ -697,55 +712,30 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction], flu
 
     actions = copy.deepcopy(actions)
     inv_cand_set_C = set(create_invariant_candidates(task, fluent_ground_atoms))
-    limited = get_limited_instantiation(task)
-    #dom = create_restricted_domain(task, actions)
-    #print("dom: ", dom)
-    print("limited: ", limited)
-    count_action = {}
-    action_list = []
-    for action in actions:
-        name = action.name.split(" ")
-        if len(name) == 2:
-            var = name[1]
-            if var not in count_action:
-                count_action[var] = 0
-            if count_action[var] < limited:
-                count_action[var] += 1
-                action_list.append(action)
+    if limited_grounding:
+        limited = get_limited_instantiation(task)
+        # dom = create_restricted_domain(task, actions)
+        # print("dom: ", dom)
+        print("limited: ", limited)
+        removed_objects = []
+        while limited != len(task.objects):
+            removed_objects.append(task.objects.pop().name)
+        action_list = [action for action in actions if not any(
+            any(rem in params for params in action.name.split()[1:]) for rem in removed_objects
+        )]
+        actions = list(action_list)
+        print("len orig actions: ", len(actions), ", len reduced actions: ", len(action_list))
+    else:
+        actions = list(actions)
+    print("len actions: ", len(actions))
 
-        if len(name) == 3:
-            var1 = name[1]
-            var2 = name[2]
-            if var1 != var2:
-                if var1 not in count_action:
-                    count_action[var1] = 0
-                if count_action[var1] < limited:
-                    count_action[var1] += 1
-                    action_list.append(action)
-                if var2 not in count_action:
-                    count_action[var2] = 0
-                if count_action[var2] < limited:
-                    count_action[var2] += 1
-                    action_list.append(action)
-            else:
-                if var1 not in count_action:
-                    count_action[var1] = 0
-                if count_action[var1] < limited:
-                    count_action[var1] += 1
-                    action_list.append(action)
-    print("len orig actions: ", len(actions), ", len reduced actions: ", len(action_list))
-    for action in actions:
-        print(action.name)
-    print("------------------------")
-    for action in action_list:
-        print(action.name)
-    actions = list(action_list)
+
     # start algorithm from Rintannen
     queue_cq = collections.deque()
     next_queue = collections.deque()
 
     print("initial invariant candidates:")
-#    print("starting with following inv-candidates: ")
+    #    print("starting with following inv-candidates: ")
     for i in inv_cand_set_C:
         next_queue.append(i)
         i.dump()
@@ -764,11 +754,11 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction], flu
             inv_cand.dump()
 
             for instance in create_c_sigma_new(inv_cand):
-                #print("consider instance", end="")
+                # print("consider instance", end="")
                 # instance.dump()
                 weakened = False
                 for action in actions:
-                    #if not inv_cand.contains(action):
+                    # if not inv_cand.contains(action):
                     if not action_threatens_disjunction(action, instance):
                         # print(action.name, "cannot invalidate the instance:")
                         # action.dump()
@@ -776,9 +766,9 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction], flu
                         # the action cannot invalidate the candidate instance
                         # no test necessary
                         continue
-                    
+
                     if regr_and_sat(action, instance, inv_cand_set_C_0, filenum, tff_type_list):
-                        print(f"{action.name} invalidates the invariant on instance", end = "")
+                        print(f"{action.name} invalidates the invariant on instance", end="")
                         instance.dump()
                         print("Weaken...")
                         weakend_inv_cand_set = weaken(inv_cand)
@@ -806,7 +796,6 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction], flu
             # solution found, return
             print("solution finally found")
             return next_queue
-
 
     # while True:
     #     inv_cand_set_C_0 = set(next_queue)
@@ -860,6 +849,5 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction], flu
     #     if set(next_queue) == inv_cand_set_C_0 or set(queue_cq) == inv_cand_set_C_0:
     #         # solution found, return
     #         print("solution finally found")
-
 
     #         return next_queue
