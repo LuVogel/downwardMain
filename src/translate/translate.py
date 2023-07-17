@@ -564,7 +564,7 @@ def pddl_to_sas(task):
         print("type: ", type(schematic_invariants), ", len: ", len(schematic_invariants))
         for schem in schematic_invariants:
             schem.dump()
-
+    exit(0)
     with timers.timing("Computing fact groups", block=True):
         groups, mutex_groups, translation_key = fact_groups.compute_groups(
             task, atoms, reachable_action_params)
