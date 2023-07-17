@@ -54,7 +54,7 @@ für weaken: Let A be set of state variables. 1. a and \lnot a for state variabl
 --> ist nun a in c v a ein effect oder eine State variable? falls state variable: was ist das in meinem Fall
 
 /home/lukas/git/downward-benchmarks/blocks/domain.pddl /home/lukas/git/downward-benchmarks/blocks/probBLOCKS-4-0.pddl --search "astar(lmcut())"
-
+/media/sf_shared-vm/git/downward-benchmarks/blocks/domain.pddl /media/sf_shared-vm/git/downward-benchmarks/blocks/probBLOCKS-4-0.pddl --search "astar(lmcut())"
 
   Disjunction
     Atom clear(c)

@@ -559,7 +559,9 @@ def pddl_to_sas(task):
 
     with timers.timing("Computing schematic group", block=True):
         schematic_invariants = schematic_invariant_finder.get_schematic_invariants(
-           task, actions)
+           task, actions, atoms)
+        print("invariant_candidates found: ")
+        print("type: ", type(schematic_invariants), ", len: ", len(schematic_invariants))
         for schem in schematic_invariants:
             schem.dump()
 
