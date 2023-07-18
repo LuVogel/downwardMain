@@ -98,7 +98,6 @@ def weaken(inv_cand: InvariantCandidate):
                 params = list(itertools.combinations(exist_vars, 2))
                 params = [(p, set()) for p in params]
             for args, new_vars in params:
-                print(args, new_vars)
                 types_temp = set(inv_cand.types)
                 types_temp |= new_vars
                 pos = Atom(pred, args)
@@ -354,7 +353,6 @@ def is_sat(negated_conjecture: Condition, axiom_list: list[Condition], tff_typel
         else:
             return False
     except subprocess.CalledProcessError as e:
-        print("vampire error")
         exit(1)
         return False
 
@@ -734,5 +732,4 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction], flu
                 next_queue.append(inv_cand)
         if set(next_queue) == inv_cand_set_C_0:
             # solution found, return
-            print("solution found")
             return next_queue
