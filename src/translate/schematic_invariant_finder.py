@@ -606,8 +606,13 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction], flu
 
     # use deepcopy, so we can modify actions and task freely
     task = copy.deepcopy(task)
-
-    type_to_supertype = {t.name: t.basetype_name for t in task.types}
+    type_to_supertype = {}
+    for t in task.types:
+        if t.name not in type_to_supertype:
+            type_to_supertype[t.name] = t.basetype_name
+    # there are task with Type(object, object), (object, None) -->
+    # is object has not None typ: endless recursoin in register_object_for_type
+    # type_to_supertype = {t.name: t.basetype_name for t in task.types}
     for obj in task.objects:
         register_object_for_type(obj.name, obj.type_name, object_types_in_task, type_to_supertype)
     types_and_base_types = {}
