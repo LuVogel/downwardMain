@@ -245,6 +245,8 @@ def write_invariant_to_tff(inv_cand: InvariantCandidate, file, counter: int):
     def get_vampire_literal(literal: Literal, inv_types):
 
         name = literal.predicate
+        if "-" in name:
+            name = name.replace("-", "_")
         args = ",".join(get_vampire_var(var, inv_types, quantifier=False) for var in literal.args)
         neg = "~" if literal.negated else ""
         if name == "=":
@@ -265,6 +267,7 @@ def write_invariant_to_tff(inv_cand: InvariantCandidate, file, counter: int):
         all_quantifiers = ""
     parts = [get_vampire_literal(part, inv_types) for part in inv_cand.parts]
     parts = " | ".join(parts)
+
     file.write(f"tff(formula{counter}, axiom, {all_quantifiers}  ({parts})).\n")
 
 
@@ -297,6 +300,8 @@ def write_neg_conjecture_to_tff(formula: Condition, file, counter):
             arg_list.append(var)
         args = ",".join(arg_list).upper()
         neg = "~" if literal.negated else ""
+        if "-" in name:
+            name = name.replace("-", "_")
         if name == "=":
             if literal.negated:
                 return "!=".join(arg_list)
@@ -345,6 +350,7 @@ def is_sat(negated_conjecture: Condition, axiom_list: list[Condition], tff_typel
         else:
             return False
     except subprocess.CalledProcessError as e:
+        print("vampire error")
         exit(1)
         return False
 
@@ -628,6 +634,8 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction], flu
                 s = arg.type_name
             else:
                 s += f" * {arg.type_name}"
+        if '-' in predname:
+            predname = predname.replace('-', '_')
         if "*" in s:
             tff_type_list.append(f"tff({predname}_decl, type, {predname}: ({s}) > $o).\n")
         elif s == "":
@@ -722,4 +730,5 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction], flu
                 next_queue.append(inv_cand)
         if set(next_queue) == inv_cand_set_C_0:
             # solution found, return
+            print("solution found")
             return next_queue
