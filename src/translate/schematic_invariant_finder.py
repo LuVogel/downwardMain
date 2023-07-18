@@ -246,6 +246,8 @@ def write_invariant_to_tff(inv_cand: InvariantCandidate, file, counter: int):
         name = literal.predicate
         if "-" in name:
             name = name.replace("-", "_")
+        if "@" in name:
+            name = name.replace("@", "")
         args = ",".join(get_vampire_var(var, inv_types, quantifier=False) for var in literal.args)
         neg = "~" if literal.negated else ""
         if name == "=":
@@ -284,6 +286,8 @@ def write_neg_conjecture_to_tff(formula: Condition, file, counter):
                     lit_arg = literal.args[i].upper()
                 if "-" in lit_arg:
                     lit_arg = lit_arg.replace("-", "_")
+                if "@" in lit_arg:
+                    lit_arg = lit_arg.replace("@", "_")
                 if lit_arg not in found_vars:
                     s += f"{lit_arg}:{types[i].type_name},"
                     found_vars.append(lit_arg)
@@ -300,11 +304,15 @@ def write_neg_conjecture_to_tff(formula: Condition, file, counter):
                 var = var.name
             if "-" in var:
                 var = var.replace("-", "_")
+            if "@" in var:
+                var = var.replace("@", "")
             arg_list.append(var)
         args = ",".join(arg_list).upper()
         neg = "~" if literal.negated else ""
         if "-" in name:
             name = name.replace("-", "_")
+        if "@" in name:
+            name = name.replace("@", "")
         if name == "=":
             if literal.negated:
                 return "!=".join(arg_list)
@@ -619,10 +627,11 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction], flu
     tff_type_list = []
     type_counter = 1
     for type in task.types:
-        if "-" in type.name:
-            type_name = type.name.replace("-", "_")
-        else:
-            type_name = type.name
+        type_name = type.name
+        if "-" in type_name:
+            type_name = type_name.replace("-", "_")
+        if "@" in type_name:
+            type_name = type_name.replace("@", "")
         if type.basetype_name == None:
             s = f"tff(type_dec{type_counter}, type, {type_name}: $tType).\n"
         else:
@@ -642,6 +651,8 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction], flu
                 s += f" * {arg.type_name}"
         if '-' in predname:
             predname = predname.replace('-', '_')
+        if "@" in predname:
+            predname = predname.replace("@", "")
         if "*" in s:
             tff_type_list.append(f"tff({predname}_decl, type, {predname}: ({s}) > $o).\n")
         elif s == "":
