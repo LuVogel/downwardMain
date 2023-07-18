@@ -283,6 +283,8 @@ def write_neg_conjecture_to_tff(formula: Condition, file, counter):
                     lit_arg = literal.args[i].name.upper()
                 else:
                     lit_arg = literal.args[i].upper()
+                if "-" in lit_arg:
+                    lit_arg = lit_arg.replace("-", "_")
                 if lit_arg not in found_vars:
                     s += f"{lit_arg}:{types[i].type_name},"
                     found_vars.append(lit_arg)
@@ -297,6 +299,8 @@ def write_neg_conjecture_to_tff(formula: Condition, file, counter):
         for var in literal.args:
             if isinstance(var, TypedObject):
                 var = var.name
+            if "-" in var:
+                var = var.replace("-", "_")
             arg_list.append(var)
         args = ",".join(arg_list).upper()
         neg = "~" if literal.negated else ""
