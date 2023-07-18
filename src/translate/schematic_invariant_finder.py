@@ -540,6 +540,7 @@ def register_object_for_type(name: str, type: str, type_dict: dict, type_to_supe
 
 def register_type_for_supertype(obj: TypedObject, type: str, type_dict: dict, type_to_supertype: dict):
     objects = type_dict.setdefault(type, set())
+    objects = set(objects)
     objects.add(obj.type_name)
     if type_to_supertype[type] is not None:
         register_object_for_type(obj.type_name, type_to_supertype[type], type_dict, type_to_supertype)
