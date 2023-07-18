@@ -603,153 +603,151 @@ def action_threatens_disjunction(action, disjunction):
 
 
 def get_schematic_invariants(task: Task, actions: list[PropositionalAction], fluent_ground_atoms, limited_grounding):
+    if task.objects:
+        # use deepcopy, so we can modify actions and task freely
+        task = copy.deepcopy(task)
+        type_to_supertype = {}
+        for t in task.types:
+            if t.name not in type_to_supertype:
+                type_to_supertype[t.name] = t.basetype_name
+        # there are task with Type(object, object), (object, None) -->
+        # is object has not None typ: endless recursoin in register_object_for_type
+        # type_to_supertype = {t.name: t.basetype_name for t in task.types}
+        for obj in task.objects:
+            register_object_for_type(obj.name, obj.type_name, object_types_in_task, type_to_supertype)
+        types_and_base_types = {}
+        for obj in task.objects:
+            register_type_for_supertype(obj, obj.type_name, types_and_base_types, type_to_supertype)
 
-    # use deepcopy, so we can modify actions and task freely
-    task = copy.deepcopy(task)
-    type_to_supertype = {}
-    for t in task.types:
-        if t.name not in type_to_supertype:
-            type_to_supertype[t.name] = t.basetype_name
-    # there are task with Type(object, object), (object, None) -->
-    # is object has not None typ: endless recursoin in register_object_for_type
-    # type_to_supertype = {t.name: t.basetype_name for t in task.types}
-    for obj in task.objects:
-        register_object_for_type(obj.name, obj.type_name, object_types_in_task, type_to_supertype)
-    types_and_base_types = {}
-    for obj in task.objects:
-        register_type_for_supertype(obj, obj.type_name, types_and_base_types, type_to_supertype)
+        for type, base in types_and_base_types.items():
+            types_and_base_types[type] = set(base)
+            if type not in types_and_base_types[type]:
+                types_and_base_types[type].add(type)
 
-
-    for type, base in types_and_base_types.items():
-        types_and_base_types[type] = set(base)
-        if type not in types_and_base_types[type]:
-            types_and_base_types[type].add(type)
-
-
-    for pred in task.predicates:
-        predicates_in_task[pred.name] = pred.arguments
-    # prepare tff-lines for each type --> these lines are written into tptp file for each satisfiable test
-    tff_type_list = []
-    type_counter = 1
-    for type in task.types:
-        type_name = type.name
-        if "-" in type_name:
-            type_name = type_name.replace("-", "_")
-        if "@" in type_name:
-            type_name = type_name.replace("@", "")
-        if type.basetype_name == None:
-            s = f"tff(type_dec{type_counter}, type, {type_name}: $tType).\n"
-        else:
-            s = f"tff(type_dec{type_counter}, type, {type_name}: {type.basetype_name}).\n"
-        tff_type_list.append(s)
-        type_counter += 1
-    for pred in task.predicates:
-        if pred.name == "=":
-            predname = "equal"
-        else:
-            predname = pred.name
-        s = ""
-        for arg in pred.arguments:
-            if s == "":
-                s = arg.type_name
+        for pred in task.predicates:
+            predicates_in_task[pred.name] = pred.arguments
+        # prepare tff-lines for each type --> these lines are written into tptp file for each satisfiable test
+        tff_type_list = []
+        type_counter = 1
+        for type in task.types:
+            type_name = type.name
+            if "-" in type_name:
+                type_name = type_name.replace("-", "_")
+            if "@" in type_name:
+                type_name = type_name.replace("@", "")
+            if type.basetype_name == None:
+                s = f"tff(type_dec{type_counter}, type, {type_name}: $tType).\n"
             else:
-                s += f" * {arg.type_name}"
-        if '-' in predname:
-            predname = predname.replace('-', '_')
-        if "@" in predname:
-            predname = predname.replace("@", "")
-        if "*" in s:
-            tff_type_list.append(f"tff({predname}_decl, type, {predname}: ({s}) > $o).\n")
-        elif s == "":
-            tff_type_list.append(f"tff({predname}_decl, type, {predname}: $o).\n")
-        else:
-            tff_type_list.append(f"tff({predname}_decl, type, {predname}: {s} > $o).\n")
-
-    actions = copy.deepcopy(actions)
-    inv_cand_set_C = set(create_invariant_candidates(task, fluent_ground_atoms))
-
-    # if limited-grounding flag is set: reduce task (explained in Rintanen's paper "Schematic Invariants by Reduction to Ground Invariants")
-    if limited_grounding:
-        check_limit = True
-        limited = get_limited_instantiation(task, types_and_base_types)
-        reduced_objects = set()
-        # reduce task.objects with limited instantiation and constants
-        for type, limit in limited.items():
-            type_queue = collections.deque()
-            for obj in task.objects:
-                if obj.type_name == type:
-                    type_queue.append(obj)
-            if limit <= len(type_queue):
-                while len(type_queue) != limit:
-                    current_type = type_queue.pop()
-                    # make sure that all constants/fixed objects are still in task.objects
-                    if current_type in task.constants:
-                        type_queue.append(current_type)
-                for t in type_queue:
-                    reduced_objects.add(t)
+                s = f"tff(type_dec{type_counter}, type, {type_name}: {type.basetype_name}).\n"
+            tff_type_list.append(s)
+            type_counter += 1
+        for pred in task.predicates:
+            if pred.name == "=":
+                predname = "equal"
             else:
-                # if there are less objects of a given type in the task, than the result of limited-instantiation: stop reducing of task
-                check_limit = False
-                break
-        if check_limit:
-            task.objects = list(reduced_objects)
-            # objects are reduced in task
-            reduced_action_list = []
-            # ground schematic actions with respect to reduced task
-            for schematic_action in task.actions:
-                init_facts = set()
-                init_assignments = {}
-                for element in task.init:
-                    if isinstance(element, pddl.Assign):
-                        init_assignments[element.fluent] = element.expression
-                    else:
-                        init_facts.add(element)
-                type_to_objects = instantiate.get_objects_by_type(task.objects, task.types)
-                val_list = [type_to_objects[t.type_name] for t in schematic_action.parameters]
-                for assignment in itertools.product(*val_list):
-                    variable_mapping = {v.name: a for (v, a) in zip(schematic_action.parameters, assignment)}
-                    inst_action = schematic_action.instantiate(
-                        variable_mapping, init_facts, init_assignments,
-                        fluent_ground_atoms, type_to_objects,
-                        task.use_min_cost_metric)
-                    if inst_action:
-                        reduced_action_list.append(inst_action)
-            # actions ist original list of propositional actions (all ground actions)
-            # reduced_action_list is list of propositional action with respect to reduced task
-            actions = list(reduced_action_list)
-    else:
-        actions = list(actions)
-    print("len actions: ", len(actions))
+                predname = pred.name
+            s = ""
+            for arg in pred.arguments:
+                if s == "":
+                    s = arg.type_name
+                else:
+                    s += f" * {arg.type_name}"
+            if '-' in predname:
+                predname = predname.replace('-', '_')
+            if "@" in predname:
+                predname = predname.replace("@", "")
+            if "*" in s:
+                tff_type_list.append(f"tff({predname}_decl, type, {predname}: ({s}) > $o).\n")
+            elif s == "":
+                tff_type_list.append(f"tff({predname}_decl, type, {predname}: $o).\n")
+            else:
+                tff_type_list.append(f"tff({predname}_decl, type, {predname}: {s} > $o).\n")
 
-    # start algorithm from Rintannen
-    queue_cq = collections.deque()
-    next_queue = collections.deque()
-    for i in inv_cand_set_C:
-        next_queue.append(i)
-    while True:
-        inv_cand_set_C_0 = set(next_queue)
-        queue_cq, next_queue = next_queue, queue_cq
-        while queue_cq:
-            inv_cand = queue_cq.popleft()
-            for instance in create_c_sigma(inv_cand):
-                weakened = False
-                for action in actions:
-                    if not action_threatens_disjunction(action, instance):
-                        # the action cannot invalidate the candidate instance
-                        # no test necessary
-                        continue
-                    if regr_and_sat(action, instance, inv_cand_set_C_0, tff_type_list):
-                        weakend_inv_cand_set = weaken(inv_cand)
-                        for weakend_inv_cand in weakend_inv_cand_set:
-                            seen_inv_candidates.add(weakend_inv_cand)
-                            queue_cq.append(weakend_inv_cand)
-                        weakened = True
-                        break
-                if weakened:
+        actions = copy.deepcopy(actions)
+        inv_cand_set_C = set(create_invariant_candidates(task, fluent_ground_atoms))
+
+        # if limited-grounding flag is set: reduce task (explained in Rintanen's paper "Schematic Invariants by Reduction to Ground Invariants")
+        if limited_grounding:
+            check_limit = True
+            limited = get_limited_instantiation(task, types_and_base_types)
+            reduced_objects = set()
+            # reduce task.objects with limited instantiation and constants
+            for type, limit in limited.items():
+                type_queue = collections.deque()
+                for obj in task.objects:
+                    if obj.type_name == type:
+                        type_queue.append(obj)
+                if limit <= len(type_queue):
+                    while len(type_queue) != limit:
+                        current_type = type_queue.pop()
+                        # make sure that all constants/fixed objects are still in task.objects
+                        if current_type in task.constants:
+                            type_queue.append(current_type)
+                    for t in type_queue:
+                        reduced_objects.add(t)
+                else:
+                    # if there are less objects of a given type in the task, than the result of limited-instantiation: stop reducing of task
+                    check_limit = False
                     break
-            else:
-                # no action invalidated any instance of the candidate, preserve for next iteration
-                next_queue.append(inv_cand)
-        if set(next_queue) == inv_cand_set_C_0:
-            # solution found, return
-            return next_queue
+            if check_limit:
+                task.objects = list(reduced_objects)
+                # objects are reduced in task
+                reduced_action_list = []
+                # ground schematic actions with respect to reduced task
+                for schematic_action in task.actions:
+                    init_facts = set()
+                    init_assignments = {}
+                    for element in task.init:
+                        if isinstance(element, pddl.Assign):
+                            init_assignments[element.fluent] = element.expression
+                        else:
+                            init_facts.add(element)
+                    type_to_objects = instantiate.get_objects_by_type(task.objects, task.types)
+                    val_list = [type_to_objects[t.type_name] for t in schematic_action.parameters]
+                    for assignment in itertools.product(*val_list):
+                        variable_mapping = {v.name: a for (v, a) in zip(schematic_action.parameters, assignment)}
+                        inst_action = schematic_action.instantiate(
+                            variable_mapping, init_facts, init_assignments,
+                            fluent_ground_atoms, type_to_objects,
+                            task.use_min_cost_metric)
+                        if inst_action:
+                            reduced_action_list.append(inst_action)
+                # actions ist original list of propositional actions (all ground actions)
+                # reduced_action_list is list of propositional action with respect to reduced task
+                actions = list(reduced_action_list)
+        else:
+            actions = list(actions)
+        print("len actions: ", len(actions))
+
+        # start algorithm from Rintannen
+        queue_cq = collections.deque()
+        next_queue = collections.deque()
+        for i in inv_cand_set_C:
+            next_queue.append(i)
+        while True:
+            inv_cand_set_C_0 = set(next_queue)
+            queue_cq, next_queue = next_queue, queue_cq
+            while queue_cq:
+                inv_cand = queue_cq.popleft()
+                for instance in create_c_sigma(inv_cand):
+                    weakened = False
+                    for action in actions:
+                        if not action_threatens_disjunction(action, instance):
+                            # the action cannot invalidate the candidate instance
+                            # no test necessary
+                            continue
+                        if regr_and_sat(action, instance, inv_cand_set_C_0, tff_type_list):
+                            weakend_inv_cand_set = weaken(inv_cand)
+                            for weakend_inv_cand in weakend_inv_cand_set:
+                                seen_inv_candidates.add(weakend_inv_cand)
+                                queue_cq.append(weakend_inv_cand)
+                            weakened = True
+                            break
+                    if weakened:
+                        break
+                else:
+                    # no action invalidated any instance of the candidate, preserve for next iteration
+                    next_queue.append(inv_cand)
+            if set(next_queue) == inv_cand_set_C_0:
+                # solution found, return
+                return next_queue
