@@ -13,7 +13,7 @@ REMOTE_REPOS_DIR = "/infai/seipp/projects" # updated
 # If REVISION_CACHE is None, the default ./data/revision-cache is used.
 REVISION_CACHE = os.environ.get("DOWNWARD_REVISION_CACHE")
 if project.REMOTE:
-    SUITE = project.SUITE_SATISFICING # SUITE_OPTIMAL_STRIPS
+    SUITE = project.SUITE_OPTIMAL_STRIPS # SUITE_OPTIMAL_STRIPS
     ENV = project.BaselSlurmEnvironment(email="my.name@myhost.ch")
 else:
     SUITE = ["depot:p01.pddl"] # project.SUITE_OPTIMAL_STRIPS
