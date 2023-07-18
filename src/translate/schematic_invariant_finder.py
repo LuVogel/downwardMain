@@ -534,6 +534,7 @@ def create_invariant_candidates(task: Task, fluent_ground_atoms):
 
 def register_object_for_type(name: str, type: str, type_dict: dict, type_to_supertype: dict):
     objects = type_dict.setdefault(type, [])
+    objects = list(objects)
     objects.append(name)
     if type_to_supertype[type] is not None:
         register_object_for_type(name, type_to_supertype[type], type_dict, type_to_supertype)
