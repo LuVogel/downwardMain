@@ -619,10 +619,14 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction], flu
     tff_type_list = []
     type_counter = 1
     for type in task.types:
-        if type.basetype_name == None:
-            s = f"tff(type_dec{type_counter}, type, {type.name}: $tType).\n"
+        if "-" in type.name:
+            type_name = type.name.replace("-", "_")
         else:
-            s = f"tff(type_dec{type_counter}, type, {type.name}: {type.basetype_name}).\n"
+            type_name = type.name
+        if type.basetype_name == None:
+            s = f"tff(type_dec{type_counter}, type, {type_name}: $tType).\n"
+        else:
+            s = f"tff(type_dec{type_counter}, type, {type_name}: {type.basetype_name}).\n"
         tff_type_list.append(s)
         type_counter += 1
     for pred in task.predicates:
