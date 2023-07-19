@@ -327,7 +327,10 @@ def write_neg_conjecture_to_tff(formula: Condition, file, counter):
     parts = [get_vampire_literal_for_neg_conjecture(part) for part in formula.parts]
     parts = f" {join_s} ".join(parts)
     classifier = get_classifiers(formula)
-    file.write(f"tff(formula{counter}, negated_conjecture, {classifier} ({parts})).")
+    if classifier == "![]:":
+        file.write(f"tff(formula{counter}, negated_conjecture, ({parts})).")
+    else:
+        file.write(f"tff(formula{counter}, negated_conjecture, {classifier} ({parts})).")
 
 
 # checks with help of a given list if a given Condition is satisfiable. this is done by creating a new file
@@ -544,16 +547,8 @@ def register_type_for_supertype(obj: TypedObject, type: str, type_dict: dict, ty
     objects = set(objects)
     objects.add(obj.type_name)
     if type_to_supertype[type] is not None:
-        register_object_for_type(obj.type_name, type_to_supertype[type], type_dict, type_to_supertype)
+        register_type_for_supertype(obj, type_to_supertype[type], type_dict, type_to_supertype)
 
-def delete_vampire_files():
-    folder_path = "src/translate/vampire/"
-    file_list = os.listdir(folder_path)
-    for file_name in file_list:
-        if any(str(num) in file_name for num in file_list):
-            continue
-        file_path = os.path.join(folder_path, file_name)
-        os.remove(file_path)
 
 
 # calculate limited instantiation for each type in task
@@ -644,26 +639,26 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction], flu
             tff_type_list.append(s)
             type_counter += 1
         for pred in task.predicates:
-            if pred.name == "=":
-                predname = "equal"
-            else:
+            if pred.name != "=":
                 predname = pred.name
-            s = ""
-            for arg in pred.arguments:
-                if s == "":
-                    s = arg.type_name
+                s = ""
+                for arg in pred.arguments:
+                    if s == "":
+                        s = arg.type_name
+                    else:
+                        s += f" * {arg.type_name}"
+                if '-' in predname:
+                    predname = predname.replace('-', '_')
+                if "@" in predname:
+                    predname = predname.replace("@", "")
+                if "*" in s:
+                    tff_type_list.append(f"tff({predname}_decl, type, {predname}: ({s}) > $o).\n")
+                elif s == "":
+                    tff_type_list.append(f"tff({predname}_decl, type, {predname}: $o).\n")
                 else:
-                    s += f" * {arg.type_name}"
-            if '-' in predname:
-                predname = predname.replace('-', '_')
-            if "@" in predname:
-                predname = predname.replace("@", "")
-            if "*" in s:
-                tff_type_list.append(f"tff({predname}_decl, type, {predname}: ({s}) > $o).\n")
-            elif s == "":
-                tff_type_list.append(f"tff({predname}_decl, type, {predname}: $o).\n")
-            else:
-                tff_type_list.append(f"tff({predname}_decl, type, {predname}: {s} > $o).\n")
+                    tff_type_list.append(f"tff({predname}_decl, type, {predname}: {s} > $o).\n")
+
+
 
         actions = copy.deepcopy(actions)
         inv_cand_set_C = set(create_invariant_candidates(task, fluent_ground_atoms))

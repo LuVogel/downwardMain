@@ -13,7 +13,8 @@ REMOTE_REPOS_DIR = "/infai/seipp/projects" # updated
 # If REVISION_CACHE is None, the default ./data/revision-cache is used.
 REVISION_CACHE = os.environ.get("DOWNWARD_REVISION_CACHE")
 if project.REMOTE:
-    SUITE = project.SUITE_OPTIMAL_STRIPS # SUITE_OPTIMAL_STRIPS
+    SUITE = project.SUITE_OPTIMAL_STRIPS_WIHTOUT_STORAGE # remove task where objects with either are present.
+    # Remove spider --> vampire has problem with variable with different types for two predicates
     ENV = project.BaselSlurmEnvironment(email="my.name@myhost.ch")
 else:
     #SUITE = ["depot:p01.pddl"] # project.SUITE_OPTIMAL_STRIPS
