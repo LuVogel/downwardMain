@@ -106,11 +106,20 @@ SUITE_OPTIMAL_STRIPS = [
     "woodworking-opt08-strips", "woodworking-opt11-strips", "zenotravel",
 ]
 
-SUITE_OPTIMAL_STRIPS_WITHOUT_STORAGE = [ # "spider-opt18-strips"
-    "blocks", "depot", "floortile-opt11-strips", "floortile-opt14-strips",
-    "ged-opt14-strips", "gripper", "logistics98", "mystery", "pegsol-opt11-strips",
-    "termes-opt18-strips",
-    "tetris-opt14-strips",
+SUITE_OPTIMAL_STRIPS_WIHTOUT_STORAGE = [ # "spider-opt18-strips"
+    "barman-opt11-strips",
+    "barman-opt14-strips", "blocks", "childsnack-opt14-strips",
+    "data-network-opt18-strips", "elevators-opt08-strips",
+    "elevators-opt11-strips", "floortile-opt11-strips", "floortile-opt14-strips",
+    "ged-opt14-strips", "gripper", "hiking-opt14-strips",
+    "logistics00", "miconic", "movie", "nomystery-opt11-strips", "openstacks-strips", "parcprinter-08-strips",
+    "parcprinter-opt11-strips", "pegsol-08-strips", "pegsol-opt11-strips",
+    "psr-small", "rovers","sokoban-opt08-strips",
+    "sokoban-opt11-strips", "termes-opt18-strips",
+    "tidybot-opt11-strips", "tidybot-opt14-strips", "tpp",
+    "transport-opt08-strips", "transport-opt11-strips", "transport-opt14-strips",
+    "trucks-strips", "visitall-opt11-strips", "visitall-opt14-strips",
+    "zenotravel",
 ]
 
 DOMAIN_GROUPS = {
