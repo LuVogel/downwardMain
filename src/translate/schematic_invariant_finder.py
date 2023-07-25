@@ -430,7 +430,14 @@ def create_grounded_invariant_for_c_sigma(list_of_vars, predicate, negated):
 
 
 def create_c_sigma(inv_cand: InvariantCandidate):
-
+    temp_types = set()
+    for part in inv_cand.parts:
+        for i in range(len(part.args)):
+            typedobject = TypedObject(name=part.args[i], type_name=predicates_in_task[part.predicate][i].type_name)
+            temp_types.add(typedobject)
+    for t_types in inv_cand.types:
+        temp_types.add(t_types)
+    inv_cand = InvariantCandidate(parts=inv_cand.parts, ineq=inv_cand.ineq, types=temp_types)
     # compute all possible substitutions for the variables
     objects_by_type = object_types_in_task
     type_list = list(inv_cand.types)
@@ -537,14 +544,12 @@ def create_invariant_candidates(task: Task, fluent_ground_atoms):
 
 def register_object_for_type(name: str, type: str, type_dict: dict, type_to_supertype: dict):
     objects = type_dict.setdefault(type, [])
-    objects = list(objects)
     objects.append(name)
     if type_to_supertype[type] is not None:
         register_object_for_type(name, type_to_supertype[type], type_dict, type_to_supertype)
 
 def register_type_for_supertype(obj: TypedObject, type: str, type_dict: dict, type_to_supertype: dict):
     objects = type_dict.setdefault(type, set())
-    objects = set(objects)
     objects.add(obj.type_name)
     if type_to_supertype[type] is not None:
         register_type_for_supertype(obj, type_to_supertype[type], type_dict, type_to_supertype)
