@@ -106,7 +106,7 @@ SUITE_OPTIMAL_STRIPS = [
     "woodworking-opt08-strips", "woodworking-opt11-strips", "zenotravel",
 ]
 
-SUITE_OPTIMAL_STRIPS_WIHTOUT_STORAGE = [ # "spider-opt18-strips"
+SUITE_OPTIMAL_STRIPS_WITHOUT_STORAGE = [ # "spider-opt18-strips"
     "blocks",
     "data-network-opt18-strips",
     "floortile-opt11-strips", "floortile-opt14-strips",
