@@ -2,13 +2,13 @@ import collections
 import copy
 import itertools
 import math
-import os
 import subprocess
 from queue import Queue
 
 from invariant_candidate import *
 from pddl.conditions import *
 import instantiate, pddl
+from translate import timers
 
 seen_inv_candidates = set()
 predicates_in_task = {}
@@ -355,8 +355,8 @@ def is_sat(negated_conjecture: Condition, axiom_list: list[Condition], tff_typel
     file.close()
     command = ['vampire', path]
     try:
-        output = subprocess.check_output(command, stderr=subprocess.STDOUT, universal_newlines=True)
-        res = output
+        output = subprocess.run(command, capture_output=True, text=True, check=True)
+        res = output.stdout
         if "Termination reason: Refutation" in res:
             return False
         elif "Termination reason: Satisfiable" in res:
@@ -604,6 +604,43 @@ def action_threatens_disjunction(action, disjunction):
     return False
 
 
+def start_algorithm(inv_cand_set_C: set[InvariantCandidate], tff_type_list: list, actions):
+    print("len actions: ", len(actions))
+
+    # start algorithm from Rintannen
+    queue_cq = collections.deque()
+    next_queue = collections.deque()
+    for i in inv_cand_set_C:
+        next_queue.append(i)
+    while True:
+        inv_cand_set_C_0 = set(next_queue)
+        queue_cq, next_queue = next_queue, queue_cq
+        while queue_cq:
+            inv_cand = queue_cq.popleft()
+            for instance in create_c_sigma(inv_cand):
+                weakened = False
+                for action in actions:
+                    if not action_threatens_disjunction(action, instance):
+                        # the action cannot invalidate the candidate instance
+                        # no test necessary
+                        continue
+                    if regr_and_sat(action, instance, inv_cand_set_C_0, tff_type_list):
+                        weakend_inv_cand_set = weaken(inv_cand)
+                        for weakend_inv_cand in weakend_inv_cand_set:
+                            seen_inv_candidates.add(weakend_inv_cand)
+                            queue_cq.append(weakend_inv_cand)
+                        weakened = True
+                        break
+                if weakened:
+                    break
+            else:
+                # no action invalidated any instance of the candidate, preserve for next iteration
+                next_queue.append(inv_cand)
+        if set(next_queue) == inv_cand_set_C_0:
+            # solution found, return
+            return next_queue
+
+
 def get_schematic_invariants(task: Task, actions: list[PropositionalAction], fluent_ground_atoms, limited_grounding):
     if task.objects:
         # use deepcopy, so we can modify actions and task freely
@@ -613,7 +650,7 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction], flu
             if t.name not in type_to_supertype:
                 type_to_supertype[t.name] = t.basetype_name
         # there are task with Type(object, object), (object, None) -->
-        # is object has not None typ: endless recursoin in register_object_for_type
+        # is object has not None typ: endless recursion in register_object_for_type
         # type_to_supertype = {t.name: t.basetype_name for t in task.types}
         for obj in task.objects:
             register_object_for_type(obj.name, obj.type_name, object_types_in_task, type_to_supertype)
@@ -719,37 +756,5 @@ def get_schematic_invariants(task: Task, actions: list[PropositionalAction], flu
                 actions = list(reduced_action_list)
         else:
             actions = list(actions)
-        print("len actions: ", len(actions))
-
-        # start algorithm from Rintannen
-        queue_cq = collections.deque()
-        next_queue = collections.deque()
-        for i in inv_cand_set_C:
-            next_queue.append(i)
-        while True:
-            inv_cand_set_C_0 = set(next_queue)
-            queue_cq, next_queue = next_queue, queue_cq
-            while queue_cq:
-                inv_cand = queue_cq.popleft()
-                for instance in create_c_sigma(inv_cand):
-                    weakened = False
-                    for action in actions:
-                        if not action_threatens_disjunction(action, instance):
-                            # the action cannot invalidate the candidate instance
-                            # no test necessary
-                            continue
-                        if regr_and_sat(action, instance, inv_cand_set_C_0, tff_type_list):
-                            weakend_inv_cand_set = weaken(inv_cand)
-                            for weakend_inv_cand in weakend_inv_cand_set:
-                                seen_inv_candidates.add(weakend_inv_cand)
-                                queue_cq.append(weakend_inv_cand)
-                            weakened = True
-                            break
-                    if weakened:
-                        break
-                else:
-                    # no action invalidated any instance of the candidate, preserve for next iteration
-                    next_queue.append(inv_cand)
-            if set(next_queue) == inv_cand_set_C_0:
-                # solution found, return
-                return next_queue
+        with timers.timing("Computing schematic group", block=True):
+            start_algorithm(inv_cand_set_C=inv_cand_set_C, tff_type_list=tff_type_list, actions=actions)

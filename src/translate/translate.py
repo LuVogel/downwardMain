@@ -557,9 +557,8 @@ def pddl_to_sas(task):
     for item in goal_list:
         assert isinstance(item, pddl.Literal)
 
-    with timers.timing("Computing schematic group", block=True):
-        schematic_invariants = schematic_invariant_finder.get_schematic_invariants(
-           task, actions, atoms, options.limited_grounding)
+    schematic_invariants = schematic_invariant_finder.get_schematic_invariants(
+            task, actions, atoms, options.limited_grounding)
     exit(999)
     with timers.timing("Computing fact groups", block=True):
         groups, mutex_groups, translation_key = fact_groups.compute_groups(
