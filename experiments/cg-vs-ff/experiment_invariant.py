@@ -17,8 +17,8 @@ if project.REMOTE:
     # Remove spider --> vampire has problem with variable with different types for two predicates
     ENV = project.BaselSlurmEnvironment(email="my.name@myhost.ch")
 else:
-    #SUITE = ["depot:p01.pddl"] # project.SUITE_OPTIMAL_STRIPS
-    SUITE = ["depot:p01.pddl", "grid:prob01.pddl", "gripper:prob01.pddl", "blocks:probBLOCKS-4-0.pddl", "woodworking-opt08-strips:p01.pddl"]
+    SUITE = ["sokoban-opt08-strips:p01.pddl"] # project.SUITE_OPTIMAL_STRIPS
+    #SUITE = ["depot:p01.pddl", "grid:prob01.pddl", "gripper:prob01.pddl", "blocks:probBLOCKS-4-0.pddl", "woodworking-opt08-strips:p01.pddl"]
     ENV = project.LocalEnvironment(processes=1)
 
 CONFIGS = [
